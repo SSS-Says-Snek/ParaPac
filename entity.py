@@ -40,7 +40,8 @@ class Entity:
         :return: Returns true if it collided with the entity
         """
         self_rect = pygame.Rect((self.x * Entity.COLLIDE_PRECISION, self.y * Entity.COLLIDE_PRECISION),
-                                (self.width * Entity.COLLIDE_PRECISION, self.height * Entity.COLLIDE_PRECISION))
+                                (self.frame.get_width() * Entity.COLLIDE_PRECISION,
+                                 self.frame.get_height() * Entity.COLLIDE_PRECISION))
         other_rect = pygame.Rect((x * Entity.COLLIDE_PRECISION, y * Entity.COLLIDE_PRECISION),
                                  (width * Entity.COLLIDE_PRECISION, height * Entity.COLLIDE_PRECISION))
         return bool(self_rect.colliderect(other_rect))

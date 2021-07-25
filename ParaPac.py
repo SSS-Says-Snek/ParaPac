@@ -11,15 +11,17 @@ from tiles import Tile
 
 
 def setup():
+    pygame.display.set_caption("ParaPac - Pygame Community Summer Team Jam")
+
     common.maps = [
-        (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64)),
-        (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0))
+        (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64), "map_a.txt"),
+        (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
     ]
 
     common.player = Player(0, 0)
     common.active_map_id = 0
     common.active_map = common.maps[common.active_map_id][0]
-    for dimension, _bg in common.maps:
+    for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
 
 
@@ -35,8 +37,15 @@ def gameplay_events():
         if event.type == pygame.QUIT:
             raise GameExit
         elif event.type == pygame.KEYDOWN:
+            # Toggles debug mode
             if event.key == pygame.K_q:
                 common.DEBUG = not common.DEBUG
+            # Saves the map (Only in debug mode)
+            elif event.key == pygame.K_z and common.DEBUG:
+                with open(os.path.join("maps",
+                                       common.maps[common.active_map_id][2]), "w") as f:
+                    f.write(common.active_map.save())
+            # Changes the map dimension
             elif event.key == pygame.K_p:
                 common.active_map_id = (common.active_map_id + 1) % len(common.maps)
                 common.active_map = common.maps[common.active_map_id][0]

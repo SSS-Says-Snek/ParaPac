@@ -40,6 +40,16 @@ class Map:
 
         self.render_world()
 
+    def save(self) -> str:
+        string = ""
+
+        for y in range(self.tiles.shape[1]):
+            for x in range(self.tiles.shape[0]):
+                string += str(self.tiles[x, y])
+            string += "\n"
+
+        return string
+
     def width(self) -> int:
         """
         :return: Width of the tile map

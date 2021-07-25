@@ -17,14 +17,14 @@ class Tile:
     WALL = 1
 
 
-WALL_I = load(join("assets", "wall_i.png")).convert_alpha()  # Faces right
-WALL_H = load(join("assets", "wall_h.png")).convert_alpha()  # Straight up
-WALL_L = load(join("assets", "wall_l.png")).convert_alpha()  # Edge points up-right
-WALL_U = load(join("assets", "wall_u.png")).convert_alpha()  # Just like U
-WALL_O = load(join("assets", "wall_o.png")).convert_alpha()  # Literally all sides
+WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right
+WALL_H = load(join("assets", "wall_1.png")).convert_alpha()  # Straight up
+WALL_L = load(join("assets", "wall_2.png")).convert_alpha()  # Edge points up-right
+WALL_U = load(join("assets", "wall_3.png")).convert_alpha()  # Just like U
+WALL_O = load(join("assets", "wall_4.png")).convert_alpha()  # Literally all sides
 
 # C corner piece
-WALL_C_UR = load(join("assets", "wall_c.png")).convert_alpha()
+WALL_C_UR = load(join("assets", "wall_5.png")).convert_alpha()
 WALL_C_RD = rotate(WALL_C_UR, -90)
 WALL_C_DL = rotate(WALL_C_UR, 180)
 WALL_C_LU = rotate(WALL_C_UR, 90)
