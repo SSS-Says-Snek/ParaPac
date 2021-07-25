@@ -12,6 +12,9 @@ TILE_SIZE = 16
 
 
 class Tile:
+    """
+    Enum of ParaPac tile IDs
+    """
     AIR = 0
     WALL = 1
 
