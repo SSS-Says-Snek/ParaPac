@@ -1,5 +1,4 @@
 import pygame
-from typing import Tuple
 
 import tiles
 
@@ -9,15 +8,22 @@ class Entity:
     ParaPac Entity class which abstracts a character/enemy in the game world.
     """
     COLLIDE_PRECISION = 100
+    PLACEHOLDER_SURFACE = pygame.Surface((16, 16))
+    PLACEHOLDER_SURFACE.fill((255, 0, 0))
 
     def __init__(self):
         self.x = 0
         self.y = 0
-        self.width = 0
-        self.height = 0
         self.z = 0
         self.killed = False
         self.task = self.wonder
+        self.frame = Entity.PLACEHOLDER_SURFACE
+
+    def width(self):
+        return self.frame.get_width() / tiles.TILE_SIZE
+
+    def height(self):
+        return self.frame.get_height() / tiles.TILE_SIZE
 
     def kill(self):
         """
@@ -38,12 +44,6 @@ class Entity:
         other_rect = pygame.Rect((x * Entity.COLLIDE_PRECISION, y * Entity.COLLIDE_PRECISION),
                                  (width * Entity.COLLIDE_PRECISION, height * Entity.COLLIDE_PRECISION))
         return bool(self_rect.colliderect(other_rect))
-
-    def frame(self) -> Tuple[float, float, pygame.Surface]:
-        """
-        :return: Entity surface and its position to be rendered at
-        """
-        return self.x, self.y, pygame.Surface((1, 1))
 
     def update(self, level):
         """

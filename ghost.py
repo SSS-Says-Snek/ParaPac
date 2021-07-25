@@ -1,9 +1,9 @@
 from entity import *
 
 
-class Enemy(Entity):
+class Ghost(Entity):
     """
-    ParaPac Enemy. Do I have to explain this?
+    ParaPac Ghost. Do I have to explain this?
     """
 
     def __init__(self, x: int, y: int, z: int = 0):

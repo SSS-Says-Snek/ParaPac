@@ -3,93 +3,82 @@ import os
 import sys
 import time
 
+import common
 from map import Map
 from interrupt import *
 from player import Player
 from tiles import Tile
 
 
-DEBUG = "-d" in sys.argv or "--debug" in sys.argv
-WINDOW = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-CLOCK = pygame.time.Clock()
-FONT = pygame.font.Font(os.path.join("assets", "VT323.ttf"), 24)
-MAPS = [
-    (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64)),
-    (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0))
-]
+def setup():
+    common.maps = [
+        (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64)),
+        (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0))
+    ]
 
-fps = 0
-delta = 0
-last_tick = time.perf_counter()
-map_area_x, map_area_y = 0, 0
-map_area_width, map_area_height = 0, 0
-
-player = Player(0, 0)
-active_map_id = 0
-active_map = MAPS[active_map_id][0]
+    common.player = Player(0, 0)
+    common.active_map_id = 0
+    common.active_map = common.maps[common.active_map_id][0]
+    for dimension, _bg in common.maps:
+        dimension.entities.append(common.player)
 
 
 def gameplay_events():
-    global DEBUG, WINDOW, fps, delta, last_tick, active_map_id, active_map
-
     pygame.display.flip()
-    CLOCK.tick()
+    common.clock.tick()
 
-    delta = time.perf_counter() - last_tick
-    fps = 1 / delta
-    last_tick = time.perf_counter()
+    common.delta = time.perf_counter() - common.last_tick
+    common.fps = 1 / common.delta
+    common.last_tick = time.perf_counter()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise GameExit
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
-                DEBUG = not DEBUG
+                common.DEBUG = not common.DEBUG
             elif event.key == pygame.K_p:
-                active_map_id = (active_map_id + 1) % len(MAPS)
-                active_map = MAPS[active_map_id][0]
+                common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                common.active_map = common.maps[common.active_map_id][0]
 
-    if DEBUG:
+    if common.DEBUG:
         mx, my = pygame.mouse.get_pos()
         lmb, mmb, rmb = pygame.mouse.get_pressed(3)
+        x, y = common.to_world_space(mx, my)
         if lmb:
-            gameplay_map_edit(mx, my, Tile.WALL)
+            common.active_map.set_at(int(x), int(y), Tile.WALL)
         elif rmb:
-            gameplay_map_edit(mx, my, Tile.AIR)
-
-
-def gameplay_map_edit(x: int, y: int, tile):
-    x = (x - map_area_x) / map_area_width * active_map.width()
-    y = (y - map_area_y) / map_area_height * active_map.height()
-    active_map.set_at(int(x), int(y), tile)
+            common.active_map.set_at(int(x), int(y), Tile.AIR)
 
 
 def gameplay_map():
-    global map_area_x, map_area_y, map_area_width, map_area_height
+    common.active_map.update()
+    world = common.active_map.render()
 
-    active_map.update()
-    world = active_map.render()
-
-    WINDOW.fill(MAPS[active_map_id][1])
+    common.window.fill(common.maps[common.active_map_id][1])
     ratio = world.get_width() / world.get_height()
-    if WINDOW.get_width() > ratio * WINDOW.get_height():
-        map_area_width, map_area_height = int(ratio * WINDOW.get_height()), int(WINDOW.get_height())
-        map_area_x, map_area_y = (WINDOW.get_width() - map_area_width) // 2, 0
+    if common.window.get_width() > ratio * common.window.get_height():
+        common.map_area_width = int(ratio * common.window.get_height())
+        common.map_area_height = int(common.window.get_height())
+        common.map_area_x = (common.window.get_width() - common.map_area_width) // 2
+        common.map_area_y = 0
     else:
-        map_area_width, map_area_height = int(WINDOW.get_width()), int(WINDOW.get_width() / ratio)
-        map_area_x, map_area_y = 0, (WINDOW.get_height() - map_area_height) // 2
+        common.map_area_width = int(common.window.get_width())
+        common.map_area_height = int(common.window.get_width() / ratio)
+        common.map_area_x = 0
+        common.map_area_y = (common.window.get_height() - common.map_area_height) // 2
 
-    world = pygame.transform.scale(world, (map_area_width, map_area_height))
-    WINDOW.blit(world, (map_area_x, map_area_y))
+    world = pygame.transform.scale(world, (common.map_area_width, common.map_area_height))
+    common.window.blit(world, (common.map_area_x, common.map_area_y))
 
 
 def gameplay_loop():
     gameplay_events()
     gameplay_map()
 
-    if DEBUG:
-        WINDOW.blit(FONT.render(
-            f"FPS: {int(fps)}",
+    if common.DEBUG:
+        common.window.blit(common.font.render(
+            f"FPS: {int(common.fps)}",
             False, (255, 255, 255), (0, 0, 0)
         ), (0, 0))
 
@@ -109,4 +98,5 @@ def main():
 
 
 if __name__ == "__main__":
+    setup()
     main()

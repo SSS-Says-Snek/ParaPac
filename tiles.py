@@ -3,9 +3,7 @@ from pygame.image import load
 from pygame.transform import rotate
 from os.path import join
 
-# Pygame hasn't been initialized yet, but some `convert_alpha` needs them initialized
-pygame.init()
-pygame.display.set_mode((1, 1))
+import common
 
 
 TILE_SIZE = 16

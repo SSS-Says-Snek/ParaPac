@@ -135,9 +135,23 @@ class Map:
         :return: Rendered surface of the world
         """
         surface = self.world.copy()
+
         for entity in self.entities:
-            x, y, surface = entity.frame()
-            surface.blit(surface, (x, y))
+            frame = entity.frame
+            outside_x = entity.x + entity.width() > self.width() - 1
+            outside_y = entity.y + entity.height() > self.height() - 1
+
+            if outside_x and outside_y:
+                surface.blit(frame, ((entity.x - self.width()) * tiles.TILE_SIZE,
+                                     (entity.y - self.height()) * tiles.TILE_SIZE))
+            elif outside_x:
+                surface.blit(frame, ((entity.x - self.width()) * tiles.TILE_SIZE,
+                                     entity.y * tiles.TILE_SIZE))
+            elif outside_y:
+                surface.blit(frame, (entity.x * tiles.TILE_SIZE,
+                                     (entity.y - self.height()) * tiles.TILE_SIZE))
+
+            surface.blit(frame, (entity.x * tiles.TILE_SIZE, entity.y * tiles.TILE_SIZE))
 
         return surface
 
@@ -151,5 +165,7 @@ class Map:
             if entity.killed:
                 del self.entities[i]
                 continue
-            entity.task(entity)
-            entity.update()
+            entity.x %= self.width()
+            entity.y %= self.height()
+            entity.task()
+            entity.update(self)
