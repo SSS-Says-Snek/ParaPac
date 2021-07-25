@@ -24,7 +24,12 @@ class Map:
         """
         :param string: Tile map string to be loaded in the Map object
         """
-        rows = string.split("\n")
+        rows = string.strip("\r").split("\n")
+
+        for row in rows:
+            if not row:
+                rows.remove(row)
+
         self.world = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
                                      len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
         self.tiles = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
@@ -124,8 +129,6 @@ class Map:
                         self.world.blit(tiles.WALL_C_DL, (xx, yy))
                     if not (left or up) and self.get_at(x - 1, y - 1) != Tile.WALL:
                         self.world.blit(tiles.WALL_C_LU, (xx, yy))
-                elif tile == Tile.ENEMY:
-                    pass
 
     def render(self) -> pygame.Surface:
         """

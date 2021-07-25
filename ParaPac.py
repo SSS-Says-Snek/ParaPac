@@ -36,20 +36,27 @@ def gameplay_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise GameExit
-        elif event.type == pygame.VIDEORESIZE:
-            WINDOW = pygame.display.set_mode(event.size, pygame.RESIZABLE)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            active_map.set_at(int(event.pos[0] / WINDOW.get_width() * active_map.width()),
-                              int(event.pos[1] / WINDOW.get_height() * active_map.height()),
-                              Tile.WALL if event.button == 1 else Tile.AIR)
+
+
+def gameplay_map():
+    active_map.update()
+    world = active_map.render()
+
+    WINDOW.fill((0, 32, 64))
+    ratio = world.get_width() / world.get_height()
+    if WINDOW.get_width() > ratio * WINDOW.get_height():
+        world = pygame.transform.scale(world, (int(ratio * WINDOW.get_height()),
+                                               int(WINDOW.get_height())))
+        WINDOW.blit(world, ((WINDOW.get_width() - world.get_width()) // 2, 0))
+    else:
+        world = pygame.transform.scale(world, (int(WINDOW.get_width()),
+                                               int(WINDOW.get_width() / ratio)))
+        WINDOW.blit(world, (0, (WINDOW.get_height() - world.get_height()) // 2))
 
 
 def gameplay_loop():
     gameplay_events()
-
-    WINDOW.fill((0, 32, 64))
-    active_map.update()
-    WINDOW.blit(pygame.transform.scale(active_map.render(), WINDOW.get_size()), (0, 0))
+    gameplay_map()
 
     if DEBUG:
         WINDOW.blit(FONT.render(
