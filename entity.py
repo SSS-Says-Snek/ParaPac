@@ -46,12 +46,12 @@ class Entity:
                                  (width * Entity.COLLIDE_PRECISION, height * Entity.COLLIDE_PRECISION))
         return bool(self_rect.colliderect(other_rect))
 
-    def update(self, level):
+    def update(self, world):
         """
-        :param level: References the Map object
+        :param world: References the Map object
         """
 
-    def wonder(self, level):
+    def wonder(self, world):
         """
         Wonders what task to do depending on certain circumstances defined by the sub-class.
         """

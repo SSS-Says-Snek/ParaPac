@@ -4,7 +4,7 @@ import sys
 import time
 
 import common
-from map import Map
+from world import World
 from interrupt import *
 from player import Player
 from tiles import Tile
@@ -14,8 +14,8 @@ def setup():
     pygame.display.set_caption("ParaPac - Pygame Community Summer Team Jam")
 
     common.maps = [
-        (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64), "map_a.txt"),
-        (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
+        (World(os.path.join("maps", "map_a.txt")), (0, 32, 64), "map_a.txt"),
+        (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
     ]
 
     common.player = Player(19, 29)

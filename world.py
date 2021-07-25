@@ -8,7 +8,7 @@ from tiles import Tile
 from entity import Entity
 
 
-class Map:
+class World:
     """
     ParaPac Map class which abstracts the game world.
     """
@@ -17,13 +17,13 @@ class Map:
         self.entities = entities
         self.entities: List[Entity] = list(entities)
         self.world: Optional[pygame.Surface] = None
-        self.tiles: Optional[numpy.ndarray] = None
+        self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
             self.load(f.read())
 
     def load(self, string: str):
         """
-        :param string: Tile map string to be loaded in the Map object
+        :param string: Tile map string to be loaded in the World object
         """
         rows = string.strip("\r").split("\n")
 
@@ -33,41 +33,41 @@ class Map:
 
         self.world = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
                                      len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
-        self.tiles = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
+        self.tile_map = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
 
         for y, row in enumerate(rows):
             for x, tile in enumerate(row):
-                self.tiles[x, y] = int(tile)
+                self.tile_map[x, y] = int(tile)
 
         self.render_world()
 
     def save(self) -> str:
         string = ""
 
-        for y in range(self.tiles.shape[1]):
-            for x in range(self.tiles.shape[0]):
-                string += str(self.tiles[x, y])
+        for y in range(self.tile_map.shape[1]):
+            for x in range(self.tile_map.shape[0]):
+                string += str(self.tile_map[x, y])
             string += "\n"
 
         return string
 
     def width(self) -> int:
         """
-        :return: Width of the tile map
+        :return: Width of the world
         """
-        return self.tiles.shape[0]
+        return self.tile_map.shape[0]
 
     def height(self) -> int:
         """
-        :return: Height of the tile map
+        :return: Height of the world
         """
-        return self.tiles.shape[1]
+        return self.tile_map.shape[1]
 
     def size(self) -> Tuple[int, int]:
         """
-        :return: Size of the tile map
+        :return: Size of the world
         """
-        return self.tiles.shape
+        return self.tile_map.shape
 
     def get_at(self, x: int, y: int) -> int:
         """
@@ -75,8 +75,8 @@ class Map:
         :param y: Y coordinate in the tile map
         :return: Returns the tile ID of that coordinate or Tile.AIR if it's out of bound
         """
-        if 0 <= x < self.tiles.shape[0] and 0 <= y < self.tiles.shape[1]:
-            return self.tiles[x, y]
+        if 0 <= x < self.tile_map.shape[0] and 0 <= y < self.tile_map.shape[1]:
+            return self.tile_map[x, y]
         else:
             return Tile.AIR
 
@@ -86,8 +86,8 @@ class Map:
         :param y: Y coordinate in the tile map
         :param tile: Tile ID to be placed of in the coordinate of the tile map
         """
-        if 0 <= x < self.tiles.shape[0] and 0 <= y < self.tiles.shape[1]:
-            self.tiles[x, y] = tile
+        if 0 <= x < self.tile_map.shape[0] and 0 <= y < self.tile_map.shape[1]:
+            self.tile_map[x, y] = tile
             self.render_world(x - 1, y - 1, x + 2, y + 2)
 
     def collide(self, x: float, y: float, width: float, height: float) -> bool:
@@ -168,7 +168,7 @@ class Map:
 
     def update(self):
         """
-        Calls the Map object's entities' update method with its tasks and remove killed entities
+        Calls the World object's entities' update method with its tasks and remove killed entities
         """
         self.entities = sorted(self.entities, key=lambda en: -en.z)
 

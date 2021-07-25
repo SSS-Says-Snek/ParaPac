@@ -12,5 +12,5 @@ class Ghost(Entity):
         self.y = y
         self.z = z
 
-    def wonder(self, level):
+    def wonder(self, world):
         pass

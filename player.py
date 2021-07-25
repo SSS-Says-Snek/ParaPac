@@ -37,7 +37,7 @@ class Player(Entity):
         self.direction = PlayerDirection.UP
         self.next_direction = PlayerDirection.NONE
 
-    def update(self, level):
+    def update(self, world):
         if common.DEBUG:
             print(f"Player X: {self.x} Y: {self.y}")
 
@@ -52,40 +52,40 @@ class Player(Entity):
         elif keys[pygame.K_d]:
             self.next_direction = PlayerDirection.RIGHT
 
-    def wonder(self, level):
+    def wonder(self, world):
         self.task = self.forward
 
-    def forward(self, level):
+    def forward(self, world):
         moved = False
         if self.direction == PlayerDirection.RIGHT:
-            if not level.collide(self.x + SPEED, self.y, 2, 2):
+            if not world.collide(self.x + SPEED, self.y, 2, 2):
                 self.x += SPEED
                 moved = True
         elif self.direction == PlayerDirection.LEFT:
-            if not level.collide(self.x - SPEED, self.y, 2, 2):
+            if not world.collide(self.x - SPEED, self.y, 2, 2):
                 self.x -= SPEED
                 moved = True
         elif self.direction == PlayerDirection.UP:
-            if not level.collide(self.x, self.y - SPEED, 2, 2):
+            if not world.collide(self.x, self.y - SPEED, 2, 2):
                 self.y -= SPEED
                 moved = True
         elif self.direction == PlayerDirection.DOWN:
-            if not level.collide(self.x, self.y + SPEED, 2, 2):
+            if not world.collide(self.x, self.y + SPEED, 2, 2):
                 self.y += SPEED
                 moved = True
 
         if self.next_direction != self.direction:
             if self.next_direction == PlayerDirection.RIGHT:
-                if not level.collide(self.x + SPEED, self.y, 2, 2):
+                if not world.collide(self.x + SPEED, self.y, 2, 2):
                     self.direction = self.next_direction
             elif self.next_direction == PlayerDirection.LEFT:
-                if not level.collide(self.x - SPEED, self.y, 2, 2):
+                if not world.collide(self.x - SPEED, self.y, 2, 2):
                     self.direction = self.next_direction
             elif self.next_direction == PlayerDirection.UP:
-                if not level.collide(self.x, self.y - SPEED, 2, 2):
+                if not world.collide(self.x, self.y - SPEED, 2, 2):
                     self.direction = self.next_direction
             elif self.next_direction == PlayerDirection.DOWN:
-                if not level.collide(self.x, self.y + SPEED, 2, 2):
+                if not world.collide(self.x, self.y + SPEED, 2, 2):
                     self.direction = self.next_direction
 
         if moved:
@@ -93,5 +93,5 @@ class Player(Entity):
         else:
             self.frame = ROTATED_EATING[self.direction - 1][-1]
 
-    def teleport(self, level):
+    def teleport(self, world):
         pass
