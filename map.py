@@ -143,7 +143,7 @@ class Map:
 
     def update(self):
         """
-        Calls the Map object's entities' update method and remove killed entities
+        Calls the Map object's entities' update method with its tasks and remove killed entities
         """
         self.entities = sorted(self.entities, key=lambda en: -en.z)
 
@@ -151,4 +151,5 @@ class Map:
             if entity.killed:
                 del self.entities[i]
                 continue
+            entity.task(entity)
             entity.update()

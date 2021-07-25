@@ -14,3 +14,12 @@ class Player(Entity):
 
     def update(self, level):
         pass
+
+    def wonder(self):
+        pass
+
+    def forward(self):
+        pass
+
+    def teleport(self):
+        pass

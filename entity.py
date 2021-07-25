@@ -17,6 +17,7 @@ class Entity:
         self.height = 0
         self.z = 0
         self.killed = False
+        self.task = self.wonder
 
     def kill(self):
         """
@@ -47,4 +48,9 @@ class Entity:
     def update(self, level):
         """
         :param level: References the Map object
+        """
+
+    def wonder(self):
+        """
+        Wonders what task to do depending on certain circumstances defined by the sub-class.
         """

@@ -11,24 +11,26 @@ from tiles import Tile
 
 DEBUG = "-d" in sys.argv or "--debug" in sys.argv
 WINDOW = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-FONT = pygame.font.Font(os.path.join("assets", "VT323.ttf"), 24)
 CLOCK = pygame.time.Clock()
+FONT = pygame.font.Font(os.path.join("assets", "VT323.ttf"), 24)
+MAPS = [
+    (Map(os.path.join("maps", "map_a.txt")), (0, 32, 64)),
+    (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0))
+]
 
 fps = 0
 delta = 0
 last_tick = time.perf_counter()
-
-player = Player(0, 0)
-map_a = Map(os.path.join("maps", "map_a.txt"))
-# map_b = Map(os.path.join("maps", "map_b.txt"))
-active_map = map_a
-
 map_area_x, map_area_y = 0, 0
 map_area_width, map_area_height = 0, 0
 
+player = Player(0, 0)
+active_map_id = 0
+active_map = MAPS[active_map_id][0]
+
 
 def gameplay_events():
-    global DEBUG, WINDOW, fps, delta, last_tick
+    global DEBUG, WINDOW, fps, delta, last_tick, active_map_id, active_map
 
     pygame.display.flip()
     CLOCK.tick()
@@ -43,6 +45,9 @@ def gameplay_events():
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 DEBUG = not DEBUG
+            elif event.key == pygame.K_p:
+                active_map_id = (active_map_id + 1) % len(MAPS)
+                active_map = MAPS[active_map_id][0]
 
     if DEBUG:
         mx, my = pygame.mouse.get_pos()
@@ -65,7 +70,7 @@ def gameplay_map():
     active_map.update()
     world = active_map.render()
 
-    WINDOW.fill((0, 32, 64))
+    WINDOW.fill(MAPS[active_map_id][1])
     ratio = world.get_width() / world.get_height()
     if WINDOW.get_width() > ratio * WINDOW.get_height():
         map_area_width, map_area_height = int(ratio * WINDOW.get_height()), int(WINDOW.get_height())

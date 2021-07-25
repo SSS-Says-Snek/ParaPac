@@ -11,3 +11,6 @@ class Enemy(Entity):
         self.x = x
         self.y = y
         self.z = z
+
+    def wonder(self):
+        pass
