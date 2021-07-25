@@ -51,7 +51,7 @@ class Entity:
         :param level: References the Map object
         """
 
-    def wonder(self):
+    def wonder(self, level):
         """
         Wonders what task to do depending on certain circumstances defined by the sub-class.
         """

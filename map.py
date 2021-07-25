@@ -14,6 +14,7 @@ class Map:
     """
 
     def __init__(self, file: str, entities: List[Entity] = ()):
+        self.entities = entities
         self.entities: List[Entity] = list(entities)
         self.world: Optional[pygame.Surface] = None
         self.tiles: Optional[numpy.ndarray] = None
@@ -177,5 +178,5 @@ class Map:
                 continue
             entity.x %= self.width()
             entity.y %= self.height()
-            entity.task()
+            entity.task(self)
             entity.update(self)

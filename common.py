@@ -19,6 +19,7 @@ last_tick = time.perf_counter()
 map_area_x, map_area_y = 0, 0
 map_area_width, map_area_height = 1, 1
 
+# Uses Any to make PyCharm shut up
 player: Any = None
 active_map_id = 0
 active_map: Any = None

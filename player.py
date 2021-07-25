@@ -1,4 +1,17 @@
+import os
+import time
+
 from entity import *
+
+
+SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
+
+EATING = []
+for i in range(11):
+    path = os.path.join("assets", f"pacman_{str(i).zfill(2)}.png")
+    EATING.append(pygame.image.load(path))
+ROTATED_EATING = [[pygame.transform.rotate(frame, rotation) for frame in EATING]
+                  for rotation in (0, 180, 90, -90)]
 
 
 class PlayerDirection:
@@ -19,17 +32,62 @@ class Player(Entity):
         self.x = x
         self.y = y
         self.z = z
+
         self.direction = PlayerDirection.RIGHT
         self.planned_direction = PlayerDirection.NONE
 
     def update(self, level):
-        pass
+        keys = pygame.key.get_pressed()
 
-    def wonder(self):
+        if keys[pygame.K_w]:
+            self.planned_direction = PlayerDirection.UP
+        elif keys[pygame.K_a]:
+            self.planned_direction = PlayerDirection.LEFT
+        elif keys[pygame.K_s]:
+            self.planned_direction = PlayerDirection.DOWN
+        elif keys[pygame.K_d]:
+            self.planned_direction = PlayerDirection.RIGHT
+
+    def wonder(self, level):
         self.task = self.forward
 
-    def forward(self):
-        pass
+    def forward(self, level):
+        moved = False
+        if self.direction == PlayerDirection.RIGHT:
+            if not level.collide(self.x + SPEED, self.y, 2, 2):
+                self.x += SPEED
+                moved = True
+        elif self.direction == PlayerDirection.LEFT:
+            if not level.collide(self.x - SPEED, self.y, 2, 2):
+                self.x -= SPEED
+                moved = True
+        elif self.direction == PlayerDirection.UP:
+            if not level.collide(self.x, self.y - SPEED, 2, 2):
+                self.y -= SPEED
+                moved = True
+        elif self.direction == PlayerDirection.DOWN:
+            if not level.collide(self.x, self.y + SPEED, 2, 2):
+                self.y += SPEED
+                moved = True
 
-    def teleport(self):
+        if self.planned_direction != self.direction:
+            if self.planned_direction == PlayerDirection.RIGHT:
+                if not level.collide(self.x + SPEED, self.y, 2, 2):
+                    self.direction = self.planned_direction
+            elif self.planned_direction == PlayerDirection.LEFT:
+                if not level.collide(self.x - SPEED, self.y, 2, 2):
+                    self.direction = self.planned_direction
+            elif self.planned_direction == PlayerDirection.UP:
+                if not level.collide(self.x, self.y - SPEED, 2, 2):
+                    self.direction = self.planned_direction
+            elif self.planned_direction == PlayerDirection.DOWN:
+                if not level.collide(self.x, self.y + SPEED, 2, 2):
+                    self.direction = self.planned_direction
+
+        if moved:
+            self.frame = ROTATED_EATING[self.direction - 1][int(time.perf_counter() * len(EATING) * 4) % len(EATING)]
+        else:
+            self.frame = ROTATED_EATING[self.direction - 1][-1]
+
+    def teleport(self, level):
         pass
