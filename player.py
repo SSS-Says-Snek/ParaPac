@@ -34,19 +34,19 @@ class Player(Entity):
         self.z = z
 
         self.direction = PlayerDirection.RIGHT
-        self.planned_direction = PlayerDirection.NONE
+        self.next_direction = PlayerDirection.NONE
 
     def update(self, level):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w]:
-            self.planned_direction = PlayerDirection.UP
+            self.next_direction = PlayerDirection.UP
         elif keys[pygame.K_a]:
-            self.planned_direction = PlayerDirection.LEFT
+            self.next_direction = PlayerDirection.LEFT
         elif keys[pygame.K_s]:
-            self.planned_direction = PlayerDirection.DOWN
+            self.next_direction = PlayerDirection.DOWN
         elif keys[pygame.K_d]:
-            self.planned_direction = PlayerDirection.RIGHT
+            self.next_direction = PlayerDirection.RIGHT
 
     def wonder(self, level):
         self.task = self.forward
@@ -70,19 +70,19 @@ class Player(Entity):
                 self.y += SPEED
                 moved = True
 
-        if self.planned_direction != self.direction:
-            if self.planned_direction == PlayerDirection.RIGHT:
+        if self.next_direction != self.direction:
+            if self.next_direction == PlayerDirection.RIGHT:
                 if not level.collide(self.x + SPEED, self.y, 2, 2):
-                    self.direction = self.planned_direction
-            elif self.planned_direction == PlayerDirection.LEFT:
+                    self.direction = self.next_direction
+            elif self.next_direction == PlayerDirection.LEFT:
                 if not level.collide(self.x - SPEED, self.y, 2, 2):
-                    self.direction = self.planned_direction
-            elif self.planned_direction == PlayerDirection.UP:
+                    self.direction = self.next_direction
+            elif self.next_direction == PlayerDirection.UP:
                 if not level.collide(self.x, self.y - SPEED, 2, 2):
-                    self.direction = self.planned_direction
-            elif self.planned_direction == PlayerDirection.DOWN:
+                    self.direction = self.next_direction
+            elif self.next_direction == PlayerDirection.DOWN:
                 if not level.collide(self.x, self.y + SPEED, 2, 2):
-                    self.direction = self.planned_direction
+                    self.direction = self.next_direction
 
         if moved:
             self.frame = ROTATED_EATING[self.direction - 1][int(time.perf_counter() * len(EATING) * 4) % len(EATING)]

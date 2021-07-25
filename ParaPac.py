@@ -27,7 +27,7 @@ def setup():
 
 def gameplay_events():
     pygame.display.flip()
-    common.clock.tick()
+    common.clock.tick(60)
 
     common.delta = time.perf_counter() - common.last_tick
     common.fps = 1 / common.delta
