@@ -1,6 +1,7 @@
 import os
 import time
 
+import common
 from entity import *
 
 
@@ -33,10 +34,13 @@ class Player(Entity):
         self.y = y
         self.z = z
 
-        self.direction = PlayerDirection.RIGHT
+        self.direction = PlayerDirection.UP
         self.next_direction = PlayerDirection.NONE
 
     def update(self, level):
+        if common.DEBUG:
+            print(f"Player X: {self.x} Y: {self.y}")
+
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w]:

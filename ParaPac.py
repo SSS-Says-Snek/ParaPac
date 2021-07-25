@@ -18,7 +18,7 @@ def setup():
         (Map(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
     ]
 
-    common.player = Player(1, 1)
+    common.player = Player(19, 29)
     common.active_map_id = 0
     common.active_map = common.maps[common.active_map_id][0]
     for dimension, _bg, _file in common.maps:
