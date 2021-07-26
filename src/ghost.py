@@ -46,7 +46,9 @@ class Ghost(Entity):
             if self.path:
                 for x, y in self.path:
                     pygame.draw.rect(world.overlay, (255, 0, 0),
-                                     ((x * tiles.TILE_SIZE, y * tiles.TILE_SIZE), (8, 8)))
+                                     ((x * tiles.TILE_SIZE + tiles.TILE_SIZE // 4,
+                                       y * tiles.TILE_SIZE + tiles.TILE_SIZE // 4),
+                                      (tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2)))
 
     def kill(self, world):
         self.path = world.path_find(self.x, self.y, self.origin_x, self.origin_y)
