@@ -1,5 +1,7 @@
 import os
 
+import pygame.key
+
 from src import common, utils
 from src.entity import *
 
@@ -22,29 +24,30 @@ class Ghost(Entity):
     ParaPac Ghost. Do I have to explain this?
     """
 
-    def __init__(self, x: int, y: int, z: int = 0):
+    def __init__(self, x: int, y: int, z: int = 0, color=(0, 0, 0)):
         super().__init__()
         self.origin_x = x
         self.origin_y = y
         self.x = x
         self.y = y
         self.z = z
+
+        self.frames = [frame.copy() for frame in GHOST]
         self.direction = GhostDirection.RIGHT
         self.path = []
 
+        # Color keys the ghost
+        for frame in self.frames:
+            for x in range(frame.get_width()):
+                for y in range(frame.get_height()):
+                    if frame.get_at((x, y)) == (0, 255, 0, 255):
+                        frame.set_at((x, y), color)
+
     def update(self, world):
-        self.frame = GHOST[self.direction]
+        self.frame = self.frames[self.direction]
 
     def follow(self, world):
-        if self.path:
-            if self.path[0] == (self.x, self.y):
-                del self.path[0]
-            if self.path:
-                self.x += utils.polarity(self.path[0][0] - self.x) * SPEED
-                self.y += utils.polarity(self.path[0][1] - self.y) * SPEED
-        else:
-            self.path = world.path_find(int(self.x), int(self.y),
-                                        int(common.player.x), int(common.player.y))
+        pass
 
     def wonder(self, world):
-        self.task = self.follow
+        pass
