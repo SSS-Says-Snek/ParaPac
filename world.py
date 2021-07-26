@@ -15,7 +15,7 @@ class World:
 
     def __init__(self, file: str, entities: List[Entity] = ()):
         self.entities = list(entities)
-        self.world: Optional[pygame.Surface] = None
+        self.surface: Optional[pygame.Surface] = None
         self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
             self.load(f.read())
@@ -30,8 +30,8 @@ class World:
             if not row:
                 rows.remove(row)
 
-        self.world = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
-                                     len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
+        self.surface = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
+                                       len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
         self.tile_map = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
 
         for y, row in enumerate(rows):
@@ -87,7 +87,7 @@ class World:
         """
         if 0 <= x < self.tile_map.shape[0] and 0 <= y < self.tile_map.shape[1]:
             self.tile_map[x, y] = tile
-            self.render_world(x - 1, y - 1, x + 2, y + 2)
+            self.render_world(x, y)
 
     def collide(self, x: float, y: float, width: float, height: float) -> bool:
         """
@@ -118,48 +118,55 @@ class World:
 
     def render_world(self, *args):
         """
-        :param args: Begin X, begin Y, end X, and end Y of the tiles to be rendered,
+        :param args: Begin X, begin Y, end X (Optional), and end Y (Optional) of the tiles to be rendered,
         leave it empty to render the whole map
         """
         begin_x, begin_y, end_x, end_y = 0, 0, self.width(), self.height()
-        if args:
+
+        if len(args) == 2:
+            begin_x, begin_y = args
+            end_x, end_y = begin_x + 1, begin_y + 1
+        elif len(args) == 4:
             begin_x, begin_y, end_x, end_y = args
 
+        self._render_world(begin_x - 1, begin_y - 1, end_x + 1, end_y + 1)
+
+    def _render_world(self, begin_x, begin_y, end_x, end_y):
         for x in range(begin_x, end_x):
             for y in range(begin_y, end_y):
                 tile = self.get_at(x, y)
                 xx, yy = x * tiles.TILE_SIZE, y * tiles.TILE_SIZE
 
                 # Clear tile space
-                pygame.draw.rect(self.world, (0, 0, 0, 0),
+                pygame.draw.rect(self.surface, (0, 0, 0, 0),
                                  ((xx, yy), (tiles.TILE_SIZE, tiles.TILE_SIZE)))
 
                 if tile == Tile.AIR:
                     pass
                 elif tile == Tile.WALL:
-                    right = self.get_at(x + 1, y) != Tile.WALL
-                    left = self.get_at(x - 1, y) != Tile.WALL
-                    up = self.get_at(x, y - 1) != Tile.WALL
-                    down = self.get_at(x, y + 1) != Tile.WALL
+                    right = self.get_at(x + 1, y) in tiles.TRANSPARENT_TILES
+                    left = self.get_at(x - 1, y) in tiles.TRANSPARENT_TILES
+                    up = self.get_at(x, y - 1) in tiles.TRANSPARENT_TILES
+                    down = self.get_at(x, y + 1) in tiles.TRANSPARENT_TILES
 
                     if right or left or up or down:
-                        self.world.blit(tiles.WALLS[(right, left, up, down)], (xx, yy))
-                    if not (up or right) and self.get_at(x + 1, y - 1) != Tile.WALL:
-                        self.world.blit(tiles.WALL_C_UR, (xx, yy))
-                    if not (right or down) and self.get_at(x + 1, y + 1) != Tile.WALL:
-                        self.world.blit(tiles.WALL_C_RD, (xx, yy))
-                    if not (down or left) and self.get_at(x - 1, y + 1) != Tile.WALL:
-                        self.world.blit(tiles.WALL_C_DL, (xx, yy))
-                    if not (left or up) and self.get_at(x - 1, y - 1) != Tile.WALL:
-                        self.world.blit(tiles.WALL_C_LU, (xx, yy))
+                        self.surface.blit(tiles.WALLS[(right, left, up, down)], (xx, yy))
+                    if not (up or right) and self.get_at(x + 1, y - 1) in tiles.TRANSPARENT_TILES:
+                        self.surface.blit(tiles.WALL_C_UR, (xx, yy))
+                    if not (right or down) and self.get_at(x + 1, y + 1) in tiles.TRANSPARENT_TILES:
+                        self.surface.blit(tiles.WALL_C_RD, (xx, yy))
+                    if not (down or left) and self.get_at(x - 1, y + 1) in tiles.TRANSPARENT_TILES:
+                        self.surface.blit(tiles.WALL_C_DL, (xx, yy))
+                    if not (left or up) and self.get_at(x - 1, y - 1) in tiles.TRANSPARENT_TILES:
+                        self.surface.blit(tiles.WALL_C_LU, (xx, yy))
                 elif tile == Tile.POINT:
-                    pygame.draw.circle(self.world, (255, 255, 0), (xx, yy), 5)
+                    pygame.draw.circle(self.surface, (255, 255, 0), (xx + 8, yy + 8), 5)
 
     def render(self) -> pygame.Surface:
         """
         :return: Rendered surface of the world
         """
-        surface = self.world.copy()
+        surface = self.surface.copy()
 
         for entity in self.entities:
             frame = entity.frame

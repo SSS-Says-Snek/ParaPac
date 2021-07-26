@@ -7,12 +7,9 @@ from entity import *
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
-EATING = []
-for i in range(11):
-    path = os.path.join("assets", f"pacman_{str(i).zfill(2)}.png")
-    EATING.append(pygame.image.load(path))
-ROTATED_EATING = [[pygame.transform.rotate(frame, rotation) for frame in EATING]
-                  for rotation in (0, 180, 90, -90)]
+_PACMAN = common.load_sprite_sheet(os.path.join("assets", "pacman.png"), 3, 4)[:11]
+PACMAN = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN]
+          for rotation in (0, 180, 90, -90)]
 
 
 class PlayerDirection:
@@ -97,9 +94,9 @@ class Player(Entity):
                     self.direction = self.next_direction
 
         if moved:
-            self.frame = ROTATED_EATING[self.direction - 1][int(time.perf_counter() * len(EATING) * 4) % len(EATING)]
+            self.frame = PACMAN[self.direction - 1][int(time.perf_counter() * len(_PACMAN) * 4) % len(_PACMAN)]
         else:
-            self.frame = ROTATED_EATING[self.direction - 1][-1]
+            self.frame = PACMAN[self.direction - 1][-1]
 
     def teleport(self, world):
         pass

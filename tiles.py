@@ -1,7 +1,6 @@
 import pygame
-from pygame.image import load
 from pygame.transform import rotate
-from os.path import join
+import os
 
 import common
 
@@ -18,17 +17,24 @@ class Tile:
     POINT = 2
 
 
-WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right
-WALL_H = load(join("assets", "wall_1.png")).convert_alpha()  # Straight up
-WALL_L = load(join("assets", "wall_2.png")).convert_alpha()  # Edge points up-right
-WALL_U = load(join("assets", "wall_3.png")).convert_alpha()  # Just like U
-WALL_O = load(join("assets", "wall_4.png")).convert_alpha()  # Literally all sides
+TRANSPARENT_TILES = {Tile.AIR, Tile.POINT}
+SOLID_TILES = {Tile.WALL}
+
+WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = common.load_sprite_sheet(
+    os.path.join("assets", "wall.png"), 3, 2
+)
+
+# WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right
+# WALL_H = load(join("assets", "wall_1.png")).convert_alpha()  # Straight up
+# WALL_L = load(join("assets", "wall_2.png")).convert_alpha()  # Edge points up-right
+# WALL_U = load(join("assets", "wall_3.png")).convert_alpha()  # Just like U
+# WALL_O = load(join("assets", "wall_4.png")).convert_alpha()  # Literally all sides
 
 # C corner piece
-WALL_C_UR = load(join("assets", "wall_5.png")).convert_alpha()
-WALL_C_RD = rotate(WALL_C_UR, -90)
-WALL_C_DL = rotate(WALL_C_UR, 180)
-WALL_C_LU = rotate(WALL_C_UR, 90)
+WALL_C_UR = WALL_C
+WALL_C_RD = rotate(WALL_C, -90)
+WALL_C_DL = rotate(WALL_C, 180)
+WALL_C_LU = rotate(WALL_C, 90)
 
 WALLS = {
     # Checks if there are any air gaps with:

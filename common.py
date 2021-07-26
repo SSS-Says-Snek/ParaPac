@@ -2,7 +2,7 @@ import pygame
 import os
 import sys
 import time
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 
 pygame.init()
@@ -37,3 +37,17 @@ def to_world_space(x: int, y: int) -> Tuple[float, float]:
 def from_world_space(x: int, y: int) -> Tuple[float, float]:
     return active_map.width() / map_area_width * x + map_area_x, \
            active_map.height() / map_area_height * y + map_area_y
+
+
+def load_sprite_sheet(file_name: str, columns: int, rows: int) -> List[pygame.Surface]:
+    sprite_sheet = pygame.image.load(file_name).convert_alpha()
+    sprites = []
+
+    width = sprite_sheet.get_width() // columns
+    height = sprite_sheet.get_height() // rows
+
+    for y in range(rows):
+        for x in range(columns):
+            sprites.append(sprite_sheet.subsurface(((x * width, y * height), (width, height))).copy())
+
+    return sprites
