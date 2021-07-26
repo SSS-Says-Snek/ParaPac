@@ -9,6 +9,7 @@ from src.interrupt import *
 from src.player import Player
 from src.ghost import Ghost
 from src.tiles import Tile
+from src.gui import Dashboard
 
 
 def setup():
@@ -22,6 +23,7 @@ def setup():
     common.player = Player(19, 29)
     common.active_map_id = 0
     common.active_map = common.maps[common.active_map_id][0]
+    common.dashboard = Dashboard()
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
         dimension.entities.append(Ghost(14, 11, 1, (255, 0, 0)))
@@ -69,10 +71,15 @@ def gameplay_events():
 
 def gameplay_map():
     common.active_map.update()
-    world = common.active_map.render()
+    map = common.active_map.render()
+    dashboard = common.dashboard.render(map.get_width())
+    game_surf = pygame.Surface((map.get_width(), map.get_height() + dashboard.get_height()))
+    game_surf.fill(common.maps[common.active_map_id][1])
+    game_surf.blit(dashboard, (0, 0))
+    game_surf.blit(map, (0, dashboard.get_height()))
 
     common.window.fill(common.maps[common.active_map_id][1])
-    ratio = world.get_width() / world.get_height()
+    ratio = game_surf.get_width() / game_surf.get_height()
     if common.window.get_width() > ratio * common.window.get_height():
         common.map_area_width = int(ratio * common.window.get_height())
         common.map_area_height = int(common.window.get_height())
@@ -84,7 +91,7 @@ def gameplay_map():
         common.map_area_x = 0
         common.map_area_y = (common.window.get_height() - common.map_area_height) // 2
 
-    world = pygame.transform.scale(world, (common.map_area_width, common.map_area_height))
+    world = pygame.transform.scale(game_surf, (common.map_area_width, common.map_area_height))
 
     if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
         world.set_alpha(common.alpha)

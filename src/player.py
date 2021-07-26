@@ -56,6 +56,7 @@ class Player(Entity):
                     if world.get_at(x, y) == tiles.Tile.POINT:
                         world.set_at(x, y, tiles.Tile.AIR)
                         common.score += 10
+                        common.coins += 1
 
     def wonder(self, world):
         self.task = self.forward
