@@ -6,7 +6,7 @@
 
 ## Team Members
 - [AvaxarXapaxa](https://github.com/AvaxarXapaxa): Developer
-- [coolstuff123](https://github.com/coolstuff123)
-- [Potat](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-- [SSS_Says_Snek](https://github.com/SSS-Says-Snek)
+- [coolstuff123](https://github.com/coolstuff123): Developer
+- [Potat](https://www.youtube.com/watch?v=dQw4w9WgXcQ): Artist
+- [SSS_Says_Snek](https://github.com/SSS-Says-Snek): Developer
 - [zerzym](https://github.com/zerzym)
