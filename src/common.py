@@ -7,7 +7,7 @@ pygame.init()
 
 PATH = Path(__file__).parent.parent
 DEBUG = "-d" in sys.argv or "--debug" in sys.argv
-window = pygame.display.set_mode((800, 1000), pygame.RESIZABLE)
+window = pygame.display.set_mode((620, 620), pygame.RESIZABLE)
 pygame.display.set_caption("ParaPac - Loading...")
 clock = pygame.time.Clock()
 font = pygame.font.Font(PATH / "assets/VT323.ttf", 24)

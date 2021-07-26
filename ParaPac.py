@@ -66,12 +66,12 @@ def gameplay_events():
 
 def gameplay_map():
     common.active_map.update()
-    map = common.active_map.render()
-    dashboard = common.dashboard.render(map.get_width())
-    game_surf = pygame.Surface((map.get_width(), map.get_height() + dashboard.get_height()))
+    world = common.active_map.render()
+    dashboard = common.dashboard.render(world.get_width())
+    game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
     game_surf.fill(common.maps[common.active_map_id][1])
     game_surf.blit(dashboard, (0, 0))
-    game_surf.blit(map, (0, dashboard.get_height()))
+    game_surf.blit(world, (0, dashboard.get_height()))
 
     common.window.fill(common.maps[common.active_map_id][1])
     ratio = game_surf.get_width() / game_surf.get_height()
@@ -114,17 +114,7 @@ def gameplay_loop():
         common.window.blit(common.font.render(
             f"FPS: {int(common.fps)}",
             False, (255, 255, 255), (0, 0, 0)
-        ), (0, 0))
-
-    score_txt = common.font.render(
-        f"Score: {str(common.score).zfill(6)}",
-        False, (255, 255, 255)
-    )
-    score_txt_rect = score_txt.get_rect(right=common.window.get_width() - 30)
-    common.window.blit(common.font.render(
-        f"Score: {str(common.score).zfill(6)}",
-        False, (255, 255, 255)
-    ), score_txt_rect)
+        ).convert_alpha(), (0, 0))
 
 
 def main():
