@@ -21,8 +21,12 @@ map_area_width, map_area_height = 1, 1
 
 # Uses Any to make PyCharm shut up
 player: Any = None
-active_map_id = 0
+active_map_id: int = 0
 active_map: Any = None
+transitioning_mode: str = "Not Transitioning"
+alpha: int = 255
+
+score: int = 0
 
 
 def to_world_space(x: int, y: int) -> Tuple[float, float]:

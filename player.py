@@ -43,14 +43,22 @@ class Player(Entity):
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
             self.next_direction = PlayerDirection.UP
-        elif keys[pygame.K_a]:
+        elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.next_direction = PlayerDirection.LEFT
-        elif keys[pygame.K_s]:
+        elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
             self.next_direction = PlayerDirection.DOWN
-        elif keys[pygame.K_d]:
+        elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.next_direction = PlayerDirection.RIGHT
+
+        if world.collide_tile(int(self.x), int(self.y), 2, 2) == tiles.Tile.POINT:
+            # print("score point :eyes:")
+            for x in range(int(self.x), int(self.x) + 2):
+                for y in range(int(self.y), int(self.y) + 2):
+                    if world.get_at(x, y) == tiles.Tile.POINT:
+                        world.set_at(x, y, tiles.Tile.AIR)
+                        common.score += 10
 
     def wonder(self, world):
         self.task = self.forward

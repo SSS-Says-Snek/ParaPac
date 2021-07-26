@@ -15,6 +15,7 @@ class Tile:
     """
     AIR = 0
     WALL = 1
+    POINT = 2
 
 
 WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right

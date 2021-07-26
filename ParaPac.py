@@ -47,16 +47,18 @@ def gameplay_events():
                     f.write(common.active_map.save())
             # Changes the map dimension
             elif event.key == pygame.K_p:
-                common.active_map_id = (common.active_map_id + 1) % len(common.maps)
-                common.active_map = common.maps[common.active_map_id][0]
+                common.transitioning_mode = "Fading"
+                common.alpha = 255
 
     if common.DEBUG:
         mx, my = pygame.mouse.get_pos()
-        lmb, mmb, rmb = pygame.mouse.get_pressed(3)
+        left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
         x, y = common.to_world_space(mx, my)
-        if lmb:
+        if left_click:
             common.active_map.set_at(int(x), int(y), Tile.WALL)
-        elif rmb:
+        elif middle_click:
+            common.active_map.set_at(int(x), int(y), Tile.POINT)
+        elif right_click:
             common.active_map.set_at(int(x), int(y), Tile.AIR)
 
 
@@ -78,6 +80,22 @@ def gameplay_map():
         common.map_area_y = (common.window.get_height() - common.map_area_height) // 2
 
     world = pygame.transform.scale(world, (common.map_area_width, common.map_area_height))
+
+    if common.transitioning_mode != "Not Transitioning":
+        world.set_alpha(common.alpha)
+        if common.transitioning_mode == "Fading":
+            common.alpha -= 5
+        elif common.transitioning_mode == "Reappearing":
+            common.alpha += 5
+
+        if common.alpha < 0:
+            common.transitioning_mode = "Reappearing"
+            common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+            common.active_map = common.maps[common.active_map_id][0]
+
+        if common.alpha == 255:
+            common.transitioning_mode = "Not Transitioning"
+
     common.window.blit(world, (common.map_area_x, common.map_area_y))
 
 
@@ -90,6 +108,16 @@ def gameplay_loop():
             f"FPS: {int(common.fps)}",
             False, (255, 255, 255), (0, 0, 0)
         ), (0, 0))
+
+    score_txt = common.font.render(
+        f"Score: {str(common.score).zfill(6)}",
+        False, (255, 255, 255)
+    )
+    score_txt_rect = score_txt.get_rect(right=common.window.get_width() - 30)
+    common.window.blit(common.font.render(
+        f"Score: {str(common.score).zfill(6)}",
+        False, (255, 255, 255)
+    ), score_txt_rect)
 
 
 def main():

@@ -13,9 +13,9 @@ class World:
     ParaPac Map class which abstracts the game world.
     """
 
-    def __init__(self, file: str, entities: List[Entity] = ()):
+    def __init__(self, file: str, entities: List[Entity] = []):
         self.entities = entities
-        self.entities: List[Entity] = list(entities)
+        # self.entities: List[Entity] = list(entities)
         self.world: Optional[pygame.Surface] = None
         self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
@@ -100,9 +100,22 @@ class World:
         """
         for xx in range(math.floor(x), math.ceil(x + width)):
             for yy in range(math.floor(y), math.ceil(y + height)):
-                if self.get_at(xx, yy) != Tile.AIR:
+                if self.get_at(xx, yy) == Tile.WALL:
                     return True
         return False
+
+    def collide_tile(self, x: float, y: float, width: float, height: float) -> int:
+        """
+        :param x: X coordinate of the collision box
+        :param y: Y coordinate of the collision box
+        :param width: Width of the collision box
+        :param height: Height of the collision box
+        :return: Kind of like `collide`, except it returns what tile it collided with (air is excluded)
+        """
+        for xx in range(math.floor(x), math.ceil(x + width)):
+            for yy in range(math.floor(y), math.ceil(y + height)):
+                if self.get_at(xx, yy) != Tile.AIR:
+                    return self.get_at(xx, yy)
 
     def render_world(self, *args):
         """
@@ -140,6 +153,8 @@ class World:
                         self.world.blit(tiles.WALL_C_DL, (xx, yy))
                     if not (left or up) and self.get_at(x - 1, y - 1) != Tile.WALL:
                         self.world.blit(tiles.WALL_C_LU, (xx, yy))
+                elif tile == Tile.POINT:
+                    pygame.draw.circle(self.world, (255, 255, 0), (xx, yy), 5)
 
     def render(self) -> pygame.Surface:
         """
