@@ -19,8 +19,8 @@ def to_world_space(x: int, y: int) -> Tuple[float, float]:
 
 
 def from_world_space(x: int, y: int) -> Tuple[float, float]:
-    return common.active_map.width() / common.map_area_width * x + common.map_area_x, \
-           common.active_map.height() / common.map_area_height * y + common.map_area_y
+    return common.map_area_width / common.active_map.width() * x + common.map_area_x, \
+           common.map_area_height / common.active_map.height() * y + common.map_area_y
 
 
 def load_sprite_sheet(file_name: str, columns: int, rows: int) -> List[pygame.Surface]:

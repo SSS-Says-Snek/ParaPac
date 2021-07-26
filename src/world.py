@@ -17,6 +17,7 @@ class World:
     def __init__(self, file: str, entities: List[Entity] = ()):
         self.entities: List[Entity] = list(entities)
         self.surface: Optional[pygame.Surface] = None
+        self.overlay: Optional[pygame.Surface] = None
         self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
             self.load(f.read())
@@ -33,6 +34,7 @@ class World:
 
         self.surface = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
                                        len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
+        self.overlay = self.surface.copy()
         self.tile_map = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
 
         for y, row in enumerate(rows):
@@ -201,6 +203,7 @@ class World:
 
             surface.blit(frame, (entity.x * tiles.TILE_SIZE, entity.y * tiles.TILE_SIZE))
 
+        surface.blit(self.overlay, (0, 0))
         return surface
 
     def update(self):
@@ -208,6 +211,7 @@ class World:
         Calls the World object's entities' update method with its tasks and remove killed entities
         """
         self.entities = sorted(self.entities, key=lambda en: -en.z)
+        self.overlay.fill((0, 0, 0, 0))
 
         for i, entity in enumerate(self.entities):
             if entity.killed:

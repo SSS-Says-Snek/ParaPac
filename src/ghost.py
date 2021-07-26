@@ -25,7 +25,7 @@ class Ghost(Entity):
         self.speed = speed
 
         self.path = []
-        self.frames = [pygame.transform.scale(frame.copy(), (16, 16)) for frame in GHOST]
+        self.frames = [frame.copy() for frame in GHOST]
         self.direction = Direction.UP
 
         # Color keys the ghost
@@ -38,9 +38,15 @@ class Ghost(Entity):
     def update(self, world):
         self.frame = self.frames[self.direction]
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            self.kill(world)
+        if common.DEBUG:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                self.kill(world)
+
+            if self.path:
+                for x, y in self.path:
+                    pygame.draw.rect(world.overlay, (255, 0, 0),
+                                     ((x * tiles.TILE_SIZE, y * tiles.TILE_SIZE), (8, 8)))
 
     def kill(self, world):
         self.path = world.path_find(self.x, self.y, self.origin_x, self.origin_y)
@@ -53,7 +59,7 @@ class Ghost(Entity):
             moved = self.nudge(world, self.speed * utils.polarity(self.path[0][0] - self.x),
                                self.speed * utils.polarity(self.path[0][1] - self.y))
             if not moved:
-                self.path = world.path_find(self.x, self.y, self.path[-1][0], self.path[-1][1])
+                self.path = []
 
     def go_home(self, world):
         if self.path:
