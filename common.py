@@ -30,13 +30,19 @@ score: int = 0
 
 
 def to_world_space(x: int, y: int) -> Tuple[float, float]:
-    return (x - map_area_x) / map_area_width * active_map.width(), \
-           (y - map_area_y) / map_area_height * active_map.height()
+    try:
+        return (x - map_area_x) / map_area_width * active_map.width(), \
+               (y - map_area_y) / map_area_height * active_map.height()
+    except ZeroDivisionError:
+        return 0, 0
 
 
 def from_world_space(x: int, y: int) -> Tuple[float, float]:
-    return active_map.width() / map_area_width * x + map_area_x, \
-           active_map.height() / map_area_height * y + map_area_y
+    try:
+        return active_map.width() / map_area_width * x + map_area_x, \
+               active_map.height() / map_area_height * y + map_area_y
+    except ZeroDivisionError:
+        return 0, 0
 
 
 def load_sprite_sheet(file_name: str, columns: int, rows: int) -> List[pygame.Surface]:
