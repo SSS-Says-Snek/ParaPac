@@ -3,9 +3,9 @@ import numpy
 import pygame
 from typing import Optional, List, Tuple
 
-import tiles
-from tiles import Tile
-from entity import Entity
+from src import tiles
+from src.tiles import Tile
+from src.entity import Entity
 
 
 class World:

@@ -3,11 +3,11 @@ import os
 import sys
 import time
 
-import common
-from world import World
-from interrupt import *
-from player import Player
-from tiles import Tile
+from src import common, utils
+from src.world import World
+from src.interrupt import *
+from src.player import Player
+from src.tiles import Tile
 
 
 def setup():
@@ -47,13 +47,13 @@ def gameplay_events():
                     f.write(common.active_map.save())
             # Changes the map dimension
             elif event.key == pygame.K_p:
-                common.transitioning_mode = "Fading"
+                common.transitioning_mode = common.Transition.FADING
                 common.alpha = 255
 
     if common.DEBUG:
         mx, my = pygame.mouse.get_pos()
         left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
-        x, y = common.to_world_space(mx, my)
+        x, y = utils.to_world_space(mx, my)
         if left_click:
             common.active_map.set_at(int(x), int(y), Tile.WALL)
         elif middle_click:
@@ -81,20 +81,20 @@ def gameplay_map():
 
     world = pygame.transform.scale(world, (common.map_area_width, common.map_area_height))
 
-    if common.transitioning_mode != "Not Transitioning":
+    if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
         world.set_alpha(common.alpha)
-        if common.transitioning_mode == "Fading":
+        if common.transitioning_mode == common.Transition.FADING:
             common.alpha -= 5
-        elif common.transitioning_mode == "Reappearing":
+        elif common.transitioning_mode == common.Transition.REAPPEARING:
             common.alpha += 5
 
         if common.alpha < 0:
-            common.transitioning_mode = "Reappearing"
+            common.transitioning_mode = common.Transition.REAPPEARING
             common.active_map_id = (common.active_map_id + 1) % len(common.maps)
             common.active_map = common.maps[common.active_map_id][0]
 
         if common.alpha == 255:
-            common.transitioning_mode = "Not Transitioning"
+            common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
     common.window.blit(world, (common.map_area_x, common.map_area_y))
 

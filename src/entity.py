@@ -1,6 +1,6 @@
 import pygame
 
-import tiles
+from src import tiles
 
 
 class Entity:

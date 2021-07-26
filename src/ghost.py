@@ -1,4 +1,4 @@
-from entity import *
+from src.entity import *
 
 
 class Ghost(Entity):

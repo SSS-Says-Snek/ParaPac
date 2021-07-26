@@ -1,13 +1,13 @@
 import os
 import time
 
-import common
-from entity import *
+from src import common, utils
+from src.entity import *
 
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
-_PACMAN = common.load_sprite_sheet(os.path.join("assets", "pacman.png"), 3, 4)[:11]
+_PACMAN = utils.load_sprite_sheet(os.path.join("assets", "pacman.png"), 3, 4)[:11]
 PACMAN = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN]
           for rotation in (0, 180, 90, -90)]
 
