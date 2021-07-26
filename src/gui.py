@@ -25,7 +25,7 @@ class Dashboard:
         )
         dashboard = pygame.Surface((width, 100))
         current_color = common.maps[common.active_map_id][1]
-        dashboard.fill((current_color[0]*0.75,current_color[1]*0.75,current_color[2]*0.75))
+        dashboard.fill((current_color[0] * 0.75, current_color[1] * 0.75, current_color[2] * 0.75))
         dashboard.blit(score_txt, (10, 10))
         dashboard.blit(health_txt, (10, 30))
         dashboard.blit(coin_txt, (10, 50))

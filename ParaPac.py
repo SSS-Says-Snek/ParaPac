@@ -66,12 +66,14 @@ def gameplay_events():
 
 def gameplay_map():
     common.active_map.update()
-    world = common.active_map.render()
-    dashboard = common.dashboard.render(world.get_width())
-    game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
-    game_surf.fill(common.maps[common.active_map_id][1])
-    game_surf.blit(dashboard, (0, 0))
-    game_surf.blit(world, (0, dashboard.get_height()))
+    game_surf = world = common.active_map.render()
+
+    if not common.DEBUG:
+        dashboard = common.dashboard.render(world.get_width())
+        game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
+        game_surf.fill(common.maps[common.active_map_id][1])
+        game_surf.blit(dashboard, (0, 0))
+        game_surf.blit(world, (0, dashboard.get_height()))
 
     common.window.fill(common.maps[common.active_map_id][1])
     ratio = game_surf.get_width() / game_surf.get_height()
@@ -111,8 +113,12 @@ def gameplay_loop():
     gameplay_map()
 
     if common.DEBUG:
+        mx, my = pygame.mouse.get_pos()
+        x, y = utils.to_world_space(mx, my)
+
         common.window.blit(common.font.render(
-            f"FPS: {int(common.fps)}",
+            f"FPS: {int(common.fps)}; "
+            f"X: {int(x)}; Y: {int(y)}",
             False, (255, 255, 255), (0, 0, 0)
         ).convert_alpha(), (0, 0))
 

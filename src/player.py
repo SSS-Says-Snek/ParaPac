@@ -27,9 +27,6 @@ class Player(Entity):
         self.next_direction = Direction.NONE
 
     def update(self, world):
-        if common.DEBUG:
-            print(f"Player X: {self.x} Y: {self.y}")
-
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
@@ -41,14 +38,14 @@ class Player(Entity):
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.next_direction = Direction.RIGHT
 
-        if world.collide_tile(int(self.x), int(self.y), 2, 2) == tiles.Tile.POINT:
-            # print("score point :eyes:")
-            for x in range(int(self.x), int(self.x) + 2):
-                for y in range(int(self.y), int(self.y) + 2):
-                    if world.get_at(x, y) == tiles.Tile.POINT:
-                        world.set_at(x, y, tiles.Tile.AIR)
-                        common.score += 10
-                        common.coins += 1
+        if not common.DEBUG:
+            if world.collide_tile(int(self.x), int(self.y), 2, 2) == tiles.Tile.POINT:
+                for x in range(int(self.x), int(self.x) + 2):
+                    for y in range(int(self.y), int(self.y) + 2):
+                        if world.get_at(x, y) == tiles.Tile.POINT:
+                            world.set_at(x, y, tiles.Tile.AIR)
+                            common.score += 10
+                            common.coins += 1
 
     def wonder(self, world):
         self.task = self.forward
