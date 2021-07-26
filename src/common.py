@@ -2,14 +2,17 @@ import pygame
 import os
 import sys
 import time
+from pathlib import Path
 from typing import Any
 
 pygame.init()
 
+PATH = Path(__file__).parent.parent
 DEBUG = "-d" in sys.argv or "--debug" in sys.argv
 window = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 clock = pygame.time.Clock()
-font = pygame.font.Font(os.path.join("assets", "VT323.ttf"), 24)
+font = pygame.font.Font(PATH / "assets/VT323.ttf", 24)
+# os.path.join("..", "assets", "VT323.ttf"), 24)
 maps = []
 
 fps = 0

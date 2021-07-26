@@ -1,7 +1,8 @@
 from pygame.transform import rotate
 import os
+from pathlib import Path
 
-from src import utils
+from src import common, utils
 
 TILE_SIZE = 16
 
@@ -19,7 +20,7 @@ TRANSPARENT_TILES = {Tile.AIR, Tile.POINT}
 SOLID_TILES = {Tile.WALL}
 
 WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(
-    os.path.join("assets", "wall.png"), 3, 2
+    common.PATH / "assets/wall.png", 3, 2
 )
 
 # WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right
