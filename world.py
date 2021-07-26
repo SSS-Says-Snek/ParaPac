@@ -13,9 +13,8 @@ class World:
     ParaPac Map class which abstracts the game world.
     """
 
-    def __init__(self, file: str, entities: List[Entity] = []):
-        self.entities = entities
-        # self.entities: List[Entity] = list(entities)
+    def __init__(self, file: str, entities: List[Entity] = ()):
+        self.entities = list(entities)
         self.world: Optional[pygame.Surface] = None
         self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
