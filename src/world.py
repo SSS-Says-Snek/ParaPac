@@ -14,7 +14,7 @@ class World:
     """
 
     def __init__(self, file: str, entities: List[Entity] = ()):
-        self.entities = list(entities)
+        self.entities: List[Entity] = list(entities)
         self.surface: Optional[pygame.Surface] = None
         self.tile_map: Optional[numpy.ndarray] = None
         with open(file) as f:
@@ -72,12 +72,9 @@ class World:
         """
         :param x: X coordinate in the tile map
         :param y: Y coordinate in the tile map
-        :return: Returns the tile ID of that coordinate or Tile.AIR if it's out of bound
+        :return: Returns the tile ID of that coordinate
         """
-        if 0 <= x < self.tile_map.shape[0] and 0 <= y < self.tile_map.shape[1]:
-            return self.tile_map[x, y]
-        else:
-            return Tile.AIR
+        return self.tile_map[x % self.tile_map.shape[0], y % self.tile_map.shape[1]]
 
     def set_at(self, x: int, y: int, tile: int):
         """
@@ -85,9 +82,8 @@ class World:
         :param y: Y coordinate in the tile map
         :param tile: Tile ID to be placed of in the coordinate of the tile map
         """
-        if 0 <= x < self.tile_map.shape[0] and 0 <= y < self.tile_map.shape[1]:
-            self.tile_map[x, y] = tile
-            self.render_world(x, y)
+        self.tile_map[x % self.tile_map.shape[0], y % self.tile_map.shape[1]] = tile
+        self.render_world(x, y)
 
     def collide(self, x: float, y: float, width: float, height: float) -> bool:
         """
@@ -99,7 +95,7 @@ class World:
         """
         for xx in range(math.floor(x), math.ceil(x + width)):
             for yy in range(math.floor(y), math.ceil(y + height)):
-                if self.get_at(xx, yy) == Tile.WALL:
+                if self.get_at(xx, yy) in tiles.SOLID_TILES:
                     return True
         return False
 
@@ -129,9 +125,11 @@ class World:
         elif len(args) == 4:
             begin_x, begin_y, end_x, end_y = args
 
-        self._render_world(begin_x - 1, begin_y - 1, end_x + 1, end_y + 1)
+        self._render_world(begin_x - 1, begin_y - 1, end_x + 2, end_y + 2)
 
     def _render_world(self, begin_x, begin_y, end_x, end_y):
+        width, height = self.surface.get_size()
+
         for x in range(begin_x, end_x):
             for y in range(begin_y, end_y):
                 tile = self.get_at(x, y)
@@ -139,26 +137,29 @@ class World:
 
                 # Clear tile space
                 pygame.draw.rect(self.surface, (0, 0, 0, 0),
-                                 ((xx, yy), (tiles.TILE_SIZE, tiles.TILE_SIZE)))
+                                 ((xx % width, yy % height), (tiles.TILE_SIZE, tiles.TILE_SIZE)))
 
                 if tile == Tile.AIR:
                     pass
                 elif tile == Tile.WALL:
-                    right = self.get_at(x + 1, y) in tiles.TRANSPARENT_TILES
-                    left = self.get_at(x - 1, y) in tiles.TRANSPARENT_TILES
-                    up = self.get_at(x, y - 1) in tiles.TRANSPARENT_TILES
-                    down = self.get_at(x, y + 1) in tiles.TRANSPARENT_TILES
+                    def blit_wall(wall):
+                        self.surface.blit(wall, (xx % width, yy % height))
+
+                    right = self.get_at(x + 1, y) in tiles.PASSABLE_TILES
+                    left = self.get_at(x - 1, y) in tiles.PASSABLE_TILES
+                    up = self.get_at(x, y - 1) in tiles.PASSABLE_TILES
+                    down = self.get_at(x, y + 1) in tiles.PASSABLE_TILES
 
                     if right or left or up or down:
-                        self.surface.blit(tiles.WALLS[(right, left, up, down)], (xx, yy))
-                    if not (up or right) and self.get_at(x + 1, y - 1) in tiles.TRANSPARENT_TILES:
-                        self.surface.blit(tiles.WALL_C_UR, (xx, yy))
-                    if not (right or down) and self.get_at(x + 1, y + 1) in tiles.TRANSPARENT_TILES:
-                        self.surface.blit(tiles.WALL_C_RD, (xx, yy))
-                    if not (down or left) and self.get_at(x - 1, y + 1) in tiles.TRANSPARENT_TILES:
-                        self.surface.blit(tiles.WALL_C_DL, (xx, yy))
-                    if not (left or up) and self.get_at(x - 1, y - 1) in tiles.TRANSPARENT_TILES:
-                        self.surface.blit(tiles.WALL_C_LU, (xx, yy))
+                        blit_wall(tiles.WALLS[(right, left, up, down)])
+                    if not (up or right) and self.get_at(x + 1, y - 1) in tiles.PASSABLE_TILES:
+                        blit_wall(tiles.WALL_C_UR)
+                    if not (right or down) and self.get_at(x + 1, y + 1) in tiles.PASSABLE_TILES:
+                        blit_wall(tiles.WALL_C_RD)
+                    if not (down or left) and self.get_at(x - 1, y + 1) in tiles.PASSABLE_TILES:
+                        blit_wall(tiles.WALL_C_DL)
+                    if not (left or up) and self.get_at(x - 1, y - 1) in tiles.PASSABLE_TILES:
+                        blit_wall(tiles.WALL_C_LU)
                 elif tile == Tile.POINT:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 8, yy + 8), 5)
 

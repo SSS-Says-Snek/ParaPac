@@ -15,7 +15,7 @@ class Tile:
     POINT = 2
 
 
-TRANSPARENT_TILES = {Tile.AIR, Tile.POINT}
+PASSABLE_TILES = {Tile.AIR, Tile.POINT}
 SOLID_TILES = {Tile.WALL}
 
 WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(
