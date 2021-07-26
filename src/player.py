@@ -12,14 +12,6 @@ PACMAN = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN]
           for rotation in (0, 180, 90, -90)]
 
 
-class PlayerDirection:
-    NONE = 0
-    RIGHT = 1
-    LEFT = 2
-    UP = 3
-    DOWN = 4
-
-
 class Player(Entity):
     """
     ParaPac Player, the player character.
@@ -31,8 +23,8 @@ class Player(Entity):
         self.y = y
         self.z = z
 
-        self.direction = PlayerDirection.UP
-        self.next_direction = PlayerDirection.NONE
+        self.direction = Direction.UP
+        self.next_direction = Direction.NONE
 
     def update(self, world):
         if common.DEBUG:
@@ -41,13 +33,13 @@ class Player(Entity):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.next_direction = PlayerDirection.UP
+            self.next_direction = Direction.UP
         elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.next_direction = PlayerDirection.LEFT
+            self.next_direction = Direction.LEFT
         elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.next_direction = PlayerDirection.DOWN
+            self.next_direction = Direction.DOWN
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.next_direction = PlayerDirection.RIGHT
+            self.next_direction = Direction.RIGHT
 
         if world.collide_tile(int(self.x), int(self.y), 2, 2) == tiles.Tile.POINT:
             # print("score point :eyes:")
@@ -63,41 +55,33 @@ class Player(Entity):
 
     def forward(self, world):
         moved = False
-        if self.direction == PlayerDirection.RIGHT:
-            if not world.collide(self.x + SPEED, self.y, 2, 2):
-                self.x += SPEED
-                moved = True
-        elif self.direction == PlayerDirection.LEFT:
-            if not world.collide(self.x - SPEED, self.y, 2, 2):
-                self.x -= SPEED
-                moved = True
-        elif self.direction == PlayerDirection.UP:
-            if not world.collide(self.x, self.y - SPEED, 2, 2):
-                self.y -= SPEED
-                moved = True
-        elif self.direction == PlayerDirection.DOWN:
-            if not world.collide(self.x, self.y + SPEED, 2, 2):
-                self.y += SPEED
-                moved = True
+        if self.direction == Direction.RIGHT:
+            moved = moved or self.nudge(world, SPEED, 0)
+        elif self.direction == Direction.LEFT:
+            moved = moved or self.nudge(world, -SPEED, 0)
+        elif self.direction == Direction.UP:
+            moved = moved or self.nudge(world, 0, -SPEED)
+        elif self.direction == Direction.DOWN:
+            moved = moved or self.nudge(world, 0, SPEED)
 
         if self.next_direction != self.direction:
-            if self.next_direction == PlayerDirection.RIGHT:
+            if self.next_direction == Direction.RIGHT:
                 if not world.collide(self.x + SPEED, self.y, 2, 2):
                     self.direction = self.next_direction
-            elif self.next_direction == PlayerDirection.LEFT:
+            elif self.next_direction == Direction.LEFT:
                 if not world.collide(self.x - SPEED, self.y, 2, 2):
                     self.direction = self.next_direction
-            elif self.next_direction == PlayerDirection.UP:
+            elif self.next_direction == Direction.UP:
                 if not world.collide(self.x, self.y - SPEED, 2, 2):
                     self.direction = self.next_direction
-            elif self.next_direction == PlayerDirection.DOWN:
+            elif self.next_direction == Direction.DOWN:
                 if not world.collide(self.x, self.y + SPEED, 2, 2):
                     self.direction = self.next_direction
 
         if moved:
-            self.frame = PACMAN[self.direction - 1][int(time.perf_counter() * len(_PACMAN) * 4) % len(_PACMAN)]
+            self.frame = PACMAN[self.direction][int(time.perf_counter() * len(_PACMAN) * 4) % len(_PACMAN)]
         else:
-            self.frame = PACMAN[self.direction - 1][-1]
+            self.frame = PACMAN[self.direction][-1]
 
     def teleport(self, world):
         pass
