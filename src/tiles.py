@@ -15,6 +15,7 @@ class Tile:
     WALL = 1
     POINT = 2
     GHOST = 3
+    DEBUG = 4
 
 
 PASSABLE_TILES = {Tile.AIR, Tile.POINT, Tile.GHOST}

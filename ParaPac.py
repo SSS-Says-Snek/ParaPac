@@ -2,11 +2,11 @@ import pygame
 import os
 import sys
 
-from src import common, utils
+from src import common, utils, tiles
 from src.world import World
 from src.interrupt import *
 from src.player import Player
-from src.ghost import Ghost
+from src.ghost import Ghost, BlinkyGhost
 from src.tiles import Tile
 from src.gui import Dashboard
 
@@ -25,7 +25,7 @@ def setup():
     common.dashboard = Dashboard()
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
-        dimension.entities.append(Ghost(1, 1, (255, 0, 0)))
+        dimension.entities.append(BlinkyGhost(1, 1, (255, 0, 0)))
 
 
 def gameplay_events():
@@ -44,6 +44,8 @@ def gameplay_events():
                 with open(os.path.join("maps",
                                        common.maps[common.active_map_id][2]), "w") as f:
                     f.write(common.active_map.save())
+            elif event.key == pygame.K_F5 and common.DEBUG:
+                common.display_all_rect = not common.display_all_rect
             elif event.key == pygame.K_l:
                 with open(os.path.join("maps", common.maps[common.active_map_id][2])) as f:
                     common.active_map.load(f.read())
@@ -56,6 +58,7 @@ def gameplay_events():
         mx, my = pygame.mouse.get_pos()
         left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
         x, y = utils.to_world_space(mx, my)
+
         if left_click:
             common.active_map.set_at(int(x), int(y), Tile.WALL)
         elif middle_click:
@@ -66,14 +69,12 @@ def gameplay_events():
 
 def gameplay_map():
     common.active_map.update()
-    game_surf = world = common.active_map.render()
-
-    if not common.DEBUG:
-        dashboard = common.dashboard.render(world.get_width())
-        game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
-        game_surf.fill(common.maps[common.active_map_id][1])
-        game_surf.blit(dashboard, (0, 0))
-        game_surf.blit(world, (0, dashboard.get_height()))
+    world = common.active_map.render()
+    dashboard = common.dashboard.render(world.get_width())
+    game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
+    game_surf.fill(common.maps[common.active_map_id][1])
+    game_surf.blit(dashboard, (0, 0))
+    game_surf.blit(world, (0, dashboard.get_height()))
 
     common.window.fill(common.maps[common.active_map_id][1])
     ratio = game_surf.get_width() / game_surf.get_height()
@@ -113,14 +114,29 @@ def gameplay_loop():
     gameplay_map()
 
     if common.DEBUG:
-        mx, my = pygame.mouse.get_pos()
-        x, y = utils.to_world_space(mx, my)
-
+        x, y = pygame.mouse.get_pos()
+        x, y = utils.to_world_space(x, y)
+        adjusted_x, adjusted_y = int(x), int(y - utils.to_world_space(0, common.dashboard.height)[1])
         common.window.blit(common.font.render(
-            f"FPS: {int(common.fps)}; "
-            f"X: {int(x)}; Y: {int(y)}",
+            f"FPS: {int(common.fps)}",
             False, (255, 255, 255), (0, 0, 0)
         ).convert_alpha(), (0, 0))
+
+        tile_txt = common.font.render(f"Tile Pos: ({adjusted_x}, {adjusted_y})", True, (255, 255, 255))
+        tile_txt_rect = tile_txt.get_rect(right=common.window.get_width() - 30)
+        common.window.blit(tile_txt, tile_txt_rect)
+
+        tile_val_txt = common.font.render(f"Tile: {common.active_map.get_at(adjusted_x, adjusted_y)}", True, (255, 255, 255))
+        tile_val_txt_rect = tile_val_txt.get_rect(topright=(common.window.get_width() - 30, 30))
+        common.window.blit(tile_val_txt, tile_val_txt_rect)
+
+        pygame.draw.rect(common.window, (255, 255, 0), [*utils.from_world_space(int(x), int(y)), tiles.TILE_SIZE, tiles.TILE_SIZE])
+
+        if common.display_all_rect:
+            for x, row in enumerate(common.active_map.tile_map):
+                for y, tile in enumerate(row):
+                    pygame.draw.rect(common.window, (255, 255, 0), [*utils.from_world_space(x, y), tiles.TILE_SIZE, tiles.TILE_SIZE], width=1)
+
 
 
 def main():

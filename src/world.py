@@ -3,6 +3,10 @@ import numpy
 import pygame
 from typing import Optional, List, Tuple, Union
 
+# from pathfinding.core.grid import Grid
+# from pathfinding.finder.a_star import AStarFinder
+# from pathfinding.core.heuristic import manhattan
+
 from src import common, pathfinding, tiles
 from src.tiles import Tile
 from src.entity import Entity
@@ -119,8 +123,18 @@ class World:
                     return self.get_at(xx, yy)
 
     def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
+        tile_map_list = numpy.rot90(self.tile_map, k=1, axes=(0, 1)).tolist()
+        for x, row in enumerate(tile_map_list):
+            for y, node in enumerate(row):
+                if node in tiles.SOLID_TILES:
+                    node = 0
+                else:
+                    node = 1
+                tile_map_list[x][y] = node
+
         path = pathfinding.algorithm(numpy.rot90(self.tile_map, k=1, axes=(0, 1)),
                                      (int(start_y), int(start_x)), (int(end_y), int(end_x)))
+
         if path:
             path[0] = path[0][1], path[0][0]
             path = path[1:]
@@ -179,6 +193,8 @@ class World:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 8, yy + 8), 5)
                 elif tile == Tile.GHOST and common.DEBUG:
                     pygame.draw.circle(self.surface, (255, 0, 0), (xx + 8, yy + 8), 5)
+                elif tile == Tile.DEBUG and common.DEBUG:
+                    pygame.draw.rect(self.surface, (255, 0, 0), [xx, yy, 5, 5])
 
     def render(self) -> pygame.Surface:
         """

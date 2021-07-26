@@ -8,7 +8,7 @@ class Dashboard:
     """
 
     def __init__(self):
-        pass
+        self.height = 100
 
     def render(self, width):
         score_txt = common.font.render(
@@ -23,7 +23,7 @@ class Dashboard:
             f"Coins: {str(common.coins).zfill(6)}",
             False, (255, 255, 255)
         )
-        dashboard = pygame.Surface((width, 100))
+        dashboard = pygame.Surface((width, self.height))
         current_color = common.maps[common.active_map_id][1]
         dashboard.fill((current_color[0] * 0.75, current_color[1] * 0.75, current_color[2] * 0.75))
         dashboard.blit(score_txt, (10, 10))

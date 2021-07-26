@@ -1,4 +1,5 @@
 from src.tiles import SOLID_TILES
+from src import common
 
 import numpy as np
 
@@ -12,6 +13,14 @@ class Node:
         """Class representing a node, with value and node position"""
         self.value = value
         self.pos = pos
+
+
+def move_segment(segment_to_move, axis, increment):
+    reconstructed_segment = []
+    for segment_point in segment_to_move:
+        segment_point[axis] += increment
+        reconstructed_segment.append(segment_point)
+    return reconstructed_segment
 
 
 def h(pos1: Tuple, pos2: Tuple[int, int]) -> float:
@@ -44,7 +53,21 @@ def array_to_class(array: np.array) -> np.array:
          for x, row in enumerate(array)])
 
 
-def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[int, int]) -> List:
+def tuple_to_list(list_to_cvrt):
+    reconstructed_list = []
+    for tup in list_to_cvrt:
+        reconstructed_list.append(list(tup))
+    return reconstructed_list
+
+
+def list_to_tuple(tup_to_cvrt):
+    reconstructed_tuple = []
+    for lst in tup_to_cvrt:
+        reconstructed_tuple.append(tuple(lst))
+    return reconstructed_tuple
+
+
+def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[int, int], humanify: bool = False) -> List:
     """
     As `algorithm` outputs a dict of last tracebacks, this function
     converts the Node instances back into positions, then link the positions
@@ -55,20 +78,28 @@ def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[in
         reconstructed_dict[key.pos] = value.pos
     result = []
     while end in reconstructed_dict:
-        result.append((end[1], end[0]))
+        if humanify:
+            result.append(end)
+        else:
+            result.append((end[1], end[0]))
         end = reconstructed_dict[end]
-    result.append(start)
+
+    if humanify:
+        result.append(start)
+    else:
+        result.append((start[1], start[0]))
     result.reverse()
     return result
 
 
-def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> Union[List, None]:
+def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int], humanify: bool = False) -> Union[List, None]:
     """
     Returns a list of all points, for the path between `start` and `end`
 
     :param array: a np array of Node instances
     :param start: a tuple (or list) of points corresponding to where to start on array
     :param end: like start, but for the end
+    :param humanify: Humanifies the outputs to (x, y) instead of (y, x)
 
     Example:
     >>> test = np.array(
@@ -99,7 +130,7 @@ def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> 
         current_pos = current.pos
         open_set_hash.remove(current)
         if current == actual_end:
-            return reconstruct_path(came_from, start, end)
+            return reconstruct_path(came_from, start, end, humanify)
         for neighbor in get_neighbors(array, current_pos):
             neighbor_instance = array[neighbor[0], neighbor[1]]
             temp_g_score = g_score[current] + 1
@@ -112,3 +143,97 @@ def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> 
                     open_set.put((f_score[neighbor_instance], count, neighbor_instance))
                     open_set_hash.add(neighbor_instance)
     return None
+
+
+if __name__ == '__main__':
+    # Test code; will not be run
+    with open(common.PATH / "maps/map_a.txt") as r:
+        rows = r.read().split('\n')
+
+        for row in rows:
+            if not row:
+                rows.remove(row)
+
+        data = np.zeros((len(rows[0]), len(rows)), dtype=np.uint8)
+        for y, row in enumerate(rows):
+            for x, tile in enumerate(row):
+                data[x, y] = int(tile)
+
+    e = algorithm(data, (14, 11), (19, 29), True)
+    segments = []
+    segments_extra = []
+    prev_point = None
+    prev_direction = None
+    j = 0
+    for i, point in enumerate(e):
+        try:
+            if point[0] - prev_point[0] > 0 and point[1] - prev_point[1] == 0:
+                direction = "right"
+            elif point[0] - prev_point[0] < 0 and point[1] - prev_point[1] == 0:
+                direction = "left"
+            elif point[0] - prev_point[0] == 0 and point[1] - prev_point[1] < 0:
+                direction = "up"
+            elif point[0] - prev_point[0] == 0 and point[1] - prev_point[1] > 0:
+                direction = "down"
+            else:
+                direction = None
+            if direction is not None and direction != prev_direction:
+                segments.append(e[j:i])
+                segments_extra.append([e[j:i], prev_direction])
+                j = i
+            prev_direction = direction
+        except Exception as f:
+            print(f)
+        prev_point = point
+
+    start_segment = segments[0][0]
+    del segments[0]
+    segments[0].insert(0, start_segment)
+
+    start_segment = segments_extra[0][0][0]
+    del segments_extra[0]
+    segments_extra[0][0].insert(0, start_segment)
+    print(segments_extra)
+
+    offsetted_path = []
+    prev_segment_idx = None
+
+    reconstructed_segments = []
+    for i, segment in enumerate(segments_extra):
+        if i - 1 >= 0:
+            prev_segment = segments_extra[i - 1]
+        else:
+            prev_segment = [None, None]
+
+        prev_segment, prev_direction = prev_segment
+        actual_segment, direction = segment
+        reconstructed_segment = []
+        if prev_direction is not None:
+            if prev_direction == "right" and direction == "up":
+                segments_extra[i - 1][0].append((prev_segment[-1][0] + 1, prev_segment[-1]))
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 0, 1)
+                print(i, reconstructed_segment)
+            elif prev_direction == "up" and direction == "left":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 1, -1)
+                print(i, reconstructed_segment)
+            elif prev_direction == "left" and direction == "down":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 0, -1)
+                print(i, reconstructed_segment)
+            elif prev_direction == "down" and direction == "right":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 1, -1)
+                print(i, reconstructed_segment)
+            elif prev_direction == "right" and direction == "down":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 0, 1)
+                print(i, reconstructed_segment)
+            elif prev_direction == 'down' and direction == "left":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 1, 1)
+                print(i, reconstructed_segment)
+
+        else:
+            if direction == "right":
+                reconstructed_segment = move_segment(tuple_to_list(actual_segment), 1, 1)
+                print(i, reconstructed_segment)
+            elif direction == "down":
+                pass
+        reconstructed_segments.append(reconstructed_segment)
+    print(reconstructed_segments)

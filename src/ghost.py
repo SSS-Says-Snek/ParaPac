@@ -1,9 +1,11 @@
 import os
+import random
 
 import pygame.key
 
 from src import common, utils
 from src.entity import *
+from src.ghost_ai import *
 
 
 GHOST = utils.load_sprite_sheet(os.path.join("assets", "ghost.png"), 2, 2)
@@ -77,3 +79,38 @@ class Ghost(Entity):
 
     def wonder(self, world):
         self.task = self.tracking
+
+
+class BlinkyGhost(Entity):
+    def __init__(self, x, y, color=(255, 0, 0), speed=1/8):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.z = 1
+
+        self.color = color
+        self.speed = speed
+        self.frames = [frame.copy() for frame in GHOST]
+        self.direction = Direction.DOWN
+
+        for frame in self.frames:
+            for x in range(frame.get_width()):
+                for y in range(frame.get_height()):
+                    if frame.get_at((x, y)) == (0, 255, 0, 255):
+                        frame.set_at((x, y), color)
+
+    def move(self, world):
+        neighbor_tiles = get_neighbors_2(world, self.direction, (int(self.x), int(self.y)))
+        next_tile, direction = blinky_ai_2(neighbor_tiles, (common.player.x, common.player.y))
+        # print(neighbor_tiles)
+
+        # self.x = next_tile[0]
+        # self.y = next_tile[1]
+        self.nudge(world, self.speed * utils.polarity(next_tile[0] - self.x), self.speed * utils.polarity(next_tile[1] - self.y), ignore_collision=True)
+
+    def update(self, world):
+        self.frame = self.frames[self.direction]
+
+    def wonder(self, world):
+        self.task = self.move
+

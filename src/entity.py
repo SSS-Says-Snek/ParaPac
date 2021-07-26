@@ -56,9 +56,9 @@ class Entity:
                                  (width * Entity.COLLIDE_PRECISION, height * Entity.COLLIDE_PRECISION))
         return bool(self_rect.colliderect(other_rect))
 
-    def nudge(self, world, x: float, y: float) -> bool:
+    def nudge(self, world, x: float, y: float, ignore_collision=False) -> bool:
         is_able = not world.collide(self.x + x, self.y + y, self.width(), self.height())
-        if is_able:
+        if is_able or ignore_collision:
             self.x += x
             self.y += y
 
