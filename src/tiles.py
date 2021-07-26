@@ -14,9 +14,10 @@ class Tile:
     AIR = 0
     WALL = 1
     POINT = 2
+    GHOST = 3
 
 
-PASSABLE_TILES = {Tile.AIR, Tile.POINT}
+PASSABLE_TILES = {Tile.AIR, Tile.POINT, Tile.GHOST}
 SOLID_TILES = {Tile.WALL}
 
 WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(

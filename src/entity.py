@@ -11,10 +11,10 @@ class Entity:
     PLACEHOLDER_SURFACE = pygame.Surface((16, 16))
     PLACEHOLDER_SURFACE.fill((255, 0, 0))
 
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.z = 0
+    def __init__(self, x: int = 0, y: int = 0, z: int = 0):
+        self.x = x
+        self.y = y
+        self.z = z
         self.killed = False
         self.task = self.wonder
         self.frame = Entity.PLACEHOLDER_SURFACE

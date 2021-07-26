@@ -7,6 +7,7 @@ from src import common, utils
 from src.world import World
 from src.interrupt import *
 from src.player import Player
+from src.ghost import Ghost
 from src.tiles import Tile
 
 
@@ -23,6 +24,7 @@ def setup():
     common.active_map = common.maps[common.active_map_id][0]
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
+        dimension.entities.append(Ghost(1, 2))
 
 
 def gameplay_events():
@@ -45,6 +47,9 @@ def gameplay_events():
                 with open(os.path.join("maps",
                                        common.maps[common.active_map_id][2]), "w") as f:
                     f.write(common.active_map.save())
+            elif event.key == pygame.K_l:
+                with open(os.path.join("maps", common.maps[common.active_map_id][2])) as f:
+                    common.active_map.load(f.read())
             # Changes the map dimension
             elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
@@ -57,7 +62,7 @@ def gameplay_events():
         if left_click:
             common.active_map.set_at(int(x), int(y), Tile.WALL)
         elif middle_click:
-            common.active_map.set_at(int(x), int(y), Tile.POINT)
+            common.active_map.set_at(int(x), int(y), Tile.GHOST)
         elif right_click:
             common.active_map.set_at(int(x), int(y), Tile.AIR)
 

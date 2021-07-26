@@ -1,11 +1,12 @@
 import math
 import numpy
 import pygame
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 
-from src import tiles
+from src import common, pathfinding, tiles
 from src.tiles import Tile
 from src.entity import Entity
+from src.ghost import Ghost
 
 
 class World:
@@ -37,6 +38,9 @@ class World:
         for y, row in enumerate(rows):
             for x, tile in enumerate(row):
                 self.tile_map[x, y] = int(tile)
+
+                if int(tile) == Tile.GHOST:
+                    self.entities.append(Ghost(x, y))
 
         self.render_world()
 
@@ -112,6 +116,15 @@ class World:
                 if self.get_at(xx, yy) != Tile.AIR:
                     return self.get_at(xx, yy)
 
+    def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
+        path = pathfinding.algorithm(numpy.rot90(self.tile_map, k=1, axes=(0, 1)),
+                                     (start_y, start_x), (end_y, end_x))
+        if path:
+            path[0] = path[0][1], path[0][0]
+            path = path[1:]
+
+        return path
+
     def render_world(self, *args):
         """
         :param args: Begin X, begin Y, end X (Optional), and end Y (Optional) of the tiles to be rendered,
@@ -162,6 +175,8 @@ class World:
                         blit_wall(tiles.WALL_C_LU)
                 elif tile == Tile.POINT:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 8, yy + 8), 5)
+                elif tile == Tile.GHOST and common.DEBUG:
+                    pygame.draw.circle(self.surface, (255, 0, 0), (xx + 8, yy + 8), 5)
 
     def render(self) -> pygame.Surface:
         """

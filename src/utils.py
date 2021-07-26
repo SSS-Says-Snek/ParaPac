@@ -4,6 +4,15 @@ import pygame
 from typing import List, Tuple
 
 
+def polarity(x: float) -> int:
+    if x == 0:
+        return 0
+    elif x < 0:
+        return -1
+    else:
+        return 1
+
+
 def to_world_space(x: int, y: int) -> Tuple[float, float]:
     return (x - common.map_area_x) / common.map_area_width * common.active_map.width(), \
            (y - common.map_area_y) / common.map_area_height * common.active_map.height()
