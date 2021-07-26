@@ -1,7 +1,6 @@
 import pygame
 import os
 import sys
-import time
 
 from src import common, utils
 from src.world import World
@@ -24,16 +23,12 @@ def setup():
     common.active_map = common.maps[common.active_map_id][0]
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
-        dimension.entities.append(Ghost(14, 11, 1, (255, 0, 0)))
+        dimension.entities.append(Ghost(1, 1, (255, 0, 0)))
 
 
 def gameplay_events():
     pygame.display.flip()
-    common.clock.tick(60)
-
-    common.delta = time.perf_counter() - common.last_tick
-    common.fps = 1 / common.delta
-    common.last_tick = time.perf_counter()
+    common.fps = 1000 / common.clock.tick(60)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

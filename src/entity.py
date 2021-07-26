@@ -1,6 +1,15 @@
 import pygame
+from typing import Any
 
 from src import tiles
+
+
+class Direction:
+    RIGHT = 0
+    LEFT = 1
+    UP = 2
+    DOWN = 3
+    NONE = 4
 
 
 class Entity:
@@ -18,6 +27,7 @@ class Entity:
         self.killed = False
         self.task = self.wonder
         self.frame = Entity.PLACEHOLDER_SURFACE
+        self.direction = Direction.NONE
 
     def width(self):
         return self.frame.get_width() / tiles.TILE_SIZE
@@ -25,7 +35,7 @@ class Entity:
     def height(self):
         return self.frame.get_height() / tiles.TILE_SIZE
 
-    def kill(self):
+    def kill(self, world):
         """
         Kills the entity
         """
@@ -45,6 +55,23 @@ class Entity:
         other_rect = pygame.Rect((x * Entity.COLLIDE_PRECISION, y * Entity.COLLIDE_PRECISION),
                                  (width * Entity.COLLIDE_PRECISION, height * Entity.COLLIDE_PRECISION))
         return bool(self_rect.colliderect(other_rect))
+
+    def nudge(self, world, x: float, y: float) -> bool:
+        is_able = not world.collide(self.x + x, self.y + y, self.width(), self.height())
+        if is_able:
+            self.x += x
+            self.y += y
+
+            if x < 0:
+                self.direction = Direction.LEFT
+            elif x > 0:
+                self.direction = Direction.RIGHT
+            elif y < 0:
+                self.direction = Direction.UP
+            elif y > 0:
+                self.direction = Direction.DOWN
+
+        return is_able
 
     def update(self, world):
         """

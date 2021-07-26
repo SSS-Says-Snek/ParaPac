@@ -1,7 +1,5 @@
 import pygame
-import os
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
@@ -13,12 +11,9 @@ window = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 pygame.display.set_caption("ParaPac - Loading...")
 clock = pygame.time.Clock()
 font = pygame.font.Font(PATH / "assets/VT323.ttf", 24)
-# os.path.join("..", "assets", "VT323.ttf"), 24)
-maps = []
-
 fps = 0
-delta = 0
-last_tick = time.perf_counter()
+
+maps = []
 map_area_x, map_area_y = 0, 0
 map_area_width, map_area_height = 1, 1
 
