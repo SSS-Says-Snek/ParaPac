@@ -1,15 +1,14 @@
 import pygame
-from typing import Any
 
 from src import tiles
 
 
 class Direction:
+    NONE = -1
     RIGHT = 0
     LEFT = 1
     UP = 2
     DOWN = 3
-    NONE = 4
 
 
 class Entity:
@@ -75,7 +74,13 @@ class Entity:
 
     def update(self, world):
         """
-        :param world: References the Map object
+        :param world: References the World object
+        """
+
+    def debug(self, world):
+        """
+        Enables debug specific features
+        :param world: References the World object
         """
 
     def wonder(self, world):

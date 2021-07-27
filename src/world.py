@@ -1,12 +1,13 @@
 import math
 import numpy
 import pygame
+import time
 from typing import Optional, List, Tuple, Union
 
 from src import common, pathfinding, tiles
 from src.tiles import Tile
 from src.entity import Entity
-from src.ghost import Ghost
+from src.ghost import Ghost, GhostAttributes
 
 
 class World:
@@ -15,6 +16,7 @@ class World:
     """
 
     def __init__(self, file: str, entities: List[Entity] = ()):
+        self.creation = time.perf_counter()
         self.entities: List[Entity] = list(entities)
         self.surface: Optional[pygame.Surface] = None
         self.overlay: Optional[pygame.Surface] = None
@@ -39,10 +41,17 @@ class World:
 
         for y, row in enumerate(rows):
             for x, tile in enumerate(row):
-                self.tile_map[x, y] = int(tile)
+                tile = int(tile, 36)
+                self.tile_map[x, y] = tile
 
-                if int(tile) == Tile.GHOST:
-                    self.entities.append(Ghost(x, y))
+                if tile == Tile.RED_GHOST:
+                    self.entities.append(Ghost(x, y, GhostAttributes.RED_COLOR))
+                elif tile == Tile.PINK_GHOST:
+                    self.entities.append(Ghost(x, y, GhostAttributes.PINK_COLOR))
+                elif tile == Tile.BLUE_GHOST:
+                    self.entities.append(Ghost(x, y, GhostAttributes.BLUE_COLOR))
+                elif tile == Tile.ORANGE_GHOST:
+                    self.entities.append(Ghost(x, y, GhostAttributes.ORANGE_COLOR))
         self.render_world()
 
     def save(self) -> str:
@@ -50,7 +59,7 @@ class World:
 
         for y in range(self.tile_map.shape[1]):
             for x in range(self.tile_map.shape[0]):
-                string += str(self.tile_map[x, y])
+                string += hex(self.tile_map[x, y])[2:]
             string += "\n"
 
         return string
@@ -174,10 +183,10 @@ class World:
                         blit_wall(tiles.WALL_C_DL)
                     if not (left or up) and self.get_at(x - 1, y - 1) in tiles.PASSABLE_TILES:
                         blit_wall(tiles.WALL_C_LU)
-                elif tile == Tile.POINT:
-                    pygame.draw.circle(self.surface, (255, 255, 0), (xx + 8, yy + 8), 5)
-                elif tile == Tile.GHOST and common.DEBUG:
-                    pygame.draw.circle(self.surface, (255, 0, 0), (xx + 8, yy + 8), 5)
+                elif tile == Tile.COIN:
+                    pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 4)
+                elif tile == Tile.PELLET:
+                    pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 7)
 
     def render(self) -> pygame.Surface:
         """
@@ -218,5 +227,10 @@ class World:
                 continue
             entity.x %= self.width()
             entity.y %= self.height()
-            entity.task(self)
-            entity.update(self)
+
+            if not common.DEBUG_FREEZE:
+                entity.task(self)
+                entity.update(self)
+
+            if common.DEBUG:
+                entity.debug(self)

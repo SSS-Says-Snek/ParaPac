@@ -5,8 +5,9 @@ from typing import Any
 
 pygame.init()
 
-PATH = Path(__file__).parent.parent
 DEBUG = "-d" in sys.argv or "--debug" in sys.argv
+DEBUG_FREEZE = False
+PATH = Path(__file__).parent.parent
 window = pygame.display.set_mode((620, 620), pygame.RESIZABLE)
 pygame.display.set_caption("ParaPac - Loading...")
 clock = pygame.time.Clock()

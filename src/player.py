@@ -1,10 +1,9 @@
 import os
 import time
 
-import pygame
-
-from src import common, utils, tiles
+from src import common, utils
 from src.tiles import Tile
+from src.ghost import Ghost, GhostState
 from src.entity import *
 
 
@@ -29,6 +28,8 @@ class Player(Entity):
         self.direction = Direction.UP
         self.next_direction = Direction.NONE
 
+        self.debug_tile = Tile.WALL
+
     def update(self, world):
         keys = pygame.key.get_pressed()
 
@@ -41,29 +42,33 @@ class Player(Entity):
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.next_direction = Direction.RIGHT
 
-        if common.DEBUG:
-            mx, my = pygame.mouse.get_pos()
-            left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
-            x, y = utils.to_world_space(mx, my)
+        if not common.DEBUG:
+            tile = world.get_at(int(self.x), int(self.y))
+            if tile == Tile.COIN:
+                world.set_at(int(self.x), int(self.y), Tile.AIR)
+                common.score += 10
+                common.coins += 1
+            elif tile == Tile.PELLET:
+                world.set_at(int(self.x), int(self.y), Tile.AIR)
+                common.score += 100
+                for entity in world.entities:
+                    if isinstance(entity, Ghost):
+                        entity.state = GhostState.VULNERABLE
+                        entity.timer = time.perf_counter()
 
-            rect = pygame.Surface((tiles.TILE_SIZE, tiles.TILE_SIZE), pygame.SRCALPHA)
-            rect.fill((255, 255, 0, 128))
-            world.overlay.blit(rect, (int(x) * tiles.TILE_SIZE, int(y) * tiles.TILE_SIZE))
+    def debug(self, world):
+        mx, my = pygame.mouse.get_pos()
+        left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
+        x, y = utils.to_world_space(mx, my)
 
-            if left_click:
-                world.set_at(int(x), int(y), Tile.WALL)
-            elif middle_click:
-                world.set_at(int(x), int(y), Tile.GHOST)
-            elif right_click:
-                world.set_at(int(x), int(y), Tile.AIR)
-        else:
-            if world.collide_tile(int(self.x), int(self.y), 1, 1) == tiles.Tile.POINT:
-                for x in range(int(self.x), int(self.x) + 1):
-                    for y in range(int(self.y), int(self.y) + 1):
-                        if world.get_at(x, y) == tiles.Tile.POINT:
-                            world.set_at(x, y, tiles.Tile.AIR)
-                            common.score += 10
-                            common.coins += 1
+        rect = pygame.Surface((tiles.TILE_SIZE, tiles.TILE_SIZE), pygame.SRCALPHA)
+        rect.fill((255, 255, 0, 128))
+        world.overlay.blit(rect, (int(x) * tiles.TILE_SIZE, int(y) * tiles.TILE_SIZE))
+
+        if left_click:
+            world.set_at(int(x), int(y), self.debug_tile)
+        elif right_click:
+            world.set_at(int(x), int(y), Tile.AIR)
 
     def wonder(self, world):
         self.task = self.forward

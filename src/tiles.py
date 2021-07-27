@@ -1,6 +1,4 @@
 from pygame.transform import rotate
-import os
-from pathlib import Path
 
 from src import common, utils
 
@@ -13,12 +11,42 @@ class Tile:
     """
     AIR = 0
     WALL = 1
-    POINT = 2
-    GHOST = 3
+    COIN = 2
+    PELLET = 3
+
+    RED_GHOST = 4
+    PINK_GHOST = 5
+    BLUE_GHOST = 6
+    ORANGE_GHOST = 7
 
 
-PASSABLE_TILES = {Tile.AIR, Tile.POINT, Tile.GHOST}
-SOLID_TILES = {Tile.WALL}
+TILE_DICT = {
+    Tile.AIR: "air",
+    Tile.WALL: "wall",
+    Tile.COIN: "coin",
+    Tile.PELLET: "pellet",
+
+    Tile.RED_GHOST: "red ghost",
+    Tile.PINK_GHOST: "pink ghost",
+    Tile.BLUE_GHOST: "blue ghost",
+    Tile.ORANGE_GHOST: "orange ghost"
+}
+
+
+PASSABLE_TILES = {
+    Tile.AIR,
+    Tile.COIN,
+    Tile.PELLET,
+
+    Tile.RED_GHOST,
+    Tile.PINK_GHOST,
+    Tile.BLUE_GHOST,
+    Tile.ORANGE_GHOST
+}
+
+SOLID_TILES = {
+    Tile.WALL
+}
 
 WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(
     common.PATH / "assets/wall.png", 3, 2

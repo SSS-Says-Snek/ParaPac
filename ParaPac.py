@@ -2,7 +2,7 @@ import pygame
 import os
 import sys
 
-from src import common, utils
+from src import common, tiles, utils
 from src.world import World
 from src.interrupt import *
 from src.player import Player
@@ -24,7 +24,6 @@ def setup():
     common.dashboard = Dashboard()
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
-        dimension.entities.append(Ghost(14, 11, (255, 0, 0)))
 
 
 def gameplay_events():
@@ -34,22 +33,27 @@ def gameplay_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise GameExit
+        elif event.type == pygame.MOUSEWHEEL and common.DEBUG:
+            common.player.debug_tile -= event.y
+            common.player.debug_tile %= len(tiles.TILE_DICT)
         elif event.type == pygame.KEYDOWN:
             # Toggles debug mode
-            if event.key == pygame.K_q:
+            if event.key == pygame.K_F1:
                 common.DEBUG = not common.DEBUG
-            # Saves the map (Only in debug mode)
-            elif event.key == pygame.K_z and common.DEBUG:
-                with open(os.path.join("maps",
-                                       common.maps[common.active_map_id][2]), "w") as f:
-                    f.write(common.active_map.save())
-            elif event.key == pygame.K_l:
-                with open(os.path.join("maps", common.maps[common.active_map_id][2])) as f:
-                    common.active_map.load(f.read())
             # Changes the map dimension
             elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
                 common.alpha = 255
+
+            elif common.DEBUG:
+                # Saves the map
+                if event.key == pygame.K_F2:
+                    with open(os.path.join("maps",
+                                           common.maps[common.active_map_id][2]), "w") as f:
+                        f.write(common.active_map.save())
+                # Toggles freezing the world
+                elif event.key == pygame.K_F3:
+                    common.DEBUG_FREEZE = not common.DEBUG_FREEZE
 
 
 def gameplay_map():
@@ -106,7 +110,8 @@ def gameplay_loop():
 
         common.window.blit(common.font.render(
             f"FPS: {int(common.fps)}; "
-            f"X: {int(x)}; Y: {int(y)}",
+            f"X: {int(x)}; Y: {int(y)}; "
+            f"Block: {tiles.TILE_DICT[common.player.debug_tile]}",
             False, (255, 255, 255), (0, 0, 0)
         ).convert_alpha(), (0, 0))
 
