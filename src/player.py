@@ -7,7 +7,7 @@ from src.entity import *
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
-_PACMAN = utils.load_sprite_sheet(os.path.join("assets", "pacman.png"), 3, 4)[:11]
+_PACMAN = utils.load_sprite_sheet(os.path.join("assets", "pacman_eat.png"), 4, 2)
 PACMAN = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN]
           for rotation in (0, 180, 90, -90)]
 
@@ -39,9 +39,9 @@ class Player(Entity):
             self.next_direction = Direction.RIGHT
 
         if not common.DEBUG:
-            if world.collide_tile(int(self.x), int(self.y), 2, 2) == tiles.Tile.POINT:
-                for x in range(int(self.x), int(self.x) + 2):
-                    for y in range(int(self.y), int(self.y) + 2):
+            if world.collide_tile(int(self.x), int(self.y), 1, 1) == tiles.Tile.POINT:
+                for x in range(int(self.x), int(self.x) + 1):
+                    for y in range(int(self.y), int(self.y) + 1):
                         if world.get_at(x, y) == tiles.Tile.POINT:
                             world.set_at(x, y, tiles.Tile.AIR)
                             common.score += 10
@@ -63,16 +63,16 @@ class Player(Entity):
 
         if self.next_direction != self.direction:
             if self.next_direction == Direction.RIGHT:
-                if not world.collide(self.x + SPEED, self.y, 2, 2):
+                if not world.collide(self.x + SPEED, self.y, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.LEFT:
-                if not world.collide(self.x - SPEED, self.y, 2, 2):
+                if not world.collide(self.x - SPEED, self.y, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.UP:
-                if not world.collide(self.x, self.y - SPEED, 2, 2):
+                if not world.collide(self.x, self.y - SPEED, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.DOWN:
-                if not world.collide(self.x, self.y + SPEED, 2, 2):
+                if not world.collide(self.x, self.y + SPEED, 1, 1):
                     self.direction = self.next_direction
 
         if moved:
