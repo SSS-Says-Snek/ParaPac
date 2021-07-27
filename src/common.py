@@ -28,6 +28,7 @@ score: int = 0
 health: int = 100
 coins: int = 0
 
+
 class Transition:
     """Enum for the transition"""
     NOT_TRANSITIONING = 0

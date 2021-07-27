@@ -59,7 +59,7 @@ class Ghost(Entity):
             del self.path[0]
         if self.path:
             moved = self.nudge(world, self.speed * utils.polarity(self.path[0][0] - self.x),
-                               self.speed * utils.polarity(self.path[0][1] - self.y), ignore_collision=True)
+                               self.speed * utils.polarity(self.path[0][1] - self.y), ignore_collision=False)
             if not moved:
                 self.path = []
 
