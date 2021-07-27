@@ -4,7 +4,7 @@ import numpy as np
 
 from math import inf
 from queue import PriorityQueue
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Callable
 
 
 class Node:
@@ -14,9 +14,14 @@ class Node:
         self.pos = pos
 
 
-def h(pos1: Tuple, pos2: Tuple[int, int]) -> float:
+def manhattan(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
     """Calculates h-score, via manhattan  (best-case for this usage)"""
     return abs(pos2[0] - pos1[0]) + abs(pos2[1] - pos1[1])
+
+
+def euclidean(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
+    """Calculates h-score, via euclidean distance"""
+    return ((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) ** 0.5
 
 
 def get_neighbors(array: np.array, pos: Tuple[int, int]) -> List:
@@ -62,13 +67,14 @@ def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[in
     return result
 
 
-def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> Union[List, None]:
+def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int], heuristic: Callable = manhattan) -> Union[List, None]:
     """
     Returns a list of all points, for the path between `start` and `end`
 
     :param array: a np array of Node instances
     :param start: a tuple (or list) of points corresponding to where to start on array
     :param end: like start, but for the end
+    :param heuristic: a function that represents the heuristic (default: manhattan heuristic)
 
     Example:
     >>> test = np.array(
@@ -92,7 +98,7 @@ def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> 
     g_score = {node: inf for row in array for node in row}
     f_score = {node: inf for row in array for node in row}
     g_score[actual_start] = 0
-    f_score[actual_start] = h(start, end)
+    f_score[actual_start] = heuristic(start, end)
     open_set_hash = {actual_start}
     while not open_set.empty():
         current = open_set.get()[2]
@@ -106,7 +112,7 @@ def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int]) -> 
             if temp_g_score < g_score[neighbor_instance]:
                 came_from[neighbor_instance] = current
                 g_score[neighbor_instance] = temp_g_score
-                f_score[neighbor_instance] = temp_g_score + h(neighbor, end)
+                f_score[neighbor_instance] = temp_g_score + heuristic(neighbor, end)
                 if neighbor_instance not in open_set_hash:
                     count += 1
                     open_set.put((f_score[neighbor_instance], count, neighbor_instance))

@@ -19,7 +19,8 @@ def setup():
         (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
     ]
 
-    common.player = Player(19, 29)
+    # common.player = Player(19, 29)
+    common.player = Player(37, 29)
     common.active_map_id = 0
     common.active_map = common.maps[common.active_map_id][0]
     common.dashboard = Dashboard()
