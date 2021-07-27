@@ -25,7 +25,7 @@ def setup():
     common.dashboard = Dashboard()
     for dimension, _bg, _file in common.maps:
         dimension.entities.append(common.player)
-        dimension.entities.append(BlinkyGhost(1, 1, (255, 0, 0)))
+        dimension.entities.append(Ghost(1, 1, (255, 0, 0)))
 
 
 def gameplay_events():

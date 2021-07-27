@@ -47,7 +47,6 @@ class World:
 
                 if int(tile) == Tile.GHOST:
                     self.entities.append(Ghost(x, y))
-
         self.render_world()
 
     def save(self) -> str:
@@ -123,16 +122,7 @@ class World:
                     return self.get_at(xx, yy)
 
     def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
-        tile_map_list = numpy.rot90(self.tile_map, k=1, axes=(0, 1)).tolist()
-        for x, row in enumerate(tile_map_list):
-            for y, node in enumerate(row):
-                if node in tiles.SOLID_TILES:
-                    node = 0
-                else:
-                    node = 1
-                tile_map_list[x][y] = node
-
-        path = pathfinding.algorithm(numpy.rot90(self.tile_map, k=1, axes=(0, 1)),
+        path = pathfinding.algorithm(numpy.rot90(self.tile_map, k=3, axes=(0, 1)),
                                      (int(start_y), int(start_x)), (int(end_y), int(end_x)))
 
         if path:
