@@ -209,7 +209,7 @@ class World:
         """
         Calls the World object's entities' update method with its tasks and remove killed entities
         """
-        self.entities = sorted(self.entities, key=lambda en: -en.z)
+        self.entities = sorted(self.entities, key=lambda en: en.z)
         self.overlay.fill((0, 0, 0, 0))
 
         for i, entity in enumerate(self.entities):

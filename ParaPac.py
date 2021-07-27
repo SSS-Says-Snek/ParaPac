@@ -7,7 +7,6 @@ from src.world import World
 from src.interrupt import *
 from src.player import Player
 from src.ghost import Ghost
-from src.tiles import Tile
 from src.gui import Dashboard
 
 
@@ -19,8 +18,7 @@ def setup():
         (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
     ]
 
-    # common.player = Player(19, 29)
-    common.player = Player(37, 29)
+    common.player = Player(19, 29)
     common.active_map_id = 0
     common.active_map = common.maps[common.active_map_id][0]
     common.dashboard = Dashboard()
@@ -52,17 +50,6 @@ def gameplay_events():
             elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
                 common.alpha = 255
-
-    if common.DEBUG:
-        mx, my = pygame.mouse.get_pos()
-        left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
-        x, y = utils.to_world_space(mx, my)
-        if left_click:
-            common.active_map.set_at(int(x), int(y), Tile.WALL)
-        elif middle_click:
-            common.active_map.set_at(int(x), int(y), Tile.GHOST)
-        elif right_click:
-            common.active_map.set_at(int(x), int(y), Tile.AIR)
 
 
 def gameplay_map():

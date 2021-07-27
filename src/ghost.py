@@ -20,7 +20,6 @@ class Ghost(Entity):
         self.origin_y = y
         self.x = x
         self.y = y
-        self.z = 1
 
         self.speed = speed
 

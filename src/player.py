@@ -1,7 +1,10 @@
 import os
 import time
 
-from src import common, utils
+import pygame
+
+from src import common, utils, tiles
+from src.tiles import Tile
 from src.entity import *
 
 
@@ -17,11 +20,11 @@ class Player(Entity):
     ParaPac Player, the player character.
     """
 
-    def __init__(self, x: int, y: int, z: int = 0):
+    def __init__(self, x: int, y: int):
         super().__init__()
         self.x = x
         self.y = y
-        self.z = z
+        self.z = 1
 
         self.direction = Direction.UP
         self.next_direction = Direction.NONE
@@ -38,7 +41,22 @@ class Player(Entity):
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.next_direction = Direction.RIGHT
 
-        if not common.DEBUG:
+        if common.DEBUG:
+            mx, my = pygame.mouse.get_pos()
+            left_click, middle_click, right_click = pygame.mouse.get_pressed(3)
+            x, y = utils.to_world_space(mx, my)
+
+            rect = pygame.Surface((tiles.TILE_SIZE, tiles.TILE_SIZE), pygame.SRCALPHA)
+            rect.fill((255, 255, 0, 128))
+            world.overlay.blit(rect, (int(x) * tiles.TILE_SIZE, int(y) * tiles.TILE_SIZE))
+
+            if left_click:
+                world.set_at(int(x), int(y), Tile.WALL)
+            elif middle_click:
+                world.set_at(int(x), int(y), Tile.GHOST)
+            elif right_click:
+                world.set_at(int(x), int(y), Tile.AIR)
+        else:
             if world.collide_tile(int(self.x), int(self.y), 1, 1) == tiles.Tile.POINT:
                 for x in range(int(self.x), int(self.x) + 1):
                     for y in range(int(self.y), int(self.y) + 1):
