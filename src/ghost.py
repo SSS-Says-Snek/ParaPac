@@ -98,7 +98,7 @@ class Ghost(Entity):
     def debug(self, world):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
-            self.kill(world)
+            self.task = self.go_home
 
         pygame.draw.rect(world.overlay, self.color, ((self.origin_x * tiles.TILE_SIZE + tiles.TILE_SIZE // 4,
                                                       self.origin_y * tiles.TILE_SIZE + tiles.TILE_SIZE // 4),

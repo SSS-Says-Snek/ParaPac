@@ -127,7 +127,7 @@ class World:
                     return self.get_at(xx, yy)
 
     def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
-        path = pathfinding.algorithm(numpy.rot90(self.tile_map, k=3, axes=(0, 1)),
+        path = pathfinding.algorithm(numpy.transpose(self.tile_map),
                                      (int(start_y), int(start_x)), (int(end_y), int(end_x)))
         if path:
             path[0] = path[0][1], path[0][0]
