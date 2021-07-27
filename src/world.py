@@ -7,7 +7,7 @@ from typing import Optional, List, Tuple, Union
 from src import common, pathfinding, tiles
 from src.tiles import Tile
 from src.entity import Entity
-from src.ghost import Ghost, GhostAttributes
+from src.ghost import Ghost, BlinkyGhost, PinkyGhost, InkyGhost, ClydeGhost, GhostAttributes
 
 
 class World:
@@ -45,13 +45,13 @@ class World:
                 self.tile_map[x, y] = tile
 
                 if tile == Tile.RED_GHOST:
-                    self.entities.append(Ghost(x, y, GhostAttributes.RED_COLOR))
+                    self.entities.append(BlinkyGhost(x, y, GhostAttributes.RED_COLOR))
                 elif tile == Tile.PINK_GHOST:
-                    self.entities.append(Ghost(x, y, GhostAttributes.PINK_COLOR))
+                    self.entities.append(PinkyGhost(x, y, GhostAttributes.PINK_COLOR))
                 elif tile == Tile.BLUE_GHOST:
-                    self.entities.append(Ghost(x, y, GhostAttributes.BLUE_COLOR))
+                    self.entities.append(InkyGhost(x, y, GhostAttributes.BLUE_COLOR))
                 elif tile == Tile.ORANGE_GHOST:
-                    self.entities.append(Ghost(x, y, GhostAttributes.ORANGE_COLOR))
+                    self.entities.append(ClydeGhost(x, y, GhostAttributes.ORANGE_COLOR))
         self.render_world()
 
     def save(self) -> str:

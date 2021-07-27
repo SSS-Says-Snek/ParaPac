@@ -13,6 +13,14 @@ def polarity(x: float) -> int:
         return 1
 
 
+def clip(value_to_clip, lowest_value_to_clip, highest_value_to_clip):
+    if value_to_clip > highest_value_to_clip:
+        value_to_clip = highest_value_to_clip
+    elif value_to_clip < lowest_value_to_clip:
+        value_to_clip = lowest_value_to_clip
+    return value_to_clip
+
+
 def to_world_space(x: int, y: int) -> Tuple[float, float]:
     return (x - common.map_area_x) / common.map_area_width * common.active_map.width(), \
            (y - common.map_area_y) / common.map_area_height * common.active_map.height()

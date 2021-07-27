@@ -70,12 +70,10 @@ def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[in
 def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int], heuristic: Callable = manhattan) -> Union[List, None]:
     """
     Returns a list of all points, for the path between `start` and `end`
-
     :param array: a np array of Node instances
     :param start: a tuple (or list) of points corresponding to where to start on array
     :param end: like start, but for the end
     :param heuristic: a function that represents the heuristic (default: manhattan heuristic)
-
     Example:
     >>> test = np.array(
         [[0, 0, 0, 0, 0, 1],

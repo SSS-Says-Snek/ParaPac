@@ -1,4 +1,5 @@
 import os
+import random
 import time
 
 from src import common, utils
@@ -52,9 +53,11 @@ class Player(Entity):
                 world.set_at(int(self.x), int(self.y), Tile.AIR)
                 common.score += 100
                 for entity in world.entities:
-                    if isinstance(entity, Ghost):
+                    if isinstance(entity, Ghost) or issubclass(entity.__class__, Ghost):
+                        entity.load_random_path = True
                         entity.state = GhostState.VULNERABLE
                         entity.timer = time.perf_counter()
+                        entity.speed = entity.default_speed / 2
 
     def debug(self, world):
         mx, my = pygame.mouse.get_pos()

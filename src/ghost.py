@@ -1,9 +1,10 @@
 import os
+import random
 import time
 
-from src import common, utils
+from src import common, utils, pathfinding, tiles
 from src.entity import *
-
+from typing import Any
 
 GHOST_TEMPLATE = utils.load_sprite_sheet(os.path.join("assets", "ghost.png"), 2, 2)
 GHOST_VULNERABLE = utils.load_sprite_sheet(os.path.join("assets", "ghost_vulnerable.png"), 2, 2)
@@ -38,6 +39,7 @@ class Ghost(Entity):
         self.y = y
 
         self.color = color
+        self.default_speed = speed
         self.speed = speed
         self.state = GhostState.LIVING
         self.timer = 0
@@ -48,6 +50,9 @@ class Ghost(Entity):
         self.eyes = [frame.copy() for frame in GHOST_TEMPLATE]
         self.frames = [frame.copy() for frame in GHOST_TEMPLATE]
         self.direction = Direction.UP
+
+        self.load_random_path = False
+        self.scatter_tile: Any = None
 
         # Color keys the ghost
         for i, frame in enumerate(GHOST_TEMPLATE):
@@ -72,7 +77,7 @@ class Ghost(Entity):
         if self.state == GhostState.LIVING:
             self.task = self.tracking
         elif self.state == GhostState.VULNERABLE or self.state == GhostState.TRANSITION:
-            self.task = self.wonder
+            # self.task = self.wonder
 
             if time.perf_counter() - self.timer > self.vulnerable_period:
                 self.state = GhostState.TRANSITION
@@ -82,10 +87,19 @@ class Ghost(Entity):
             self.task = self.go_home
             if self.x == self.origin_x and self.y == self.origin_y:
                 self.state = GhostState.LIVING
+                self.speed = self.default_speed
 
         if self.state == GhostState.LIVING:
             self.frame = self.frames[self.direction]
         elif self.state == GhostState.VULNERABLE:
+            if self.load_random_path:
+                while True:
+                    randpos = (random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0]) - 1))
+                    if world.tile_map[randpos[0], randpos[1]] not in tiles.SOLID_TILES:
+                        self.path = world.path_find(self.x, self.y, *randpos)
+                        self.load_random_path = False
+                        break
+
             self.frame = GHOST_VULNERABLE[int(time.perf_counter() * 8) % 4]
         elif self.state == GhostState.TRANSITION:
             if int(time.perf_counter() * 8) % 2:
@@ -140,3 +154,113 @@ class Ghost(Entity):
 
     def wonder(self, world):
         pass
+
+
+class BlinkyGhost(Ghost):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scatter_tile = (38, 1)
+
+
+class PinkyGhost(Ghost):
+    """Ghost AI for Pinky (The pink ghost)"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scatter_tile = (1, 1)
+
+    def tracking(self, world):
+        if common.player not in world.entities:
+            self.task = self.wonder
+            return
+
+        if self.path:
+            self.propagate_path(world)
+        elif self.x != int(common.player.x) or self.y != int(common.player.y):
+            adjusted_x = common.player.x
+            adjusted_y = common.player.y
+
+            if common.player.direction == Direction.RIGHT:
+                adjusted_x = min(adjusted_x + 4, len(world.tile_map) - 2)
+            elif common.player.direction == Direction.LEFT:
+                adjusted_x = max(adjusted_x - 4, 0)
+            elif common.player.direction == Direction.UP:
+                adjusted_x = max(adjusted_x - 4, 0)
+                adjusted_y = max(adjusted_y - 4, 0)
+            elif common.player.direction == Direction.DOWN:
+                adjusted_y = min(adjusted_y + 4, len(world.tile_map[0]) - 2)
+
+            adjusted_x, adjusted_y = int(adjusted_x), int(adjusted_y)
+
+            while world.get_at(adjusted_x, adjusted_y) in tiles.SOLID_TILES:
+                try:
+                    adjusted_x, adjusted_y = random.choice(
+                        pathfinding.get_neighbors(
+                            pathfinding.array_to_class(world.tile_map),
+                            (adjusted_x, adjusted_y)
+                        )
+                    )
+                except IndexError:
+                    adjusted_x, adjusted_y = int(common.player.x), int(common.player.y)
+
+            self.path = world.path_find(self.x, self.y, adjusted_x, adjusted_y)
+
+
+class InkyGhost(Ghost):
+    """Ghost AI for Inky (The cyan ghost)"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scatter_tile = (38, 30)
+
+    def tracking(self, world):
+        if common.player not in world.entities:
+            self.task = self.wonder
+            return
+
+        if self.path:
+            self.propagate_path(world)
+        elif self.x != int(common.player.x) or self.y != int(common.player.y):
+            current_blinky_distance = float('inf')
+            nearest_blinky = None
+            for entity in world.entities:
+                if isinstance(entity, BlinkyGhost):
+                    if pathfinding.euclidean((entity.x, entity.y), (common.player.x, common.player.y)) < current_blinky_distance:
+                        current_blinky_distance = pathfinding.euclidean((entity.x, entity.y), (common.player.x, common.player.y))
+                        nearest_blinky = entity
+            vec = pygame.Vector2(nearest_blinky.x - self.x, nearest_blinky.y - self.y)
+            vec = vec.rotate(180)
+            adjusted_x = int(max(min(common.player.x - vec.x, len(world.tile_map) - 2), 1))
+            adjusted_y = int(max(min(common.player.y - vec.y, len(world.tile_map[0]) - 2), 1))
+
+            while world.get_at(adjusted_x, adjusted_y) in tiles.SOLID_TILES:
+                try:
+                    adjusted_x, adjusted_y = random.choice(
+                        pathfinding.get_neighbors(
+                            pathfinding.array_to_class(world.tile_map),
+                            (adjusted_x, adjusted_y)
+                        )
+                    )
+                except IndexError:
+                    adjusted_x, adjusted_y = int(common.player.x), int(common.player.y)
+
+            self.path = world.path_find(self.x, self.y, adjusted_x, adjusted_y)
+
+
+class ClydeGhost(Ghost):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scatter_tile = (1, 30)
+
+    def tracking(self, world):
+        if common.player not in world.entities:
+            self.task = self.wonder
+            return
+
+        if self.path:
+            self.propagate_path(world)
+        elif self.x != int(common.player.x) or self.y != int(common.player.y):
+            if pathfinding.euclidean((self.x, self.y), (common.player.x, common.player.y)) > 16:
+                self.path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
+            else:
+                self.path = world.path_find(self.x, self.y, self.scatter_tile[0], self.scatter_tile[1])
