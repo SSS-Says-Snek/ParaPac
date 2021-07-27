@@ -19,10 +19,11 @@ class GhostAttributes:
 
 class GhostState:
     NONE = 0
-    LIVING = 1
+    CHASING = 1
     VULNERABLE = 2
     TRANSITION = 3
-    DEAD = 4
+    SCATTER = 4
+    DEAD = 5
 
 
 class Ghost(Entity):
@@ -41,10 +42,14 @@ class Ghost(Entity):
         self.color = color
         self.default_speed = speed
         self.speed = speed
-        self.state = GhostState.LIVING
+        self.state = GhostState.CHASING
         self.timer = 0
         self.vulnerable_period = vulnerable_period
         self.transition_period = transition_period
+
+        self.scatter_length = 8
+        self.chasing_length = 30
+        self.scatter_timer = time.perf_counter()
 
         self.path = []
         self.eyes = [frame.copy() for frame in GHOST_TEMPLATE]
@@ -69,27 +74,41 @@ class Ghost(Entity):
 
     def update(self, world):
         if common.player in world.entities and common.player.collide(self.x, self.y, 1, 1):
-            if self.state == GhostState.LIVING:
+            if self.state == GhostState.CHASING or self.state == GhostState.SCATTER:
                 pass  # make game over stuff here
             else:
                 self.state = GhostState.DEAD
 
-        if self.state == GhostState.LIVING:
+        if self.state == GhostState.CHASING:
             self.task = self.tracking
+
+            # if (time.perf_counter() - self.scatter_timer) % 2 > 1.5:
+            #     print(time.perf_counter() - self.scatter_timer)
+            if time.perf_counter() - self.scatter_timer > self.chasing_length:
+                print("TRANSITIONING")
+                self.scatter_timer = time.perf_counter()
+                self.state = GhostState.SCATTER
         elif self.state == GhostState.VULNERABLE or self.state == GhostState.TRANSITION:
             # self.task = self.wonder
 
             if time.perf_counter() - self.timer > self.vulnerable_period:
                 self.state = GhostState.TRANSITION
             elif time.perf_counter() - self.timer > self.vulnerable_period + self.transition_period:
-                self.state = GhostState.LIVING
+                self.scatter_timer = time.perf_counter()
+                self.state = GhostState.CHASING
+        elif self.state == GhostState.SCATTER:
+            self.task = self.scatter
+            if time.perf_counter() - self.scatter_timer > self.scatter_length:
+                self.scatter_timer = time.perf_counter()
+                self.state = GhostState.CHASING
         elif self.state == GhostState.DEAD:
             self.task = self.go_home
             if self.x == self.origin_x and self.y == self.origin_y:
-                self.state = GhostState.LIVING
+                self.scatter_timer = time.perf_counter()
+                self.state = GhostState.CHASING
                 self.speed = self.default_speed
 
-        if self.state == GhostState.LIVING:
+        if self.state == GhostState.CHASING or self.state == GhostState.SCATTER:
             self.frame = self.frames[self.direction]
         elif self.state == GhostState.VULNERABLE:
             if self.load_random_path:
@@ -132,7 +151,7 @@ class Ghost(Entity):
         if self.path:
             moved = self.nudge(world, self.speed * utils.polarity(self.path[0][0] - self.x),
                                self.speed * utils.polarity(self.path[0][1] - self.y),
-                               ignore_collision=self.state != GhostState.LIVING)
+                               ignore_collision=self.state != GhostState.CHASING)
             if not moved:
                 self.path = []
 
@@ -151,6 +170,16 @@ class Ghost(Entity):
             self.propagate_path(world)
         elif self.x != int(common.player.x) or self.y != int(common.player.y):
             self.path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
+
+    def scatter(self, world):
+        if common.player not in world.entities:
+            self.task = self.wonder
+            return
+
+        if self.path:
+            self.propagate_path(world)
+        elif self.x != self.scatter_tile[0] or self.y != self.scatter_tile[1]:
+            self.path = world.path_find(self.x, self.y, *self.scatter_tile)
 
     def wonder(self, world):
         pass
