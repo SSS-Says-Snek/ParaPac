@@ -70,6 +70,8 @@ class Player(Entity):
 
         if left_click:
             world.set_at(int(x), int(y), self.debug_tile)
+        elif middle_click:
+            world.set_at(int(x), int(y), Tile.COIN)
         elif right_click:
             world.set_at(int(x), int(y), Tile.AIR)
 

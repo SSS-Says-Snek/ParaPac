@@ -1,5 +1,6 @@
 from src import common
 import pygame
+import numpy as np
 
 from typing import List, Tuple
 
@@ -43,3 +44,21 @@ def load_sprite_sheet(file_name: str, columns: int, rows: int) -> List[pygame.Su
             sprites.append(sprite_sheet.subsurface(((x * width, y * height), (width, height))).copy())
 
     return sprites
+
+
+def load_map_data(filepath):
+    with open(filepath) as r:
+        rows = r.read().strip('\r').split('\n')
+
+    for row in rows:
+        if not row:
+            rows.remove(row)
+
+    tile_map = np.zeros((len(rows[0]), len(rows)), dtype=np.uint8)
+
+    for y, row in enumerate(rows):
+        for x, tile in enumerate(row):
+            tile = int(tile, 36)
+            tile_map[x, y] = tile
+
+    return tile_map

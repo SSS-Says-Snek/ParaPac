@@ -171,6 +171,10 @@ class Ghost(Entity):
         elif self.x != int(common.player.x) or self.y != int(common.player.y):
             self.path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
 
+            if self.path is None:
+                # Staks should turn to wander_to_movable_tile, but that's broken rn
+                pass
+
     def scatter(self, world):
         if common.player not in world.entities:
             self.task = self.wonder
@@ -180,6 +184,16 @@ class Ghost(Entity):
             self.propagate_path(world)
         elif self.x != self.scatter_tile[0] or self.y != self.scatter_tile[1]:
             self.path = world.path_find(self.x, self.y, *self.scatter_tile)
+
+    def wander_to_movable_tile(self, world):
+        if common.player not in world.entities:
+            self.task = self.wonder
+            return
+        path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
+        if path is not None:
+            self.task = self.tracking
+        else:
+            pass
 
     def wonder(self, world):
         pass

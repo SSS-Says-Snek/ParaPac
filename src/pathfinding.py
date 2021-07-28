@@ -1,4 +1,5 @@
 from src.tiles import SOLID_TILES
+from src.entity import Direction
 
 import numpy as np
 
@@ -24,22 +25,46 @@ def euclidean(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
     return ((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) ** 0.5
 
 
-def get_neighbors(array: np.array, pos: Tuple[int, int]) -> List:
+def get_neighbors(array: np.array, pos: Tuple[int, int], ommitted_direction: int = None, ommitted_neighbors=()) -> List:
     """Gets all PASSABLE neighbors of a given point"""
     neighbors = []
     left = [pos[0] - 1, pos[1]]
     down = [pos[0], pos[1] + 1]
     right = [pos[0] + 1, pos[1]]
     up = [pos[0], pos[1] - 1]
-    if left[0] >= 0 and array[left[0], left[1]].value not in SOLID_TILES:
+    if left[0] >= 0 and array[left[0], left[1]].value not in SOLID_TILES and ommitted_direction != Direction.LEFT:
         neighbors.append(left)
-    if right[0] < len(array[0]) and array[right[0], right[1]].value not in SOLID_TILES:
+    if right[0] < len(array[0]) and array[right[0], right[1]].value not in SOLID_TILES and ommitted_direction != Direction.RIGHT:
         neighbors.append(right)
-    if up[1] >= 0 and array[up[0], up[1]].value not in SOLID_TILES:
+    if up[1] >= 0 and array[up[0], up[1]].value not in SOLID_TILES and ommitted_direction != Direction.UP:
         neighbors.append(up)
-    if down[1] < len(array[1]) and array[down[0], down[1]].value not in SOLID_TILES:
+    if down[1] < len(array[1]) and array[down[0], down[1]].value not in SOLID_TILES and ommitted_direction != Direction.DOWN:
         neighbors.append(down)
+
+    for ommitted_neighbor in ommitted_neighbors:
+        try:
+            neighbors.remove(ommitted_neighbor)
+        except ValueError:
+            pass
     return neighbors
+
+
+def get_all_movable_tiles(array: np.array, pos: Tuple[int, int]) -> List:
+    # TODO: AAAAAAAAAAAA HELP I DON'T KNOW RECURSION THAT WELLLLLLLLLLLLLLLLLLLLL - SSS-Says-Snek
+    all_neighbors = []
+
+    def recursion_func(arr, p):
+        nonlocal all_neighbors
+        for neighbor in get_neighbors(arr, p):
+            if neighbor not in all_neighbors:
+                all_neighbors.append(neighbor)
+            for neighbor_of_neighbor in get_neighbors(arr, neighbor, ommitted_neighbors=all_neighbors):
+                print(all_neighbors)
+                if get_neighbors(arr, neighbor_of_neighbor) and neighbor_of_neighbor not in all_neighbors:
+                    get_all_movable_tiles(arr, neighbor_of_neighbor)
+
+    recursion_func(array, pos)
+    return all_neighbors
 
 
 def array_to_class(array: np.array) -> np.array:
@@ -116,3 +141,16 @@ def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int], heu
                     open_set.put((f_score[neighbor_instance], count, neighbor_instance))
                     open_set_hash.add(neighbor_instance)
     return None
+
+
+if __name__ == "__main__":
+    # Test stuff for snek (maybe someone else can help me with the recursive func?)
+    from src import common, utils
+    import types
+    import sys
+
+    sys.setrecursionlimit(4000)
+
+    data = utils.load_map_data(common.PATH / "maps/map_a.txt")
+    result = get_all_movable_tiles(array_to_class(data), (12, 15))
+    print(result)
