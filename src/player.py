@@ -1,5 +1,4 @@
 import os
-import random
 import time
 
 from src import common, utils

@@ -2,7 +2,7 @@ import os
 import random
 import time
 
-from src import common, utils, pathfinding, tiles
+from src import common, utils, pathfinding
 from src.entity import *
 from typing import Any
 
@@ -88,14 +88,14 @@ class Ghost(Entity):
                 print("TRANSITIONING")
                 self.scatter_timer = time.perf_counter()
                 self.state = GhostState.SCATTER
-        elif self.state == GhostState.VULNERABLE or self.state == GhostState.TRANSITION:
-            # self.task = self.wonder
-
+        elif self.state == GhostState.VULNERABLE:
             if time.perf_counter() - self.timer > self.vulnerable_period:
                 self.state = GhostState.TRANSITION
-            elif time.perf_counter() - self.timer > self.vulnerable_period + self.transition_period:
-                self.scatter_timer = time.perf_counter()
+                self.timer = time.perf_counter()
+        elif self.state == GhostState.TRANSITION:
+            if time.perf_counter() - self.timer > self.transition_period:
                 self.state = GhostState.CHASING
+                self.scatter_timer = time.perf_counter()
         elif self.state == GhostState.SCATTER:
             self.task = self.scatter
             if time.perf_counter() - self.scatter_timer > self.scatter_length:
@@ -113,9 +113,10 @@ class Ghost(Entity):
         elif self.state == GhostState.VULNERABLE:
             if self.load_random_path:
                 while True:
-                    randpos = (random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0]) - 1))
-                    if world.tile_map[randpos[0], randpos[1]] not in tiles.SOLID_TILES:
-                        self.path = world.path_find(self.x, self.y, *randpos)
+                    random_pos = (random.randint(0, len(world.tile_map) - 1),
+                                  random.randint(0, len(world.tile_map[0]) - 1))
+                    if world.tile_map[random_pos[0], random_pos[1]] not in tiles.SOLID_TILES:
+                        self.path = world.path_find(self.x, self.y, *random_pos)
                         self.load_random_path = False
                         break
 
@@ -268,8 +269,10 @@ class InkyGhost(Ghost):
             nearest_blinky = None
             for entity in world.entities:
                 if isinstance(entity, BlinkyGhost):
-                    if pathfinding.euclidean((entity.x, entity.y), (common.player.x, common.player.y)) < current_blinky_distance:
-                        current_blinky_distance = pathfinding.euclidean((entity.x, entity.y), (common.player.x, common.player.y))
+                    if pathfinding.euclidean((entity.x, entity.y),
+                                             (common.player.x, common.player.y)) < current_blinky_distance:
+                        current_blinky_distance = pathfinding.euclidean((entity.x, entity.y),
+                                                                        (common.player.x, common.player.y))
                         nearest_blinky = entity
             vec = pygame.Vector2(nearest_blinky.x - self.x, nearest_blinky.y - self.y)
             vec = vec.rotate(180)
