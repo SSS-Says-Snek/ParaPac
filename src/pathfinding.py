@@ -1,7 +1,7 @@
 from src.tiles import SOLID_TILES
 from src.entity import Direction
 
-import numpy as np
+import numpy
 
 from math import inf
 from queue import PriorityQueue
@@ -25,31 +25,34 @@ def euclidean(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
     return ((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) ** 0.5
 
 
-def get_neighbors(array: np.array, pos: Tuple[int, int], ommitted_direction: int = None, ommitted_neighbors=()) -> List:
+def get_neighbors(array: numpy.array, pos: Tuple[int, int], omitted_direction: int = None,
+                  omitted_neighbors=()) -> List:
     """Gets all PASSABLE neighbors of a given point"""
     neighbors = []
     left = [pos[0] - 1, pos[1]]
     down = [pos[0], pos[1] + 1]
     right = [pos[0] + 1, pos[1]]
     up = [pos[0], pos[1] - 1]
-    if left[0] >= 0 and array[left[0], left[1]].value not in SOLID_TILES and ommitted_direction != Direction.LEFT:
+    if left[0] >= 0 and array[left[0], left[1]].value not in SOLID_TILES and omitted_direction != Direction.LEFT:
         neighbors.append(left)
-    if right[0] < len(array[0]) and array[right[0], right[1]].value not in SOLID_TILES and ommitted_direction != Direction.RIGHT:
+    if right[0] < len(array[0]) and array[right[0], right[1]].value not in SOLID_TILES and \
+            omitted_direction != Direction.RIGHT:
         neighbors.append(right)
-    if up[1] >= 0 and array[up[0], up[1]].value not in SOLID_TILES and ommitted_direction != Direction.UP:
+    if up[1] >= 0 and array[up[0], up[1]].value not in SOLID_TILES and omitted_direction != Direction.UP:
         neighbors.append(up)
-    if down[1] < len(array[1]) and array[down[0], down[1]].value not in SOLID_TILES and ommitted_direction != Direction.DOWN:
+    if down[1] < len(array[1]) and array[down[0], down[1]].value not in SOLID_TILES and \
+            omitted_direction != Direction.DOWN:
         neighbors.append(down)
 
-    for ommitted_neighbor in ommitted_neighbors:
+    for omitted_neighbor in omitted_neighbors:
         try:
-            neighbors.remove(ommitted_neighbor)
+            neighbors.remove(omitted_neighbor)
         except ValueError:
             pass
     return neighbors
 
 
-def get_all_movable_tiles(array: np.array, pos: Tuple[int, int]) -> List:
+def get_all_movable_tiles(array: numpy.array, pos: Tuple[int, int]) -> List:
     # TODO: AAAAAAAAAAAA HELP I DON'T KNOW RECURSION THAT WELLLLLLLLLLLLLLLLLLLLL - SSS-Says-Snek
     all_neighbors = []
 
@@ -58,7 +61,7 @@ def get_all_movable_tiles(array: np.array, pos: Tuple[int, int]) -> List:
         for neighbor in get_neighbors(arr, p):
             if neighbor not in all_neighbors:
                 all_neighbors.append(neighbor)
-            for neighbor_of_neighbor in get_neighbors(arr, neighbor, ommitted_neighbors=all_neighbors):
+            for neighbor_of_neighbor in get_neighbors(arr, neighbor, omitted_neighbors=all_neighbors):
                 print(all_neighbors)
                 if get_neighbors(arr, neighbor_of_neighbor) and neighbor_of_neighbor not in all_neighbors:
                     get_all_movable_tiles(arr, neighbor_of_neighbor)
@@ -67,9 +70,9 @@ def get_all_movable_tiles(array: np.array, pos: Tuple[int, int]) -> List:
     return all_neighbors
 
 
-def array_to_class(array: np.array) -> np.array:
+def array_to_class(array: numpy.array) -> numpy.array:
     """Converts all elements of a numpy array into a Node instance"""
-    return np.array(
+    return numpy.array(
         [[Node(value, (x, y)) for y, value in enumerate(row)]
          for x, row in enumerate(array)])
 
@@ -92,15 +95,15 @@ def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[in
     return result
 
 
-def algorithm(array: np.array, start: Tuple[int, int], end: Tuple[int, int], heuristic: Callable = manhattan) -> Union[List, None]:
+def algorithm(array: numpy.array, start: Tuple[int, int], end: Tuple[int, int], heuristic: Callable = manhattan) -> Union[List, None]:
     """
     Returns a list of all points, for the path between `start` and `end`
-    :param array: a np array of Node instances
+    :param array: a numpy array of Node instances
     :param start: a tuple (or list) of points corresponding to where to start on array
     :param end: like start, but for the end
     :param heuristic: a function that represents the heuristic (default: manhattan heuristic)
     Example:
-    >>> test = np.array(
+    >>> test = numpy.array(
         [[0, 0, 0, 0, 0, 1],
          [0, 1, 1, 1, 0, 1],
          [0, 1, 0, 0, 0, 1],

@@ -1,6 +1,6 @@
 from src import common
 import pygame
-import numpy as np
+import numpy
 
 from typing import List, Tuple
 
@@ -54,7 +54,7 @@ def load_map_data(filepath):
         if not row:
             rows.remove(row)
 
-    tile_map = np.zeros((len(rows[0]), len(rows)), dtype=np.uint8)
+    tile_map = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
 
     for y, row in enumerate(rows):
         for x, tile in enumerate(row):
