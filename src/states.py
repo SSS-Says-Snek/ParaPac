@@ -17,34 +17,29 @@ class MainGameState(BaseState):
     def __init__(self):
         super().__init__()
 
-    def gameplay_events(self):
-        pygame.display.flip()
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEWHEEL and common.DEBUG:
+            common.player.debug_tile -= event.y
+            common.player.debug_tile %= len(tiles.TILE_DICT)
+        elif event.type == pygame.KEYDOWN:
+            # Toggles debug mode
+            if event.key == pygame.K_F1:
+                common.DEBUG = not common.DEBUG
+            # Changes the map dimension
+            elif event.key == pygame.K_p:
+                common.transitioning_mode = common.Transition.FADING
+                common.alpha = 255
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                raise GameExit
-            if event.type == pygame.MOUSEWHEEL and common.DEBUG:
-                common.player.debug_tile -= event.y
-                common.player.debug_tile %= len(tiles.TILE_DICT)
-            elif event.type == pygame.KEYDOWN:
-                # Toggles debug mode
-                if event.key == pygame.K_F1:
-                    common.DEBUG = not common.DEBUG
-                # Changes the map dimension
-                elif event.key == pygame.K_p:
-                    common.transitioning_mode = common.Transition.FADING
-                    common.alpha = 255
-
-                elif common.DEBUG:
-                    # Saves the map
-                    if event.key == pygame.K_F2:
-                        with open(common.PATH / "maps" / common.maps[common.active_map_id][2], "w") as f:
-                            f.write(common.active_map.save())
-                    # Toggles freezing the world
-                    elif event.key == pygame.K_F3:
-                        common.DEBUG_FREEZE = not common.DEBUG_FREEZE
-                    elif event.key == pygame.K_F9:
-                        self.change_state(TestState)
+            elif common.DEBUG:
+                # Saves the map
+                if event.key == pygame.K_F2:
+                    with open(common.PATH / "maps" / common.maps[common.active_map_id][2], "w") as f:
+                        f.write(common.active_map.save())
+                # Toggles freezing the world
+                elif event.key == pygame.K_F3:
+                    common.DEBUG_FREEZE = not common.DEBUG_FREEZE
+                elif event.key == pygame.K_F9:
+                    self.change_state(TestState)
 
     @staticmethod
     def gameplay_map():
@@ -93,7 +88,6 @@ class MainGameState(BaseState):
     def run(self):
         common.fps = 1000 / common.clock.tick(60)
 
-        self.gameplay_events()
         self.gameplay_map()
 
         if common.DEBUG:
@@ -112,14 +106,10 @@ class TestState(BaseState):
     def __init__(self):
         super().__init__()
 
-    def run(self):
-        pygame.display.flip()
-        common.window.fill((0, 0, 0))
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F9:
+                self.change_state(MainGameState)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                raise SystemExit
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_F9:
-                    self.change_state(MainGameState)
+    def run(self):
+        common.window.fill((0, 0, 0))
