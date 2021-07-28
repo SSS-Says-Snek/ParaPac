@@ -1,9 +1,12 @@
+import os
+
 import pygame
 import sys
 from pathlib import Path
 from typing import Any
 
 pygame.init()
+pygame.mixer.init()
 
 DEBUG = "-d" in sys.argv or "--debug" in sys.argv
 DEBUG_FREEZE = False
@@ -38,3 +41,11 @@ class Transition:
 
 
 transitioning_mode = Transition.NOT_TRANSITIONING
+
+pygame.mixer.set_num_channels(8)
+
+sfx = pygame.mixer.Channel(5)
+pacman_eat_sfx = pygame.mixer.Sound(PATH / "assets/pacman_eat.wav")
+pacman_eat_ghost_sfx = pygame.mixer.Sound(PATH / "assets/pacman_eatghost.wav")
+pacman_die_sfx = pygame.mixer.Sound(PATH / "assets/pacman_die.wav")
+pacman_pellet_sfx = pygame.mixer.Sound(PATH / "assets/pacman_pellet.wav")

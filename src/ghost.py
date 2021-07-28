@@ -47,8 +47,10 @@ class Ghost(Entity):
         self.vulnerable_period = vulnerable_period
         self.transition_period = transition_period
 
-        self.scatter_length = 8
-        self.chasing_length = 30
+        self.default_scatter_length = 8
+        self.scatter_length = self.default_scatter_length
+        self.default_chasing_length = 30
+        self.chasing_length = self.default_chasing_length
         self.scatter_timer = time.perf_counter()
 
         self.path = []
@@ -74,11 +76,17 @@ class Ghost(Entity):
 
     def update(self, world):
         if common.player in world.entities and common.player.collide(self.x, self.y, 1, 1):
-            if self.state == GhostState.CHASING or self.state == GhostState.SCATTER:
+            if (self.state == GhostState.CHASING or self.state == GhostState.SCATTER) and not common.player.immune:
                 if not common.DEBUG:
+                    common.sfx.stop()
+                    common.sfx.play(common.pacman_die_sfx)
                     common.player.task = common.player.die
             else:
                 self.state = GhostState.DEAD
+
+                if common.player.task != common.player.die and self.task != self.go_home:
+                    common.sfx.stop()
+                    common.sfx.play(common.pacman_eat_ghost_sfx)
 
         if self.state == GhostState.CHASING:
             self.task = self.tracking
@@ -86,6 +94,8 @@ class Ghost(Entity):
             # if (time.perf_counter() - self.scatter_timer) % 2 > 1.5:
             #     print(time.perf_counter() - self.scatter_timer)
             if time.perf_counter() - self.scatter_timer > self.chasing_length:
+                if self.chasing_length != self.default_chasing_length:
+                    self.chasing_length = self.default_chasing_length
                 print("TRANSITIONING")
                 self.scatter_timer = time.perf_counter()
                 self.state = GhostState.SCATTER
@@ -100,6 +110,8 @@ class Ghost(Entity):
         elif self.state == GhostState.SCATTER:
             self.task = self.scatter
             if time.perf_counter() - self.scatter_timer > self.scatter_length:
+                if self.scatter_length != self.default_scatter_length:
+                    self.scatter_length = self.default_scatter_length
                 self.scatter_timer = time.perf_counter()
                 self.state = GhostState.CHASING
         elif self.state == GhostState.DEAD:

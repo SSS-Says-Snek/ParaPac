@@ -20,7 +20,7 @@ class Dashboard:
             False, (255, 255, 255)
         )
         health_txt = common.font.render(
-            f"Health: {str(common.health)}",
+            f"Health: {str(common.player.health)}",
             False, (255, 255, 255)
         )
         coin_txt = common.font.render(

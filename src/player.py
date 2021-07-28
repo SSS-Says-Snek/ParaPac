@@ -1,11 +1,10 @@
 import os
 import time
 
-from src import common, interrupt, utils
+from src import common, interrupt, utils, powerup
 from src.tiles import Tile
 from src.ghost import Ghost, GhostState
 from src.entity import *
-
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
@@ -32,6 +31,11 @@ class Player(Entity):
         self.direction = Direction.UP
         self.next_direction = Direction.NONE
         self.dead = -1  # Also acts as an animation frame counter
+        self.health = 3
+
+        self.immunity_duration = 4
+        self.immune = False
+        self.immunity_timer = time.perf_counter()
 
         self.debug_tile = Tile.WALL
 
@@ -56,11 +60,16 @@ class Player(Entity):
                 world.set_at(int(self.x), int(self.y), Tile.AIR)
                 common.score += 10
                 common.coins += 1
+                if not common.sfx.get_busy():
+                    common.sfx.play(common.pacman_eat_sfx)
             elif tile == Tile.PELLET:
                 world.set_at(int(self.x), int(self.y), Tile.AIR)
                 common.score += 100
+
+                common.sfx.stop()
+                common.sfx.play(common.pacman_pellet_sfx)
                 for entity in world.entities:
-                    if isinstance(entity, Ghost) or issubclass(entity.__class__, Ghost):
+                    if issubclass(entity.__class__, Ghost):
                         entity.load_random_path = True
                         entity.state = GhostState.VULNERABLE
                         entity.timer = time.perf_counter()
@@ -116,13 +125,35 @@ class Player(Entity):
         else:
             self.frame = PACMAN_EAT[self.direction][-1]
 
+        if self.immune and time.perf_counter() - self.immunity_timer > self.immunity_duration:
+            self.immune = False
+
     def die(self, world):
         if self.dead < 0:
+            if self.health > 0:
+                self.health -= 1
+                self.immune = True
+                self.immunity_timer = time.perf_counter()
+
+                powerup.add_powerup(powerup.PowerUp.IMMUNITY, 4)
+
+                for entity in common.active_map.entities:
+                    if issubclass(entity.__class__, Ghost):
+                        entity.task = entity.scatter
+                        entity.scatter_timer = time.perf_counter()
+                        entity.scatter_length = 4
+                        entity.path = world.path_find(entity.x, entity.y, *entity.scatter_tile)
+                print(self.health)
             self.dead = 0
-        elif self.dead >= len(_PACMAN_DIE):
+        elif self.dead >= len(_PACMAN_DIE) and self.health == 0:
             raise interrupt.GameOver
 
-        self.frame = PACMAN_DIE[self.direction][int(self.dead)]
+        try:
+            self.frame = PACMAN_DIE[self.direction][int(self.dead)]
+        except IndexError:
+            common.player.task = common.player.forward
+            self.dead = -1
+
         self.dead += 0.25
 
     def teleport(self, world):
