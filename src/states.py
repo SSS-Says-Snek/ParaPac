@@ -1,7 +1,8 @@
-import pygame
-import os
+import time
 
-from src import common, tiles, utils
+import pygame
+
+from src import common, tiles, utils, powerup
 from src.interrupt import *
 
 
@@ -100,6 +101,54 @@ class MainGameState(BaseState):
                 f"Block: {tiles.TILE_DICT[common.player.debug_tile]}",
                 False, (255, 255, 255), (0, 0, 0)
             ).convert_alpha(), (0, 0))
+
+
+class ShopState(BaseState):
+    def __init__(self):
+        super().__init__()
+
+        self.time_entered = time.perf_counter()
+        self.store_items = [
+            {
+                "name": "Medkit",
+                "summary": "Heal yes by 1",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id turpis auctor, lacinia orci ac, auctor justo.",
+                "price": 15,
+                "image": pygame.transform.scale(pygame.image.load(common.PATH / "assets/ghost.png"), (100, 100))
+            }
+            # {
+            #     "name": "E",
+            #     "summary": "E",
+            #     "description": "E",
+            #     "price": 69,
+            #     "image": pygame.transform.scale(pygame.image.load(common.PATH / "assets/ghost.png"), (50, 50))
+            # }
+        ] * 9
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F9:
+                exit_time = time.perf_counter()
+
+                self.change_state(MainGameState)
+
+                common.player.moved_after_shop_exit = False
+                reconstructed_powerups = {}
+                for power, data in powerup.powerups.items():
+                    new_data = data[:]
+                    if powerup.is_powerup_on(power):
+                        new_data[1] = new_data[1] + exit_time - self.time_entered
+                    reconstructed_powerups[power] = new_data
+                powerup.powerups = reconstructed_powerups
+
+    def run(self):
+        common.window.fill((255, 255, 128))
+
+        for i, item in enumerate(self.store_items):
+            location_of_item = divmod(i, 4)
+            w = common.window.get_width()
+            h = common.window.get_height()
+            common.window.blit(item['image'], (location_of_item[1] * w / 4 + 10/620*w, location_of_item[0] * (2/3*h) / 2 + 40/620*h))
 
 
 class TestState(BaseState):

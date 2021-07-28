@@ -16,6 +16,7 @@ class GameLoop:
 
     def run(self):
         self.setup()
+        from src import powerup
         while True:
             try:
                 pygame.display.flip()
@@ -59,5 +60,6 @@ class GameLoop:
 
 
 if __name__ == "__main__":
-    # setup()
-    GameLoop().run()
+    game_loop = GameLoop()
+    common.game_loop = game_loop
+    game_loop.run()
