@@ -29,7 +29,8 @@ class GameLoop:
             except GameRetry:
                 pass
             except GameOver:
-                pass
+                print("You died")
+                sys.exit(0)
 
     @staticmethod
     def setup():

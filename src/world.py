@@ -187,6 +187,19 @@ class World:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 4)
                 elif tile == Tile.PELLET:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 7)
+                elif common.DEBUG:
+                    def draw(color):
+                        pygame.draw.rect(self.surface, color, ((xx + 4, yy + 4),
+                                         (tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2)))
+
+                    if tile == Tile.RED_GHOST:
+                        draw(GhostAttributes.RED_COLOR)
+                    elif tile == Tile.PINK_GHOST:
+                        draw(GhostAttributes.PINK_COLOR)
+                    elif tile == Tile.BLUE_GHOST:
+                        draw(GhostAttributes.BLUE_COLOR)
+                    elif tile == Tile.ORANGE_GHOST:
+                        draw(GhostAttributes.ORANGE_COLOR)
 
     def render(self) -> pygame.Surface:
         """

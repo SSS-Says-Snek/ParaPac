@@ -75,7 +75,8 @@ class Ghost(Entity):
     def update(self, world):
         if common.player in world.entities and common.player.collide(self.x, self.y, 1, 1):
             if self.state == GhostState.CHASING or self.state == GhostState.SCATTER:
-                pass  # make game over stuff here
+                if not common.DEBUG:
+                    common.player.task = common.player.die
             else:
                 self.state = GhostState.DEAD
 
@@ -133,10 +134,6 @@ class Ghost(Entity):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
             self.task = self.go_home
-
-        pygame.draw.rect(world.overlay, self.color, ((self.origin_x * tiles.TILE_SIZE + tiles.TILE_SIZE // 4,
-                                                      self.origin_y * tiles.TILE_SIZE + tiles.TILE_SIZE // 4),
-                                                     (tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2)))
 
         if self.path:
             rect = pygame.Surface((tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2), pygame.SRCALPHA)

@@ -1,7 +1,7 @@
 import os
 import time
 
-from src import common, utils
+from src import common, interrupt, utils
 from src.tiles import Tile
 from src.ghost import Ghost, GhostState
 from src.entity import *
@@ -9,9 +9,13 @@ from src.entity import *
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
-_PACMAN = utils.load_sprite_sheet(os.path.join("assets", "pacman_eat.png"), 4, 2)
-PACMAN = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN]
-          for rotation in (0, 180, 90, -90)]
+_PACMAN_EAT = utils.load_sprite_sheet(os.path.join("assets", "pacman_eat.png"), 4, 2)
+PACMAN_EAT = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN_EAT]
+              for rotation in (0, 180, 90, -90)]
+
+_PACMAN_DIE = utils.load_sprite_sheet(os.path.join("assets", "pacman_die.png"), 4, 5)
+PACMAN_DIE = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN_DIE]
+              for rotation in (0, 180, 90, -90)]
 
 
 class Player(Entity):
@@ -27,10 +31,14 @@ class Player(Entity):
 
         self.direction = Direction.UP
         self.next_direction = Direction.NONE
+        self.dead = -1  # Also acts as an animation frame counter
 
         self.debug_tile = Tile.WALL
 
     def update(self, world):
+        if self.dead >= 0:
+            return
+
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
@@ -103,9 +111,19 @@ class Player(Entity):
                     self.direction = self.next_direction
 
         if moved:
-            self.frame = PACMAN[self.direction][int(time.perf_counter() * len(_PACMAN) * 4) % len(_PACMAN)]
+            self.frame = PACMAN_EAT[self.direction][int(time.perf_counter() *
+                                                        len(_PACMAN_EAT) * 4) % len(_PACMAN_EAT)]
         else:
-            self.frame = PACMAN[self.direction][-1]
+            self.frame = PACMAN_EAT[self.direction][-1]
+
+    def die(self, world):
+        if self.dead < 0:
+            self.dead = 0
+        elif self.dead >= len(_PACMAN_DIE):
+            raise interrupt.GameOver
+
+        self.frame = PACMAN_DIE[self.direction][int(self.dead)]
+        self.dead += 0.25
 
     def teleport(self, world):
         pass

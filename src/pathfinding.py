@@ -95,7 +95,8 @@ def reconstruct_path(path_outputted: dict, start: Tuple[int, int], end: Tuple[in
     return result
 
 
-def algorithm(array: numpy.array, start: Tuple[int, int], end: Tuple[int, int], heuristic: Callable = manhattan) -> Union[List, None]:
+def algorithm(array: numpy.array, start: Tuple[int, int], end: Tuple[int, int],
+              heuristic: Callable = manhattan) -> Union[List, None]:
     """
     Returns a list of all points, for the path between `start` and `end`
     :param array: a numpy array of Node instances
