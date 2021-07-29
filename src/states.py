@@ -1,8 +1,6 @@
 import pygame
-import os
 
 from src import common, tiles, utils
-from src.interrupt import *
 
 
 class BaseState:

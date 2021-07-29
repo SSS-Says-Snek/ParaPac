@@ -16,6 +16,9 @@ _PACMAN_DIE = utils.load_sprite_sheet(os.path.join("assets", "pacman_die.png"), 
 PACMAN_DIE = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN_DIE]
               for rotation in (0, 180, 90, -90)]
 
+PACMAN_EAT_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_eat.wav")
+PACMAN_PELLET_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_pellet.wav")
+
 
 class Player(Entity):
     """
@@ -60,16 +63,18 @@ class Player(Entity):
                 world.set_at(int(self.x), int(self.y), Tile.AIR)
                 common.score += 10
                 common.coins += 1
-                if not common.sfx.get_busy():
-                    common.sfx.play(common.pacman_eat_sfx)
+
+                PACMAN_EAT_SFX.play()
             elif tile == Tile.PELLET:
                 world.set_at(int(self.x), int(self.y), Tile.AIR)
                 common.score += 100
+                PACMAN_PELLET_SFX.play()
 
-                common.sfx.stop()
-                common.sfx.play(common.pacman_pellet_sfx)
                 for entity in world.entities:
                     if issubclass(entity.__class__, Ghost):
+                        if entity.state == GhostState.DEAD:
+                            continue
+
                         entity.load_random_path = True
                         entity.state = GhostState.VULNERABLE
                         entity.timer = time.perf_counter()

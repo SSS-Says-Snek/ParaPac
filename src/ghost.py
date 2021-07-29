@@ -9,6 +9,9 @@ from typing import Any
 GHOST_TEMPLATE = utils.load_sprite_sheet(os.path.join("assets", "ghost.png"), 2, 2)
 GHOST_VULNERABLE = utils.load_sprite_sheet(os.path.join("assets", "ghost_vulnerable.png"), 2, 2)
 
+GHOST_EATEN_SFX = pygame.mixer.Sound(common.PATH / "assets/ghost_eaten.wav")
+GHOST_PLAYER_EATEN_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_die.wav")
+
 
 class GhostAttributes:
     RED_COLOR = (255, 0, 0)
@@ -78,15 +81,13 @@ class Ghost(Entity):
         if common.player in world.entities and common.player.collide(self.x, self.y, 1, 1):
             if (self.state == GhostState.CHASING or self.state == GhostState.SCATTER) and not common.player.immune:
                 if not common.DEBUG:
-                    common.sfx.stop()
-                    common.sfx.play(common.pacman_die_sfx)
+                    GHOST_PLAYER_EATEN_SFX.play()
                     common.player.task = common.player.die
             else:
                 self.state = GhostState.DEAD
 
                 if common.player.task != common.player.die and self.task != self.go_home:
-                    common.sfx.stop()
-                    common.sfx.play(common.pacman_eat_ghost_sfx)
+                    GHOST_EATEN_SFX.play()
 
         if self.state == GhostState.CHASING:
             self.task = self.tracking
