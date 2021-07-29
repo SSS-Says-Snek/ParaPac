@@ -25,6 +25,7 @@ class MainGameState(BaseState):
             # Toggles debug mode
             if event.key == pygame.K_F1:
                 common.DEBUG = not common.DEBUG
+                common.active_map.render_world()
             # Changes the map dimension
             elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
