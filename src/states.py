@@ -110,17 +110,29 @@ class ShopState(BaseState):
         super().__init__()
 
         self.store_items = [
-                               {
-                                   "name": "Medkit",
-                                   "summary": "Heal yes by 1",
-                                   "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in "
-                                                  "nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis "
-                                                  "vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id "
-                                                  "turpis auctor, lacinia orci ac, auctor justo.",
-                                   "price": 15,
-                                   "image": pygame.image.load(common.PATH / "assets/ghost.png")
-                               }
-                           ] * 9
+            {
+                "name": "Medkit",
+                "summary": "Heal yes by 1",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in "
+                               "nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis "
+                               "vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id "
+                               "turpis auctor, lacinia orci ac, auctor justo.",
+                "price": 15,
+                "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+            }
+            for _ in range(9)
+        ]
+        self.exit_shop_button = utils.Button(
+            common.window, (425, 550, 150, 50), self.exit_shop,
+            rect_color=(128, 128, 128), text='test', font_size=20,
+            border_color=(100, 100, 100), border_width=5,
+            hover_color=(150, 150, 150)
+        )
+
+        self.show_buy_screen = False
+        self.normal_shop_alpha = 0
+        self.focused_item = None
+        self.buy_screen_rect = None
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -128,15 +140,40 @@ class ShopState(BaseState):
                 self.change_state(MainGameState)
                 common.player.moved_after_shop_exit = False
                 powerup.unpause()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if not self.show_buy_screen:
+                for i, item in enumerate(self.store_items):
+                    try:
+                        if item['rect'].collidepoint(event.pos):
+                            print(f"CLICKED INDEX {i}")
+                            self.normal_shop_alpha = 128
+                            self.show_buy_screen = True
+                            self.focused_item = item
+                    except KeyError:
+                        # Index 8 and above is not included because it is not on the same page (literally)
+                        pass
+            else:
+                try:
+                    if not self.buy_screen_rect.collidepoint(event.pos):
+                        self.normal_shop_alpha = 0
+                        self.show_buy_screen = False
+                        self.focused_item = None
+                except AttributeError:
+                    pass
+
+        self.exit_shop_button.handle_event(event)
 
     def run(self):
+        surf_to_blit = pygame.Surface(common.window.get_size())
         common.window.fill((12, 25, 145))
+        surf_to_blit.fill((12, 25, 145))
         mouse_pos = pygame.mouse.get_pos()
+        self.exit_shop_button.draw()
+        w = surf_to_blit.get_width()
+        h = surf_to_blit.get_height()
 
         for i, item in enumerate(self.store_items):
             location_of_item = divmod(i, 4)
-            w = common.window.get_width()
-            h = common.window.get_height()
             if location_of_item[0] * (2 / 3 * h) / 1.9 + 40 / 620 * h < 2 / 3 * h:
                 coords = (
                     int(location_of_item[1] * w / 4 + 10 / 620 * w),
@@ -148,35 +185,38 @@ class ShopState(BaseState):
                 )
 
                 surf = pygame.transform.scale(item['image'], (int(60 / 620 * w), int(70 / 620 * h)))
-                common.window.blit(
+                surf_to_blit.blit(
                     surf,
                     coords
                 )
 
                 txt = utils.load_font(30).render(item['name'], True, (0, 0, 0))
-                common.window.blit(
+                surf_to_blit.blit(
                     txt,
                     txt_coords
                 )
 
                 t = utils.TextMessage((coords[0], coords[1] + surf.get_height() + 20 / 620 * h),
                                       surf.get_width() * 1.5, surf.get_height(), (128, 128, 128), item['summary'],
-                                      common.font, (0, 0, 0), (100, 100, 100), 5)
+                                      common.font, (0, 0, 0), (100, 100, 100), 5, screen=surf_to_blit)
                 t.draw()
 
+                mod_store_items = self.store_items[:]
                 overall_rect = pygame.Rect(coords[0] - 5 / 620 * w, coords[1] - 5 / 620 * h, t.width + 10 / 620 * w,
-                                           surf.get_height() + t.height - (
-                                                       coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
-                if overall_rect.collidepoint(mouse_pos):
-                    pygame.draw.rect(common.window, (133, 0, 0), overall_rect, int(5 / 620 * w))
+                                           surf.get_height() + t.height - (coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
+                mod_store_items[i]['rect'] = overall_rect
+                self.store_items = mod_store_items[:]
+                if self.focused_item is not None:
+                    item = self.focused_item
+                    overall_rect = item['rect']
+                if overall_rect.collidepoint(mouse_pos) or self.focused_item:
+                    pygame.draw.rect(surf_to_blit, (133, 0, 0), overall_rect, int(5 / 620 * w))
                     truncated_text = item['description']
                     if len(truncated_text) > 200:
                         truncated_text = item['description'][:197] + '...'
-                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h,
-                                                   (128, 128, 128),
-                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100),
-                                                   border_width=5,
-                                                   text_width=550 / 620 * w)
+                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h, (128, 128, 128),
+                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100), border_width=5,
+                                                   text_width=550 / 620 * w, screen=surf_to_blit)
                     t_moreinfo.draw()
 
                     custom_price_font = utils.load_font(24)
@@ -185,12 +225,41 @@ class ShopState(BaseState):
                     price_txt = custom_price_font.render(f"{item['price']} coins", True, (0, 0, 0))
                     price_txt_pos = t_moreinfo.text_rect.topright
                     price_txt_pos = price_txt.get_rect(topright=price_txt_pos)
-                    common.window.blit(price_txt, price_txt_pos)
+                    surf_to_blit.blit(price_txt, price_txt_pos)
 
                     name_txt = custom_price_font.render(item['name'], True, (0, 0, 0))
                     name_txt_pos = (t_moreinfo.text_rect.topleft[0] + 5 / 620 * w, t_moreinfo.text_rect.topleft[1])
                     name_txt_pos = name_txt.get_rect(topleft=name_txt_pos)
-                    common.window.blit(name_txt, name_txt_pos)
+                    surf_to_blit.blit(name_txt, name_txt_pos)
+
+        common.window.blit(surf_to_blit, (0, 0))
+
+        darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()
+        darken_surf.fill((0, 0, 0, self.normal_shop_alpha))
+        common.window.blit(darken_surf, (0, 0))
+
+        if self.show_buy_screen:
+            buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))
+            buy_screen_pos = buy_screen_surf.get_rect(center=(w // 2, h // 2))
+            self.buy_screen_rect = buy_screen_pos
+
+            buy_screen_surf.fill((128, 128, 128))
+
+            common.window.blit(buy_screen_surf, buy_screen_pos)
+
+    def exit_shop(self):
+        exit_time = time.perf_counter()
+
+        self.change_state(MainGameState)
+
+        common.player.moved_after_shop_exit = False
+        reconstructed_powerups = {}
+        for power, data in powerup.powerups.items():
+            new_data = data[:]
+            if powerup.is_powerup_on(power):
+                new_data[1] = new_data[1] + exit_time - self.time_entered
+            reconstructed_powerups[power] = new_data
+        powerup.powerups = reconstructed_powerups
 
 
 class TestState(BaseState):
