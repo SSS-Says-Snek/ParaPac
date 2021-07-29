@@ -81,7 +81,7 @@ class Ghost(Entity):
                     common.sfx.stop()
                     common.sfx.play(common.pacman_die_sfx)
                     common.player.task = common.player.die
-            else:
+            elif not common.player.immune:
                 self.state = GhostState.DEAD
 
                 if common.player.task != common.player.die and self.task != self.go_home:
