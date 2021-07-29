@@ -87,6 +87,7 @@ class Player(Entity):
                         entity.speed = entity.default_speed / 2
             elif tile == Tile.SHOP and (self.moved_after_shop_exit is None):
                 self.x, self.y = int(self.x), int(self.y)
+                powerup.pause()
                 common.game_loop.state.change_state(ShopState)
 
     def debug(self, world):

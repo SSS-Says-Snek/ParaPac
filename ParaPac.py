@@ -16,7 +16,6 @@ class GameLoop:
 
     def run(self):
         self.setup()
-        from src import powerup
         while True:
             try:
                 pygame.display.flip()

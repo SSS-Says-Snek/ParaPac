@@ -30,7 +30,6 @@ active_map_id: int = 0
 alpha: int = 255
 
 score: int = 0
-health: int = 100
 coins: int = 0
 
 

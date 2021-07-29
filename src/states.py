@@ -3,7 +3,7 @@ import time
 import pygame
 
 from src import common, tiles, utils
-from src import common, tiles, utils, powerup
+from src import common, tiles, utils, powerup, notification
 from src.interrupt import *
 
 
@@ -109,7 +109,6 @@ class ShopState(BaseState):
     def __init__(self):
         super().__init__()
 
-        self.time_entered = time.perf_counter()
         self.store_items = [
                                {
                                    "name": "Medkit",
@@ -126,18 +125,9 @@ class ShopState(BaseState):
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F9:
-                exit_time = time.perf_counter()
-
                 self.change_state(MainGameState)
-
                 common.player.moved_after_shop_exit = False
-                reconstructed_powerups = {}
-                for power, data in powerup.powerups.items():
-                    new_data = data[:]
-                    if powerup.is_powerup_on(power):
-                        new_data[1] = new_data[1] + exit_time - self.time_entered
-                    reconstructed_powerups[power] = new_data
-                powerup.powerups = reconstructed_powerups
+                powerup.unpause()
 
     def run(self):
         common.window.fill((12, 25, 145))
@@ -175,15 +165,18 @@ class ShopState(BaseState):
                 t.draw()
 
                 overall_rect = pygame.Rect(coords[0] - 5 / 620 * w, coords[1] - 5 / 620 * h, t.width + 10 / 620 * w,
-                                           surf.get_height() + t.height - (coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
+                                           surf.get_height() + t.height - (
+                                                       coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
                 if overall_rect.collidepoint(mouse_pos):
                     pygame.draw.rect(common.window, (133, 0, 0), overall_rect, int(5 / 620 * w))
                     truncated_text = item['description']
                     if len(truncated_text) > 200:
                         truncated_text = item['description'][:197] + '...'
-                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h, (128, 128, 128),
-                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100), border_width=5,
-                                                   text_width=550/620*w)
+                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h,
+                                                   (128, 128, 128),
+                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100),
+                                                   border_width=5,
+                                                   text_width=550 / 620 * w)
                     t_moreinfo.draw()
 
                     custom_price_font = utils.load_font(24)
@@ -195,7 +188,7 @@ class ShopState(BaseState):
                     common.window.blit(price_txt, price_txt_pos)
 
                     name_txt = custom_price_font.render(item['name'], True, (0, 0, 0))
-                    name_txt_pos = (t_moreinfo.text_rect.topleft[0] + 5/620*w, t_moreinfo.text_rect.topleft[1])
+                    name_txt_pos = (t_moreinfo.text_rect.topleft[0] + 5 / 620 * w, t_moreinfo.text_rect.topleft[1])
                     name_txt_pos = name_txt.get_rect(topleft=name_txt_pos)
                     common.window.blit(name_txt, name_txt_pos)
 

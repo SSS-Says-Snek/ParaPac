@@ -1,4 +1,4 @@
-from src import common, powerup
+from src import common, powerup, notification
 import pygame, time
 
 
@@ -20,7 +20,7 @@ class Dashboard:
             False, (255, 255, 255)
         )
         health_txt = common.font.render(
-            f"Health: {str(common.player.health)}",
+            f"Lives: {str(common.player.health)}",
             False, (255, 255, 255)
         )
         coin_txt = common.font.render(
@@ -28,9 +28,9 @@ class Dashboard:
             False, (255, 255, 255)
         )
         dashboard.fill((self.current_color[0] * 0.75, self.current_color[1] * 0.75, self.current_color[2] * 0.75))
-        dashboard.blit(score_txt, (10, 10))
+        dashboard.blit(score_txt, (10, 5))
         dashboard.blit(health_txt, (10, 30))
-        dashboard.blit(coin_txt, (10, 50))
+        dashboard.blit(coin_txt, (10, 55))
 
         # Second Column
 
@@ -45,8 +45,8 @@ class Dashboard:
                                                        key=lambda item: int(item[1][1]) - int(
                                                            time.perf_counter() - item[1][0]))}
         # Render powerups
-        y = 10
-        for power, data in self.current_powers.items():
+        y = 2
+        for power, data in list(self.current_powers.items())[:3]:
             time_left = time.perf_counter() - data[0]
             if time_left >= data[1]:
                 powerup.powerups[power][0] = 0
@@ -66,13 +66,26 @@ class Dashboard:
                 f"{data[1] - int(time_left)}",
                 False, (255, 255, 255)
             )
-            name_txt = common.font.render(
-                f"{data[3]}",
-                False, (255, 255, 255)
-            )
+            name_txt = data[3]
             widget.blit(name_txt, (35, 2))
             widget.blit(time_txt, (130, 2))
-            dashboard.blit(widget, (width - 400, y))
-            y += 30
+            dashboard.blit(widget, (175, y))
+            y += 32
+
+        # Third Column
+        y = 2
+        for notif in notification.notifications[:3]:
+            widget = pygame.Surface((250, 30))
+            widget.fill((255,0,0))
+            widget.blit(notif[0], (3,2))
+            opac = int(255*(((notif[1]+notif[2])-time.perf_counter())/(notif[1])))
+            if opac <= 0:
+                notification.notifications.remove(notif)
+                break
+            widget.set_alpha(opac)
+            dashboard.blit(widget, (375, y))
+            y += 32
+
+
 
         return dashboard
