@@ -7,7 +7,7 @@ from typing import Optional, List, Tuple, Union
 from src import common, pathfinding, tiles
 from src.tiles import Tile
 from src.entity import Entity
-from src.ghost import Ghost, BlinkyGhost, PinkyGhost, InkyGhost, ClydeGhost, GhostAttributes
+from src.ghost import BlinkyGhost, PinkyGhost, InkyGhost, ClydeGhost, GhostAttributes
 
 
 class World:
@@ -187,6 +187,8 @@ class World:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 4)
                 elif tile == Tile.PELLET:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 7)
+                elif tile == Tile.SHOP:
+                    pygame.draw.rect(self.surface, (255, 255, 0), [xx, yy, tiles.TILE_SIZE, tiles.TILE_SIZE])
                 elif common.DEBUG:
                     def draw(color):
                         pygame.draw.rect(self.surface, color, ((xx + 4, yy + 4),

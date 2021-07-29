@@ -1,6 +1,10 @@
+import time
+
 import pygame
 
 from src import common, tiles, utils
+from src import common, tiles, utils, powerup
+from src.interrupt import *
 
 
 class BaseState:
@@ -99,6 +103,101 @@ class MainGameState(BaseState):
                 f"Block: {tiles.TILE_DICT[common.player.debug_tile]}",
                 False, (255, 255, 255), (0, 0, 0)
             ).convert_alpha(), (0, 0))
+
+
+class ShopState(BaseState):
+    def __init__(self):
+        super().__init__()
+
+        self.time_entered = time.perf_counter()
+        self.store_items = [
+                               {
+                                   "name": "Medkit",
+                                   "summary": "Heal yes by 1",
+                                   "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in "
+                                                  "nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis "
+                                                  "vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id "
+                                                  "turpis auctor, lacinia orci ac, auctor justo.",
+                                   "price": 15,
+                                   "image": pygame.image.load(common.PATH / "assets/ghost.png")
+                               }
+                           ] * 9
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F9:
+                exit_time = time.perf_counter()
+
+                self.change_state(MainGameState)
+
+                common.player.moved_after_shop_exit = False
+                reconstructed_powerups = {}
+                for power, data in powerup.powerups.items():
+                    new_data = data[:]
+                    if powerup.is_powerup_on(power):
+                        new_data[1] = new_data[1] + exit_time - self.time_entered
+                    reconstructed_powerups[power] = new_data
+                powerup.powerups = reconstructed_powerups
+
+    def run(self):
+        common.window.fill((12, 25, 145))
+        mouse_pos = pygame.mouse.get_pos()
+
+        for i, item in enumerate(self.store_items):
+            location_of_item = divmod(i, 4)
+            w = common.window.get_width()
+            h = common.window.get_height()
+            if location_of_item[0] * (2 / 3 * h) / 1.9 + 40 / 620 * h < 2 / 3 * h:
+                coords = (
+                    int(location_of_item[1] * w / 4 + 10 / 620 * w),
+                    int(location_of_item[0] * (2 / 3 * h) / 1.9 + 40 / 620 * h)
+                )
+                txt_coords = (
+                    int(location_of_item[1] * w / 4 + 10 / 620 * w),
+                    int(location_of_item[0] * (2 / 3 * h) / 1.9)
+                )
+
+                surf = pygame.transform.scale(item['image'], (int(60 / 620 * w), int(70 / 620 * h)))
+                common.window.blit(
+                    surf,
+                    coords
+                )
+
+                txt = utils.load_font(30).render(item['name'], True, (0, 0, 0))
+                common.window.blit(
+                    txt,
+                    txt_coords
+                )
+
+                t = utils.TextMessage((coords[0], coords[1] + surf.get_height() + 20 / 620 * h),
+                                      surf.get_width() * 1.5, surf.get_height(), (128, 128, 128), item['summary'],
+                                      common.font, (0, 0, 0), (100, 100, 100), 5)
+                t.draw()
+
+                overall_rect = pygame.Rect(coords[0] - 5 / 620 * w, coords[1] - 5 / 620 * h, t.width + 10 / 620 * w,
+                                           surf.get_height() + t.height - (coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
+                if overall_rect.collidepoint(mouse_pos):
+                    pygame.draw.rect(common.window, (133, 0, 0), overall_rect, int(5 / 620 * w))
+                    truncated_text = item['description']
+                    if len(truncated_text) > 200:
+                        truncated_text = item['description'][:197] + '...'
+                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h, (128, 128, 128),
+                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100), border_width=5,
+                                                   text_width=550/620*w)
+                    t_moreinfo.draw()
+
+                    custom_price_font = utils.load_font(24)
+                    custom_price_font.bold = True
+
+                    price_txt = custom_price_font.render(f"{item['price']} coins", True, (0, 0, 0))
+                    price_txt_pos = t_moreinfo.text_rect.topright
+                    price_txt_pos = price_txt.get_rect(topright=price_txt_pos)
+                    common.window.blit(price_txt, price_txt_pos)
+
+                    name_txt = custom_price_font.render(item['name'], True, (0, 0, 0))
+                    name_txt_pos = (t_moreinfo.text_rect.topleft[0] + 5/620*w, t_moreinfo.text_rect.topleft[1])
+                    name_txt_pos = name_txt.get_rect(topleft=name_txt_pos)
+                    common.window.blit(name_txt, name_txt_pos)
 
 
 class TestState(BaseState):

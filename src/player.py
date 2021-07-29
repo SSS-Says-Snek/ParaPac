@@ -5,6 +5,7 @@ from src import common, interrupt, utils, powerup
 from src.tiles import Tile
 from src.ghost import Ghost, GhostState
 from src.entity import *
+from src.states import *
 
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
@@ -40,11 +41,16 @@ class Player(Entity):
         self.immune = False
         self.immunity_timer = time.perf_counter()
 
+        self.moved_after_shop_exit = None
+        self.moved_after_shop_exit_timer = 0
+
         self.debug_tile = Tile.WALL
 
     def update(self, world):
         if self.dead >= 0:
             return
+        if self.moved_after_shop_exit and time.perf_counter() - self.moved_after_shop_exit_timer > 1:
+            self.moved_after_shop_exit = None
 
         keys = pygame.key.get_pressed()
 
@@ -79,6 +85,9 @@ class Player(Entity):
                         entity.state = GhostState.VULNERABLE
                         entity.timer = time.perf_counter()
                         entity.speed = entity.default_speed / 2
+            elif tile == Tile.SHOP and (self.moved_after_shop_exit is None):
+                self.x, self.y = int(self.x), int(self.y)
+                common.game_loop.state.change_state(ShopState)
 
     def debug(self, world):
         mx, my = pygame.mouse.get_pos()
@@ -127,6 +136,10 @@ class Player(Entity):
         if moved:
             self.frame = PACMAN_EAT[self.direction][int(time.perf_counter() *
                                                         len(_PACMAN_EAT) * 4) % len(_PACMAN_EAT)]
+
+            if self.moved_after_shop_exit is False:
+                self.moved_after_shop_exit = True
+                self.moved_after_shop_exit_timer = time.perf_counter()
         else:
             self.frame = PACMAN_EAT[self.direction][-1]
 

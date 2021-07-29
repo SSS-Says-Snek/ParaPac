@@ -19,6 +19,8 @@ class Tile:
     BLUE_GHOST = 6
     ORANGE_GHOST = 7
 
+    SHOP = 8
+
 
 TILE_DICT = {
     Tile.AIR: "air",
@@ -29,7 +31,9 @@ TILE_DICT = {
     Tile.RED_GHOST: "red ghost",
     Tile.PINK_GHOST: "pink ghost",
     Tile.BLUE_GHOST: "blue ghost",
-    Tile.ORANGE_GHOST: "orange ghost"
+    Tile.ORANGE_GHOST: "orange ghost",
+
+    Tile.SHOP: "shop"
 }
 
 
@@ -41,7 +45,9 @@ PASSABLE_TILES = {
     Tile.RED_GHOST,
     Tile.PINK_GHOST,
     Tile.BLUE_GHOST,
-    Tile.ORANGE_GHOST
+    Tile.ORANGE_GHOST,
+
+    Tile.SHOP,
 }
 
 SOLID_TILES = {

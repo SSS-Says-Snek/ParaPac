@@ -25,6 +25,7 @@ map_area_width, map_area_height = 1, 1
 player: Any = None
 dashboard = None
 active_map: Any = None
+game_loop: Any = None
 active_map_id: int = 0
 alpha: int = 255
 
