@@ -99,19 +99,19 @@ class World:
         self.tile_map[x % self.tile_map.shape[0], y % self.tile_map.shape[1]] = tile
         self.render_world(x, y)
 
-    def collide(self, x: float, y: float, width: float, height: float, passable_barrier=True) -> bool:
+    def collide(self, x: float, y: float, width: float, height: float, is_player=False) -> bool:
         """
         :param x: X coordinate of the collision box
         :param y: Y coordinate of the collision box
         :param width: Width of the collision box
         :param height: Height of the collision box
-        :param passable_barrier: Takes into account if barrier tiles should collide or not
+        :param is_player: If the "collidee" is a player
         :return: Returns true if it collided with the world
         """
         for xx in range(math.floor(x), math.ceil(x + width)):
             for yy in range(math.floor(y), math.ceil(y + height)):
                 tile = self.get_at(xx, yy)
-                if tile == Tile.BARRIER and not passable_barrier:
+                if is_player and tile in tiles.ANTI_PLAYER_TILES:
                     return True
                 elif tile in tiles.SOLID_TILES:
                     return True

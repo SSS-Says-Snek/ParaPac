@@ -17,7 +17,7 @@ class GhostAttributes:
     RED_COLOR = (255, 0, 0)
     PINK_COLOR = (255, 0, 255)
     BLUE_COLOR = (0, 0, 255)
-    ORANGE_COLOR = (255, 255, 0)
+    ORANGE_COLOR = (255, 128, 0)
 
 
 class GhostState:

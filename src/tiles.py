@@ -57,6 +57,14 @@ SOLID_TILES = {
     Tile.WALL
 }
 
+ANTI_PLAYER_TILES = {
+    Tile.BARRIER,
+    Tile.RED_GHOST,
+    Tile.PINK_GHOST,
+    Tile.BLUE_GHOST,
+    Tile.ORANGE_GHOST
+}
+
 WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(
     common.PATH / "assets/wall.png", 3, 2
 )

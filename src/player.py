@@ -51,7 +51,7 @@ class Player(Entity):
         self.debug_tile = Tile.WALL
 
     def nudge(self, world, x: float, y: float, ignore_collision=False) -> bool:
-        is_able = not world.collide(self.x + x, self.y + y, self.width(), self.height(), False)
+        is_able = not world.collide(self.x + x, self.y + y, self.width(), self.height(), True)
         if is_able or ignore_collision:
             self.x += x
             self.y += y
@@ -144,16 +144,16 @@ class Player(Entity):
 
         if self.next_direction != self.direction:
             if self.next_direction == Direction.RIGHT:
-                if not world.collide(self.x + self.speed, self.y, 1, 1, False):
+                if not world.collide(self.x + self.speed, self.y, 1, 1, True):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.LEFT:
-                if not world.collide(self.x - self.speed, self.y, 1, 1, False):
+                if not world.collide(self.x - self.speed, self.y, 1, 1, True):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.UP:
-                if not world.collide(self.x, self.y - self.speed, 1, 1, False):
+                if not world.collide(self.x, self.y - self.speed, 1, 1, True):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.DOWN:
-                if not world.collide(self.x, self.y + self.speed, 1, 1, False):
+                if not world.collide(self.x, self.y + self.speed, 1, 1, True):
                     self.direction = self.next_direction
 
         if moved:
