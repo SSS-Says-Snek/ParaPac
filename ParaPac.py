@@ -46,8 +46,8 @@ class GameLoop:
         pygame.display.set_caption("ParaPac - Pygame Community Summer Team Jam")
 
         common.maps = [
-            (World(os.path.join("maps", "map_a.txt")), (0, 32, 64), "map_a.txt"),
-            (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt"),
+            (World(os.path.join("maps", "map_a.txt")), (8, 8, 32), "map_a.txt"),
+            (World(os.path.join("maps", "map_b.txt")), (64, 0, 32), "map_b.txt"),
             (World(os.path.join("maps", "map_c.txt")), (0, 64, 32), "map_c.txt")
         ]
 
