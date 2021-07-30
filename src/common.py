@@ -20,6 +20,7 @@ fps = 0
 maps = []
 map_area_x, map_area_y = 0, 0
 map_area_width, map_area_height = 1, 1
+map_area_ratio = 1
 
 # Uses Any to make PyCharm shut up
 player: Any = None

@@ -74,7 +74,11 @@ class MainGameState(BaseState):
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
-        common.window.blit(*utils.fit_to_screen(game_surf))
+        game_surf, chords = utils.fit_to_screen(game_surf)
+        common.map_area_x, common.map_area_y = chords
+        common.map_area_width, common.map_area_height = game_surf.get_width(), game_surf.get_height()
+        common.map_area_ratio = game_surf.get_width()/game_surf.get_height()
+        common.window.blit(game_surf, chords)
 
     def run(self):
         common.fps = 1000 / common.clock.tick(60)
