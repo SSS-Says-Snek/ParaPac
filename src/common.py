@@ -1,4 +1,5 @@
 import os
+import time
 
 import pygame
 import sys
@@ -16,6 +17,8 @@ pygame.display.set_caption("ParaPac - Loading...")
 clock = pygame.time.Clock()
 font = pygame.font.Font(PATH / "assets/VT323.ttf", 24)
 fps = 0
+dimension_cooldown = 25
+dimension_timer = -25
 
 maps = []
 map_area_x, map_area_y = 0, 0
@@ -30,7 +33,7 @@ active_map_id: int = 0
 alpha: int = 255
 
 score: int = 0
-coins: int = 0
+coins: int = 1000
 
 
 class Transition:

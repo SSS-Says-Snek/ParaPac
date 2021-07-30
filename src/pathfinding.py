@@ -35,12 +35,12 @@ def get_neighbors(array: numpy.array, pos: Tuple[int, int], omitted_direction: i
     up = [pos[0], pos[1] - 1]
     if left[0] >= 0 and array[left[0], left[1]].value not in SOLID_TILES and omitted_direction != Direction.LEFT:
         neighbors.append(left)
-    if right[0] < len(array[0]) and array[right[0], right[1]].value not in SOLID_TILES and \
+    if right[0] < len(array) and array[right[0], right[1]].value not in SOLID_TILES and \
             omitted_direction != Direction.RIGHT:
         neighbors.append(right)
     if up[1] >= 0 and array[up[0], up[1]].value not in SOLID_TILES and omitted_direction != Direction.UP:
         neighbors.append(up)
-    if down[1] < len(array[1]) and array[down[0], down[1]].value not in SOLID_TILES and \
+    if down[1] < len(array[0]) and array[down[0], down[1]].value not in SOLID_TILES and \
             omitted_direction != Direction.DOWN:
         neighbors.append(down)
 

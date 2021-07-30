@@ -21,12 +21,7 @@ store_items = [
         "price": 25,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": add_health
-    }
-    for _ in range(7)
-]
-
-store_items.append(
-    {
+    }, {
         "name": "Speed Potion",
         "summary": "Double the player speed for 15 sec",
         "description": "The speed potion doubles your speed for FIFTEEN seconds. That is very fast! However, be "
@@ -36,4 +31,4 @@ store_items.append(
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": set_speed
     }
-)
+]

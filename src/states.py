@@ -29,9 +29,11 @@ class MainGameState(BaseState):
                 common.DEBUG = not common.DEBUG
                 common.active_map.render_world()
             # Changes the map dimension
-            elif event.key == pygame.K_p:
+            elif event.key == pygame.K_p and time.perf_counter() - common.dimension_timer > common.dimension_cooldown:
                 common.transitioning_mode = common.Transition.FADING
                 common.alpha = 255
+            elif event.key == pygame.K_p:
+                print(time.perf_counter() - common.dimension_timer)
 
             elif common.DEBUG:
                 # Saves the map
@@ -85,6 +87,7 @@ class MainGameState(BaseState):
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
+                # common.dimension_timer = time.perf_counter()
 
         common.window.blit(world, (common.map_area_x, common.map_area_y))
 

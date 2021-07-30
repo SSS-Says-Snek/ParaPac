@@ -131,18 +131,14 @@ class World:
                     return self.get_at(xx, yy)
 
     def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
-        try:
-            path = pathfinding.algorithm(numpy.transpose(self.tile_map),
+        path = pathfinding.algorithm(numpy.transpose(self.tile_map),
                                      (int(start_y), int(start_x)), (int(end_y), int(end_x)))
 
-            if path:
-                path[0] = path[0][1], path[0][0]
-                path = path[1:]
+        if path:
+            path[0] = path[0][1], path[0][0]
+            path = path[1:]
 
-            return path
-        except Exception as exc:
-            print("a pathfinding exception happened smh")
-            return None
+        return path
 
     def render_world(self, *args):
         """
@@ -201,7 +197,7 @@ class World:
                 elif common.DEBUG:
                     def draw(color):
                         pygame.draw.rect(self.surface, color, ((xx + 4, yy + 4),
-                                         (tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2)))
+                                                               (tiles.TILE_SIZE // 2, tiles.TILE_SIZE // 2)))
 
                     if tile == Tile.RED_GHOST:
                         draw(GhostAttributes.RED_COLOR)
