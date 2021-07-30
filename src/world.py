@@ -162,8 +162,8 @@ class World:
     def _render_world(self, begin_x, begin_y, end_x, end_y):
         width, height = self.surface.get_size()
 
-        for x in range(begin_x, end_x):
-            for y in range(begin_y, end_y):
+        for x in range(max(begin_x, 0), min(end_x, self.width())):
+            for y in range(max(begin_y, min(end_y, self.height()))):
                 tile = self.get_at(x, y)
                 xx, yy = x * tiles.TILE_SIZE, y * tiles.TILE_SIZE
 
