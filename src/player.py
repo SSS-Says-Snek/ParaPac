@@ -144,16 +144,16 @@ class Player(Entity):
 
         if self.next_direction != self.direction:
             if self.next_direction == Direction.RIGHT:
-                if not world.collide(self.x + self.speed, self.y, 1, 1):
+                if not world.collide(self.x + self.speed, self.y, 1, 1, False):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.LEFT:
-                if not world.collide(self.x - self.speed, self.y, 1, 1):
+                if not world.collide(self.x - self.speed, self.y, 1, 1, False):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.UP:
-                if not world.collide(self.x, self.y - self.speed, 1, 1):
+                if not world.collide(self.x, self.y - self.speed, 1, 1, False):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.DOWN:
-                if not world.collide(self.x, self.y + self.speed, 1, 1):
+                if not world.collide(self.x, self.y + self.speed, 1, 1, False):
                     self.direction = self.next_direction
 
         if moved:
