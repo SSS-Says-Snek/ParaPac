@@ -6,6 +6,22 @@ from typing import List, Tuple
 from functools import lru_cache
 
 
+def fit_to_screen(surface):
+    ratio = surface.get_width() / surface.get_height()
+    width, height = common.window.get_width(), common.window.get_height()
+    if width > ratio * height:
+        new_width = int(ratio * height)
+        new_height = int(height)
+        new_x = (width - new_width) // 2
+        new_y = 0
+    else:
+        new_width = int(width)
+        new_height = int(width / ratio)
+        new_x = 0
+        new_y = (height - new_height) // 2
+    return pygame.transform.scale(surface, (new_width, new_height)), (new_x, new_y)
+
+
 def polarity(x: float) -> int:
     if x == 0:
         return 0
@@ -67,20 +83,20 @@ def load_map_data(filepath):
 
 class TextMessage:
     def __init__(
-        self,
-        pos,
-        width,
-        height,
-        rect_color,
-        text,
-        font,
-        font_color=(0, 0, 0),
-        border_color=None,
-        border_width=None,
-        instant_blit=True,
-        text_width=None,
-        height_offset=None,
-        screen=common.window,
+            self,
+            pos,
+            width,
+            height,
+            rect_color,
+            text,
+            font,
+            font_color=(0, 0, 0),
+            border_color=None,
+            border_width=None,
+            instant_blit=True,
+            text_width=None,
+            height_offset=None,
+            screen=common.window,
     ):
         """This class can be used to display text"""
         self.pos = pos
@@ -132,8 +148,8 @@ class TextMessage:
 
             prev_text = self.split_text[self.blit_line_idx][: self.char_blit_line]
             self.blitted_chars[self.blit_line_idx] = self.split_text[
-                self.blit_line_idx
-            ][: self.char_blit_line]
+                                                         self.blit_line_idx
+                                                     ][: self.char_blit_line]
 
             if self.blitted_chars[self.blit_line_idx] == self.prev_line_text:
                 if self.blit_line_idx + 1 < len(self.split_text):
@@ -154,9 +170,9 @@ class TextMessage:
 
     def handle_events(self, event):
         if (
-            event.type == pygame.KEYDOWN
-            and not self.instant_blit
-            and self.blitted_chars != self.split_text
+                event.type == pygame.KEYDOWN
+                and not self.instant_blit
+                and self.blitted_chars != self.split_text
         ):
             self.blitted_chars = self.split_text[:]
             self.blit_line_idx = len(self.blitted_chars) - 1
@@ -224,18 +240,18 @@ class Button:
     """Subset of Button, MenuButton adds features suitable for Menu Buttons"""
 
     def __init__(
-        self,
-        surface,
-        coordinates: tuple,
-        func_when_clicked,
-        rect_color=(255, 255, 255),
-        text=None,
-        text_color=(0, 0, 0),
-        font_size=None,
-        rounded=False,
-        border_color=None,
-        border_width=None,
-        hover_color=None
+            self,
+            surface,
+            coordinates: tuple,
+            func_when_clicked,
+            rect_color=(255, 255, 255),
+            text=None,
+            text_color=(0, 0, 0),
+            font_size=None,
+            rounded=False,
+            border_color=None,
+            border_width=None,
+            hover_color=None
     ):
         self.screen = surface
         self.coords = coordinates

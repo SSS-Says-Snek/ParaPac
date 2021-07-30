@@ -18,8 +18,6 @@ class GameLoop:
         self.setup()
         while True:
             try:
-                pygame.display.flip()
-
                 self.state.run()
                 for event in pygame.event.get():
                     self.handle_event(event)
@@ -28,10 +26,6 @@ class GameLoop:
                     self.state = self.state.next_state()
             except GameExit:
                 sys.exit(0)
-            except GamePaused:
-                pass
-            except GameRetry:
-                pass
             except GameOver:
                 print("You died")
                 sys.exit(0)

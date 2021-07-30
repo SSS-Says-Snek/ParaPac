@@ -1,8 +1,5 @@
-import time
-
 import pygame
 
-from src import common, tiles, utils
 from src import common, tiles, utils, powerup, notification, items
 from src.interrupt import *
 
@@ -29,11 +26,13 @@ class MainGameState(BaseState):
                 common.DEBUG = not common.DEBUG
                 common.active_map.render_world()
             # Changes the map dimension
-            elif event.key == pygame.K_p and time.perf_counter() - common.dimension_timer > common.dimension_cooldown:
+            elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
                 common.alpha = 255
-            elif event.key == pygame.K_p:
-                print(time.perf_counter() - common.dimension_timer)
+            # Pause Game
+            elif event.key == pygame.K_ESCAPE:
+                powerup.pause()
+                self.change_state(PauseState)
 
             elif common.DEBUG:
                 # Saves the map
@@ -59,26 +58,13 @@ class MainGameState(BaseState):
             game_surf.blit(world, (0, dashboard.get_height()))
 
         common.window.fill(common.maps[common.active_map_id][1])
-        ratio = game_surf.get_width() / game_surf.get_height()
-        if common.window.get_width() > ratio * common.window.get_height():
-            common.map_area_width = int(ratio * common.window.get_height())
-            common.map_area_height = int(common.window.get_height())
-            common.map_area_x = (common.window.get_width() - common.map_area_width) // 2
-            common.map_area_y = 0
-        else:
-            common.map_area_width = int(common.window.get_width())
-            common.map_area_height = int(common.window.get_width() / ratio)
-            common.map_area_x = 0
-            common.map_area_y = (common.window.get_height() - common.map_area_height) // 2
-
-        world = pygame.transform.scale(game_surf, (common.map_area_width, common.map_area_height))
 
         if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
             world.set_alpha(common.alpha)
             if common.transitioning_mode == common.Transition.FADING:
-                common.alpha -= 5
+                common.alpha -= 15
             elif common.transitioning_mode == common.Transition.REAPPEARING:
-                common.alpha += 5
+                common.alpha += 15
 
             if common.alpha < 0:
                 common.transitioning_mode = common.Transition.REAPPEARING
@@ -87,9 +73,8 @@ class MainGameState(BaseState):
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
-                # common.dimension_timer = time.perf_counter()
 
-        common.window.blit(world, (common.map_area_x, common.map_area_y))
+        common.window.blit(*utils.fit_to_screen(game_surf))
 
     def run(self):
         common.fps = 1000 / common.clock.tick(60)
@@ -106,6 +91,7 @@ class MainGameState(BaseState):
                 f"Block: {tiles.TILE_DICT[common.player.debug_tile]}",
                 False, (255, 255, 255), (0, 0, 0)
             ).convert_alpha(), (0, 0))
+        pygame.display.update()
 
 
 class ShopState(BaseState):
@@ -139,7 +125,8 @@ class ShopState(BaseState):
                 try:
                     if not self.buy_screen_rect.collidepoint(event.pos):
                         self.remove_buy_popup()
-                    self.handle_buypopup_buttons((event.pos[0] - self.buy_screen_rect.x, event.pos[1] - self.buy_screen_rect.y))
+                    self.handle_buypopup_buttons(
+                        (event.pos[0] - self.buy_screen_rect.x, event.pos[1] - self.buy_screen_rect.y))
                 except AttributeError:
                     pass
 
@@ -193,7 +180,8 @@ class ShopState(BaseState):
 
                 mod_store_items = items.store_items[:]
                 overall_rect = pygame.Rect(coords[0] - 5 / 620 * w, coords[1] - 5 / 620 * h, t.width + 10 / 620 * w,
-                                           surf.get_height() + t.height - (coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
+                                           surf.get_height() + t.height - (
+                                                   coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
                 mod_store_items[i]['rect'] = overall_rect
                 items.store_items = mod_store_items[:]
                 if self.focused_item is not None:
@@ -204,8 +192,10 @@ class ShopState(BaseState):
                     truncated_text = item['description']
                     if len(truncated_text) > 200:
                         truncated_text = item['description'][:197] + '...'
-                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h, (128, 128, 128),
-                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100), border_width=5,
+                    t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h,
+                                                   (128, 128, 128),
+                                                   f"\n{truncated_text}", common.font, border_color=(100, 100, 100),
+                                                   border_width=5,
                                                    text_width=550 / 620 * w, screen=surf_to_blit)
                     t_moreinfo.draw()
 
@@ -237,7 +227,8 @@ class ShopState(BaseState):
             bw = buy_screen_surf.get_width()
             bh = buy_screen_surf.get_height()
 
-            transaction_txt = utils.load_font(int(40 / 620 * bh)).render(f"Transaction for {self.focused_item['name']}:", True, (0, 0, 0))
+            transaction_txt = utils.load_font(int(40 / 620 * bh)).render(
+                f"Transaction for {self.focused_item['name']}:", True, (0, 0, 0))
             transaction_txt_pos = transaction_txt.get_rect(center=(bw // 2, 30 / 450 * bh))
             buy_screen_surf.blit(transaction_txt, transaction_txt_pos)
 
@@ -278,6 +269,8 @@ class ShopState(BaseState):
 
             common.window.blit(buy_screen_surf, buy_screen_pos)
 
+        pygame.display.update()
+
     def exit_shop(self):
         self.change_state(MainGameState)
         common.player.moved_after_shop_exit = False
@@ -299,6 +292,27 @@ class ShopState(BaseState):
         self.remove_buy_popup()
 
 
+class PauseState(BaseState):
+    def __init__(self):
+        super().__init__()
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+                                          flags=pygame.SRCALPHA)
+        pause_background.fill((0, 0, 0))
+        pause_background.set_alpha(200)
+        common.window.blit(pause_background, (0, 0))
+        pygame.display.update()
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                powerup.unpause()
+                self.change_state(MainGameState)
+
+    def run(self):
+
+        pygame.display.update()
+
+
 class TestState(BaseState):
     def __init__(self):
         super().__init__()
@@ -310,3 +324,4 @@ class TestState(BaseState):
 
     def run(self):
         common.window.fill((0, 0, 0))
+        pygame.display.update()
