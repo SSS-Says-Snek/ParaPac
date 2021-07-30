@@ -47,10 +47,11 @@ class GameLoop:
 
         common.maps = [
             (World(os.path.join("maps", "map_a.txt")), (0, 32, 64), "map_a.txt"),
-            (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt")
+            (World(os.path.join("maps", "map_b.txt")), (64, 0, 0), "map_b.txt"),
+            (World(os.path.join("maps", "map_c.txt")), (0, 64, 32), "map_c.txt")
         ]
 
-        common.player = Player(19, 29)
+        common.player = Player(19, 30)
         common.active_map_id = 0
         common.active_map = common.maps[common.active_map_id][0]
         common.dashboard = Dashboard()

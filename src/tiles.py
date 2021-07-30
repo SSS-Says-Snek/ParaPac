@@ -11,20 +11,22 @@ class Tile:
     """
     AIR = 0
     WALL = 1
-    COIN = 2
-    PELLET = 3
+    BARRIER = 2
+    COIN = 3
+    PELLET = 4
 
-    RED_GHOST = 4
-    PINK_GHOST = 5
-    BLUE_GHOST = 6
-    ORANGE_GHOST = 7
+    RED_GHOST = 5
+    PINK_GHOST = 6
+    BLUE_GHOST = 7
+    ORANGE_GHOST = 8
 
-    SHOP = 8
+    SHOP = 9
 
 
 TILE_DICT = {
     Tile.AIR: "air",
     Tile.WALL: "wall",
+    Tile.BARRIER: "barrier",
     Tile.COIN: "coin",
     Tile.PELLET: "pellet",
 
@@ -39,6 +41,7 @@ TILE_DICT = {
 
 PASSABLE_TILES = {
     Tile.AIR,
+    Tile.BARRIER,
     Tile.COIN,
     Tile.PELLET,
 

@@ -99,17 +99,21 @@ class World:
         self.tile_map[x % self.tile_map.shape[0], y % self.tile_map.shape[1]] = tile
         self.render_world(x, y)
 
-    def collide(self, x: float, y: float, width: float, height: float) -> bool:
+    def collide(self, x: float, y: float, width: float, height: float, passable_barrier=True) -> bool:
         """
         :param x: X coordinate of the collision box
         :param y: Y coordinate of the collision box
         :param width: Width of the collision box
         :param height: Height of the collision box
+        :param passable_barrier: Takes into account if barrier tiles should collide or not
         :return: Returns true if it collided with the world
         """
         for xx in range(math.floor(x), math.ceil(x + width)):
             for yy in range(math.floor(y), math.ceil(y + height)):
-                if self.get_at(xx, yy) in tiles.SOLID_TILES:
+                tile = self.get_at(xx, yy)
+                if tile == Tile.BARRIER and not passable_barrier:
+                    return True
+                elif tile in tiles.SOLID_TILES:
                     return True
         return False
 
@@ -127,13 +131,18 @@ class World:
                     return self.get_at(xx, yy)
 
     def path_find(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Union[List, None]:
-        path = pathfinding.algorithm(numpy.transpose(self.tile_map),
+        try:
+            path = pathfinding.algorithm(numpy.transpose(self.tile_map),
                                      (int(start_y), int(start_x)), (int(end_y), int(end_x)))
-        if path:
-            path[0] = path[0][1], path[0][0]
-            path = path[1:]
 
-        return path
+            if path:
+                path[0] = path[0][1], path[0][0]
+                path = path[1:]
+
+            return path
+        except Exception as exc:
+            print("a pathfinding exception happened smh")
+            return None
 
     def render_world(self, *args):
         """
@@ -202,6 +211,9 @@ class World:
                         draw(GhostAttributes.BLUE_COLOR)
                     elif tile == Tile.ORANGE_GHOST:
                         draw(GhostAttributes.ORANGE_COLOR)
+
+                    elif tile == Tile.BARRIER:
+                        pygame.draw.rect(self.surface, (255, 0, 0), ((xx, yy), (tiles.TILE_SIZE, tiles.TILE_SIZE)))
 
     def render(self) -> pygame.Surface:
         """
