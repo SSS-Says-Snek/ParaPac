@@ -267,9 +267,9 @@ class Button:
 
         self.rect = pygame.Rect(self.coords)
 
-    def draw(self):
+    def draw(self, mouse_pos=None):
         """Draws the button onto previously inputted screen"""
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = mouse_pos or pygame.mouse.get_pos()
         if self.hover_color and self.rect.collidepoint(mouse_pos):
             pygame.draw.rect(self.screen, self.hover_color, self.rect)
         else:
