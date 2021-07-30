@@ -20,9 +20,9 @@ class GameLoop:
             try:
                 pygame.display.flip()
 
+                self.state.run()
                 for event in pygame.event.get():
                     self.handle_event(event)
-                self.state.run()
 
                 if self.state.__class__ != self.state.next_state:
                     self.state = self.state.next_state()

@@ -3,7 +3,7 @@ import time
 import pygame
 
 from src import common, tiles, utils
-from src import common, tiles, utils, powerup, notification
+from src import common, tiles, utils, powerup, notification, items
 from src.interrupt import *
 
 
@@ -109,40 +109,20 @@ class ShopState(BaseState):
     def __init__(self):
         super().__init__()
 
-        self.store_items = [
-            {
-                "name": "Medkit",
-                "summary": "Heal yes by 1",
-                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in "
-                               "nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis "
-                               "vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id "
-                               "turpis auctor, lacinia orci ac, auctor justo.",
-                "price": 15,
-                "image": pygame.image.load(common.PATH / "assets/ghost.png"),
-            }
-            for _ in range(9)
-        ]
-        self.exit_shop_button = utils.Button(
-            common.window, (425, 550, 150, 50), self.exit_shop,
-            rect_color=(128, 128, 128), text='test', font_size=20,
-            border_color=(100, 100, 100), border_width=5,
-            hover_color=(150, 150, 150)
-        )
-
         self.show_buy_screen = False
         self.normal_shop_alpha = 0
         self.focused_item = None
-        self.buy_screen_rect = None
+
+        self.screen_to_blit_surf = None
+        self.buy_screen_surf = None
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F9:
-                self.change_state(MainGameState)
-                common.player.moved_after_shop_exit = False
-                powerup.unpause()
+                self.exit_shop()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if not self.show_buy_screen:
-                for i, item in enumerate(self.store_items):
+                for i, item in enumerate(items.store_items):
                     try:
                         if item['rect'].collidepoint(event.pos):
                             print(f"CLICKED INDEX {i}")
@@ -155,9 +135,8 @@ class ShopState(BaseState):
             else:
                 try:
                     if not self.buy_screen_rect.collidepoint(event.pos):
-                        self.normal_shop_alpha = 0
-                        self.show_buy_screen = False
-                        self.focused_item = None
+                        self.remove_buy_popup()
+                    self.handle_buypopup_buttons((event.pos[0] - self.buy_screen_rect.x, event.pos[1] - self.buy_screen_rect.y))
                 except AttributeError:
                     pass
 
@@ -168,11 +147,19 @@ class ShopState(BaseState):
         common.window.fill((12, 25, 145))
         surf_to_blit.fill((12, 25, 145))
         mouse_pos = pygame.mouse.get_pos()
+
+        self.exit_shop_button = utils.Button(
+            surf_to_blit, (425, 550, 150, 50), self.exit_shop,
+            rect_color=(128, 128, 128), text="Exit Shop", font_size=20,
+            border_color=(100, 100, 100), border_width=5,
+            hover_color=(150, 150, 150)
+        )
+
         self.exit_shop_button.draw()
         w = surf_to_blit.get_width()
         h = surf_to_blit.get_height()
 
-        for i, item in enumerate(self.store_items):
+        for i, item in enumerate(items.store_items):
             location_of_item = divmod(i, 4)
             if location_of_item[0] * (2 / 3 * h) / 1.9 + 40 / 620 * h < 2 / 3 * h:
                 coords = (
@@ -198,14 +185,14 @@ class ShopState(BaseState):
 
                 t = utils.TextMessage((coords[0], coords[1] + surf.get_height() + 20 / 620 * h),
                                       surf.get_width() * 1.5, surf.get_height(), (128, 128, 128), item['summary'],
-                                      common.font, (0, 0, 0), (100, 100, 100), 5, screen=surf_to_blit)
+                                      utils.load_font(18), (0, 0, 0), (100, 100, 100), 5, screen=surf_to_blit)
                 t.draw()
 
-                mod_store_items = self.store_items[:]
+                mod_store_items = items.store_items[:]
                 overall_rect = pygame.Rect(coords[0] - 5 / 620 * w, coords[1] - 5 / 620 * h, t.width + 10 / 620 * w,
                                            surf.get_height() + t.height - (coords[1] + surf.get_height() - t.text_rect.top) + 10 / 620 * h)
                 mod_store_items[i]['rect'] = overall_rect
-                self.store_items = mod_store_items[:]
+                items.store_items = mod_store_items[:]
                 if self.focused_item is not None:
                     item = self.focused_item
                     overall_rect = item['rect']
@@ -244,22 +231,69 @@ class ShopState(BaseState):
             self.buy_screen_rect = buy_screen_pos
 
             buy_screen_surf.fill((128, 128, 128))
+            bw = buy_screen_surf.get_width()
+            bh = buy_screen_surf.get_height()
+
+            transaction_txt = utils.load_font(int(40 / 620 * bh)).render(f"Transaction for {self.focused_item['name']}:", True, (0, 0, 0))
+            transaction_txt_pos = transaction_txt.get_rect(center=(bw // 2, 30 / 450 * bh))
+            buy_screen_surf.blit(transaction_txt, transaction_txt_pos)
+
+            confirmation_txt_font = utils.load_font(int(28 / 450 * bh))
+
+            confirmation_txt = utils.TextMessage.wrap_text(
+                f"Are you sure you want to buy a {self.focused_item['name']} for {self.focused_item['price']} coins?\n\n"
+                f"You have: {common.coins} coins\n"
+                f"Cost: {self.focused_item['price']} coins\n",
+                bw, confirmation_txt_font
+            )
+
+            for i, text in enumerate(confirmation_txt):
+                buy_screen_surf.blit(confirmation_txt_font.render(
+                    text, True, (0, 0, 0)
+                ), (5 / 450 * bw, 100 / 450 * bh + i * confirmation_txt_font.get_height()))
+
+            self.confirm_button = utils.Button(
+                buy_screen_surf, (275 / 450 * bw, 350 / 450 * bh, 150 / 450 * bw, 75 / 450 * bh),
+                (
+                    lambda: self.buy_item(self.focused_item) if common.coins - self.focused_item['price'] >= 0
+                    else lambda: None
+                ),
+                (
+                    (23, 156, 19) if common.coins - self.focused_item['price'] >= 0
+                    else (70, 70, 70)
+                ), "Confirm", (0, 0, 0),
+                font_size=20, border_color=(100, 100, 100), border_width=int(5 / 450 * bw)
+            )
+            self.cancel_button = utils.Button(
+                buy_screen_surf, (10 / 450 * bw, 350 / 450 * bh, 150 / 450 * bw, 75 / 450 * bh),
+                self.remove_buy_popup, (171, 34, 0), "Cancel", (0, 0, 0),
+                font_size=20, border_color=(100, 100, 100), border_width=int(5 / 450 * bw)
+            )
+
+            self.confirm_button.draw()
+            self.cancel_button.draw()
 
             common.window.blit(buy_screen_surf, buy_screen_pos)
 
     def exit_shop(self):
-        exit_time = time.perf_counter()
-
         self.change_state(MainGameState)
-
         common.player.moved_after_shop_exit = False
-        reconstructed_powerups = {}
-        for power, data in powerup.powerups.items():
-            new_data = data[:]
-            if powerup.is_powerup_on(power):
-                new_data[1] = new_data[1] + exit_time - self.time_entered
-            reconstructed_powerups[power] = new_data
-        powerup.powerups = reconstructed_powerups
+        powerup.unpause()
+
+    def handle_buypopup_buttons(self, mouse_pos):
+        for button in [self.confirm_button, self.cancel_button]:
+            if button.rect.collidepoint(mouse_pos):
+                button.func_when_clicked()
+
+    def remove_buy_popup(self):
+        self.normal_shop_alpha = 0
+        self.show_buy_screen = False
+        self.focused_item = None
+
+    def buy_item(self, item):
+        common.coins -= item['price']
+        item['on_purchase']()
+        self.remove_buy_popup()
 
 
 class TestState(BaseState):

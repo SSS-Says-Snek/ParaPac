@@ -4,7 +4,7 @@ from src import common
 
 class PowerUp:
     DEBUG_POWER = -1
-    I_AM_SPEED = 0
+    EXTRA_SPEED = 0
     PASS_THROUGH_WALLS = 1
     SEE_STUFF = 2
     IMMUNITY = 3
@@ -13,7 +13,7 @@ class PowerUp:
 # Power : [start_time, duration, image, font_surface]
 powerups = {
     PowerUp.DEBUG_POWER: [0, 30, "", common.font.render("Powerup!", False, (255, 255, 255))],
-    PowerUp.I_AM_SPEED: [0, 0, "", common.font.render("Speed", False, (255, 255, 255))],
+    PowerUp.EXTRA_SPEED: [0, 0, "", common.font.render("Speed", False, (255, 255, 255))],
     PowerUp.PASS_THROUGH_WALLS: [0, 0, "", common.font.render("Wall Hax", False, (255, 255, 255))],
     PowerUp.SEE_STUFF: [0, 0, "", common.font.render("See Stuff", False, (255, 255, 255))],
     PowerUp.IMMUNITY: [0, 0, "", common.font.render("Immunity", False, (255, 255, 255))]

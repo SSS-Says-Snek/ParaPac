@@ -102,13 +102,6 @@ class TextMessage:
             self.text, (self.text_width or self.width) - (self.border_width or 0), self.font
         )
 
-        for i, row in enumerate(self.split_text):
-            if len(row.split('\n')) > 1:
-                split_row = row.split('\n')
-                del self.split_text[i]
-                for new_row in reversed(split_row):
-                    self.split_text.insert(i, new_row)
-
         if not self.instant_blit:
             self.blitted_chars = ["" for _ in self.split_text]
             self.char_blit_line = 0
@@ -209,6 +202,14 @@ class TextMessage:
             line = line[:-1]
             if line:
                 wrapped_lines.append(line)
+
+        for i, row in enumerate(wrapped_lines):
+            if len(row.split('\n')) > 1:
+                split_row = row.split('\n')
+                del wrapped_lines[i]
+                for new_row in reversed(split_row):
+                    wrapped_lines.insert(i, new_row)
+
         return wrapped_lines
 
     @property
@@ -278,9 +279,12 @@ class Button:
                 ),
             )
 
-    def handle_event(self, event):
+    def handle_event(self, event, mouse_pos=None):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
+            pos = event.pos
+            if mouse_pos is not None:
+                pos = mouse_pos
+            if self.rect.collidepoint(pos):
                 if self.func_when_clicked is not None:
                     self.func_when_clicked()
 

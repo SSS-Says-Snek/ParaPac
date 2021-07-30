@@ -1,5 +1,6 @@
 import os
 import time
+import copy
 
 from src import common, interrupt, utils, powerup
 from src.tiles import Tile
@@ -7,6 +8,7 @@ from src.ghost import Ghost, GhostState
 from src.entity import *
 from src.states import *
 
+BASE_SPEED = 0.125
 SPEED = 0.125  # MUST have a base power of 2, otherwise floating precision errors go brr
 
 _PACMAN_EAT = utils.load_sprite_sheet(os.path.join("assets", "pacman_eat.png"), 4, 2)
@@ -36,6 +38,8 @@ class Player(Entity):
         self.next_direction = Direction.NONE
         self.dead = -1  # Also acts as an animation frame counter
         self.health = 3
+        self.base_speed = 0.125
+        self.speed = 0.125
 
         self.immunity_duration = 4
         self.immune = False
@@ -111,27 +115,28 @@ class Player(Entity):
 
     def forward(self, world):
         moved = False
+
         if self.direction == Direction.RIGHT:
-            moved = moved or self.nudge(world, SPEED, 0)
+            moved = moved or self.nudge(world, self.speed, 0)
         elif self.direction == Direction.LEFT:
-            moved = moved or self.nudge(world, -SPEED, 0)
+            moved = moved or self.nudge(world, -self.speed, 0)
         elif self.direction == Direction.UP:
-            moved = moved or self.nudge(world, 0, -SPEED)
+            moved = moved or self.nudge(world, 0, -self.speed)
         elif self.direction == Direction.DOWN:
-            moved = moved or self.nudge(world, 0, SPEED)
+            moved = moved or self.nudge(world, 0, self.speed)
 
         if self.next_direction != self.direction:
             if self.next_direction == Direction.RIGHT:
-                if not world.collide(self.x + SPEED, self.y, 1, 1):
+                if not world.collide(self.x + self.speed, self.y, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.LEFT:
-                if not world.collide(self.x - SPEED, self.y, 1, 1):
+                if not world.collide(self.x - self.speed, self.y, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.UP:
-                if not world.collide(self.x, self.y - SPEED, 1, 1):
+                if not world.collide(self.x, self.y - self.speed, 1, 1):
                     self.direction = self.next_direction
             elif self.next_direction == Direction.DOWN:
-                if not world.collide(self.x, self.y + SPEED, 1, 1):
+                if not world.collide(self.x, self.y + self.speed, 1, 1):
                     self.direction = self.next_direction
 
         if moved:
@@ -146,6 +151,11 @@ class Player(Entity):
 
         if self.immune and time.perf_counter() - self.immunity_timer > self.immunity_duration:
             self.immune = False
+
+        if powerup.powerups[powerup.PowerUp.EXTRA_SPEED][1] != 0:
+            self.speed = BASE_SPEED * 2
+        else:
+            self.speed = BASE_SPEED
 
     def die(self, world):
         if self.dead < 0:

@@ -15,12 +15,12 @@ class Node:
         self.pos = pos
 
 
-def manhattan(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
+def manhattan(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
     """Calculates h-score, via manhattan  (best-case for this usage)"""
     return abs(pos2[0] - pos1[0]) + abs(pos2[1] - pos1[1])
 
 
-def euclidean(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> float:
+def euclidean(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
     """Calculates h-score, via euclidean distance"""
     return ((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) ** 0.5
 
