@@ -30,7 +30,7 @@ class GameLoop:
                 print("You died")
                 sys.exit(0)
             except GameFinish:
-                print("You win")
+                print("You won")
                 sys.exit(0)
 
     def handle_event(self, event):
