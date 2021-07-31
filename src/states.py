@@ -1,7 +1,9 @@
 import pygame
+import copy
 
-from src import common, tiles, utils, powerup, notification, items
+from src import common, tiles, utils, powerup, notification, items, entity
 from src.interrupt import *
+from src.tiles import Tile
 
 
 class BaseState:
@@ -59,8 +61,25 @@ class MainGameState(BaseState):
 
             if common.alpha < 0:
                 common.transitioning_mode = common.Transition.REAPPEARING
-                common.active_map_id = (common.active_map_id + 1) % len(common.maps)
-                common.active_map = common.maps[common.active_map_id][0]
+
+                if common.player.direction in [entity.Direction.UP, entity.Direction.RIGHT]:
+                    common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
+                    if common.active_map_id - 1 >= 0:
+                        common.active_map_id = (common.active_map_id - 1)
+
+                if common.maps[common.active_map_id][0].get_at(int(common.player.x), int(common.player.y)) in tiles.ANTI_PLAYER_TILES.union(tiles.SOLID_TILES):
+                    common.player.health -= 1
+                    common.transitioning_mode = common.Transition.NOT_TRANSITIONING
+
+                    notification.new_notif("Can't teleport to that spot!", 3)
+
+                    if common.player.direction in [entity.Direction.UP, entity.Direction.RIGHT]:
+                        common.active_map_id = (common.active_map_id - 1) % len(common.maps)
+                    elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
+                        common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                else:
+                    common.active_map = common.maps[common.active_map_id][0]
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
@@ -77,7 +96,7 @@ class MainGameState(BaseState):
         game_surf, chords = utils.fit_to_screen(game_surf)
         common.map_area_x, common.map_area_y = chords
         common.map_area_width, common.map_area_height = game_surf.get_width(), game_surf.get_height()
-        common.map_area_ratio = game_surf.get_width()/game_surf.get_height()
+        common.map_area_ratio = game_surf.get_width() / game_surf.get_height()
         common.window.blit(game_surf, chords)
 
     def run(self):
@@ -114,10 +133,12 @@ class ShopState(BaseState):
             if event.key == pygame.K_F9:
                 self.exit_shop()
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = list(event.pos)
+            mouse_pos[0] -= (common.window.get_width() - 620) // 2
             if not self.show_buy_screen:
                 for i, item in enumerate(items.store_items):
                     try:
-                        if item['rect'].collidepoint(event.pos):
+                        if item['rect'].collidepoint(mouse_pos):
                             print(f"CLICKED INDEX {i}")
                             self.normal_shop_alpha = 128
                             self.show_buy_screen = True
@@ -134,24 +155,26 @@ class ShopState(BaseState):
                 except AttributeError:
                     pass
 
-        self.exit_shop_button.handle_event(event)
+            self.exit_shop_button.handle_event(event, mouse_pos=mouse_pos)
 
     def run(self):
         surf_to_blit = pygame.Surface(common.window.get_size())
         common.window.fill((12, 25, 145))
         surf_to_blit.fill((12, 25, 145))
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = list(pygame.mouse.get_pos())
+        mouse_pos[0] -= (common.window.get_width() - 620) // 2
+        w = surf_to_blit.get_width()
+        h = surf_to_blit.get_height()
+        w = min(w, h)
 
         self.exit_shop_button = utils.Button(
-            surf_to_blit, (425, 550, 150, 50), self.exit_shop,
+            surf_to_blit, (425 / 620 * w, 550 / 620 * h, 150 / 620 * w, 50 / 620 * h), self.exit_shop,
             rect_color=(128, 128, 128), text="Exit Shop", font_size=20,
             border_color=(100, 100, 100), border_width=5,
             hover_color=(150, 150, 150)
         )
 
-        self.exit_shop_button.draw()
-        w = surf_to_blit.get_width()
-        h = surf_to_blit.get_height()
+        self.exit_shop_button.draw(mouse_pos=mouse_pos)
 
         for i, item in enumerate(items.store_items):
             location_of_item = divmod(i, 4)
@@ -194,8 +217,8 @@ class ShopState(BaseState):
                 if overall_rect.collidepoint(mouse_pos) or self.focused_item:
                     pygame.draw.rect(surf_to_blit, (133, 0, 0), overall_rect, int(5 / 620 * w))
                     truncated_text = item['description']
-                    if len(truncated_text) > 200:
-                        truncated_text = item['description'][:197] + '...'
+                    if len(truncated_text) > 250:
+                        truncated_text = item['description'][:247] + '...'
                     t_moreinfo = utils.TextMessage((10 / 620 * w, 450 / 620 * h), 600 / 620 * w, 150 / 620 * h,
                                                    (128, 128, 128),
                                                    f"\n{truncated_text}", common.font, border_color=(100, 100, 100),
@@ -216,7 +239,9 @@ class ShopState(BaseState):
                     name_txt_pos = name_txt.get_rect(topleft=name_txt_pos)
                     surf_to_blit.blit(name_txt, name_txt_pos)
 
-        common.window.blit(surf_to_blit, (0, 0))
+        pos_to_blit = surf_to_blit.get_rect()
+        pos_to_blit.topleft = ((common.window.get_width() - 620) // 2, 0)
+        common.window.blit(surf_to_blit, pos_to_blit)
 
         darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()
         darken_surf.fill((0, 0, 0, self.normal_shop_alpha))
@@ -224,7 +249,7 @@ class ShopState(BaseState):
 
         if self.show_buy_screen:
             buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))
-            buy_screen_pos = buy_screen_surf.get_rect(center=(w // 2, h // 2))
+            buy_screen_pos = buy_screen_surf.get_rect(center=(common.window.get_width() // 2, common.window.get_height() // 2))
             self.buy_screen_rect = buy_screen_pos
 
             buy_screen_surf.fill((128, 128, 128))
@@ -253,8 +278,7 @@ class ShopState(BaseState):
             self.confirm_button = utils.Button(
                 buy_screen_surf, (275 / 450 * bw, 350 / 450 * bh, 150 / 450 * bw, 75 / 450 * bh),
                 (
-                    lambda: self.buy_item(self.focused_item) if common.coins - self.focused_item['price'] >= 0
-                    else lambda: None
+                    lambda: self.buy_item(self.focused_item)
                 ),
                 (
                     (23, 156, 19) if common.coins - self.focused_item['price'] >= 0
@@ -283,6 +307,7 @@ class ShopState(BaseState):
     def handle_buypopup_buttons(self, mouse_pos):
         for button in [self.confirm_button, self.cancel_button]:
             if button.rect.collidepoint(mouse_pos):
+                print(button)
                 button.func_when_clicked()
 
     def remove_buy_popup(self):
@@ -291,9 +316,11 @@ class ShopState(BaseState):
         self.focused_item = None
 
     def buy_item(self, item):
-        common.coins -= item['price']
-        item['on_purchase']()
-        self.remove_buy_popup()
+        if common.coins - item['price'] >= 0:
+            print('e')
+            common.coins -= item['price']
+            item['on_purchase']()
+            self.remove_buy_popup()
 
 
 class PauseState(BaseState):

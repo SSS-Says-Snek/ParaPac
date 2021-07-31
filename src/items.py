@@ -1,5 +1,8 @@
+import time
+
 import pygame
 from src import common, powerup
+from src.ghost import Ghost, GhostState
 
 
 def add_health():
@@ -10,14 +13,26 @@ def set_speed():
     powerup.add_powerup(powerup.PowerUp.EXTRA_SPEED, 15)
 
 
+def set_ghost_eatable():
+    for entity in common.active_map.entities:
+        if issubclass(entity.__class__, Ghost):
+            if entity.state == GhostState.DEAD:
+                continue
+
+            entity.load_random_path = True
+            entity.state = GhostState.VULNERABLE
+            entity.timer = time.perf_counter()
+            entity.speed = entity.default_speed / 2
+
+    powerup.add_powerup(powerup.PowerUp.EAT_GHOST, 10)
+
+
 store_items = [
     {
-        "name": "Medkit",
+        "name": "Extra Lives",
         "summary": "Heal player by 1 HP",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin risus in "
-                       "nisi gravida tincidunt in eu nisi. Vivamus in ligula ac massa congue blandit facilisis "
-                       "vel urna. Donec efficitur augue justo, in sollicitudin tortor auctor non. Phasellus id "
-                       "turpis auctor, lacinia orci ac, auctor justo.",
+        "description": "This item gives you an extra life. There is no limit for how many lives you have. Lives can be very useful as "
+                       "a backup for if you get eaten by a ghost.",
         "price": 25,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": add_health
@@ -30,5 +45,14 @@ store_items = [
         "price": 20,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": set_speed
+    }, {
+        "name": "Ghost-B-Gone",
+        "summary": "Allows player to eat ghosts for 15 sec",
+        "description": "This power up allows you to eat ghosts for 15 seconds, kind of like the pellet. However, don't get too carried "
+                       "away, as the ghosts will start blinking once the powerup is ending, and will return to their original "
+                       "state afterwards.",
+        "price": 30,
+        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "on_purchase": set_ghost_eatable
     }
 ]

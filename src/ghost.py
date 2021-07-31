@@ -2,7 +2,7 @@ import os
 import random
 import time
 
-from src import common, utils, pathfinding
+from src import common, utils, pathfinding, powerup
 from src.entity import *
 from typing import Any
 
@@ -47,6 +47,8 @@ class Ghost(Entity):
         self.speed = speed
         self.state = GhostState.CHASING
         self.timer = 0
+        self.def_vulnerable_period = vulnerable_period
+        self.def_transition_period = transition_period
         self.vulnerable_period = vulnerable_period
         self.transition_period = transition_period
 
@@ -55,6 +57,9 @@ class Ghost(Entity):
         self.default_chasing_length = 30
         self.chasing_length = self.default_chasing_length
         self.scatter_timer = time.perf_counter()
+
+        self.give_up_on_pathfinding = False
+        self.give_up_on_pathfinding_timer = time.perf_counter()
 
         self.path = []
         self.eyes = [frame.copy() for frame in GHOST_TEMPLATE]
@@ -89,11 +94,15 @@ class Ghost(Entity):
                 if common.player.task != common.player.die and self.task != self.go_home:
                     GHOST_EATEN_SFX.play()
 
+            if powerup.powerups[powerup.PowerUp.EAT_GHOST][1] != 0 and self.state != GhostState.DEAD:
+                self.state = GhostState.VULNERABLE
+            else:
+                if self.state == GhostState.VULNERABLE:
+                    self.state = GhostState.TRANSITION
+
         if self.state == GhostState.CHASING:
             self.task = self.tracking
 
-            # if (time.perf_counter() - self.scatter_timer) % 2 > 1.5:
-            #     print(time.perf_counter() - self.scatter_timer)
             if time.perf_counter() - self.scatter_timer > self.chasing_length:
                 if self.chasing_length != self.default_chasing_length:
                     self.chasing_length = self.default_chasing_length
@@ -101,13 +110,18 @@ class Ghost(Entity):
                 self.scatter_timer = time.perf_counter()
                 self.state = GhostState.SCATTER
         elif self.state == GhostState.VULNERABLE:
-            if time.perf_counter() - self.timer > self.vulnerable_period:
+            if not (powerup.powerups[powerup.PowerUp.EAT_GHOST][1] != 0) and time.perf_counter() - self.timer > self.vulnerable_period:
                 self.state = GhostState.TRANSITION
                 self.timer = time.perf_counter()
         elif self.state == GhostState.TRANSITION:
             if time.perf_counter() - self.timer > self.transition_period:
                 self.state = GhostState.CHASING
                 self.scatter_timer = time.perf_counter()
+
+                if self.transition_period != self.def_transition_period:
+                    self.transition_period = self.def_transition_period
+                if self.vulnerable_period != self.def_vulnerable_period:
+                    self.vulnerable_period = self.def_vulnerable_period
         elif self.state == GhostState.SCATTER:
             self.task = self.scatter
             if time.perf_counter() - self.scatter_timer > self.scatter_length:
@@ -184,7 +198,10 @@ class Ghost(Entity):
 
             if self.path is None:
                 # Staks should turn to wander_to_movable_tile, but that's broken rn
-                pass
+                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
+                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                self.path = world.path_find(self.x, self.y, *random_pos)
 
     def scatter(self, world):
         if common.player not in world.entities:
@@ -259,6 +276,13 @@ class PinkyGhost(Ghost):
 
             self.path = world.path_find(self.x, self.y, adjusted_x, adjusted_y)
 
+            if self.path is None:
+                # Staks should turn to wander_to_movable_tile, but that's broken rn
+                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
+                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                self.path = world.path_find(self.x, self.y, *random_pos)
+
 
 class InkyGhost(Ghost):
     """Ghost AI for Inky (The cyan ghost)"""
@@ -302,6 +326,13 @@ class InkyGhost(Ghost):
 
             self.path = world.path_find(self.x, self.y, adjusted_x, adjusted_y)
 
+            if self.path is None:
+                # Staks should turn to wander_to_movable_tile, but that's broken rn
+                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
+                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                self.path = world.path_find(self.x, self.y, *random_pos)
+
 
 class ClydeGhost(Ghost):
     def __init__(self, *args, **kwargs):
@@ -320,3 +351,10 @@ class ClydeGhost(Ghost):
                 self.path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
             else:
                 self.path = world.path_find(self.x, self.y, self.scatter_tile[0], self.scatter_tile[1])
+
+        if self.path is None:
+            # Staks should turn to wander_to_movable_tile, but that's broken rn
+            random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+            while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
+                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+            self.path = world.path_find(self.x, self.y, *random_pos)
