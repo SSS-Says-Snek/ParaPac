@@ -2,7 +2,6 @@ import pygame
 import copy
 
 from src import common, tiles, utils, powerup, notification, items, entity
-from src.interrupt import *
 from src.tiles import Tile
 
 
@@ -64,10 +63,17 @@ class MainGameState(BaseState):
                 common.transitioning_mode = common.Transition.REAPPEARING
 
                 if common.player.direction in [entity.Direction.UP, entity.Direction.RIGHT]:
-                    common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                    if common.active_map_id + 1 >= len(common.maps):
+                        notification.new_notif("There are no dimensions ahead!", 3)
+                    else:
+                        common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                        notification.new_notif("Teleported ahead a dimension!", 3)
                 elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
                     if common.active_map_id - 1 >= 0:
                         common.active_map_id = (common.active_map_id - 1)
+                        notification.new_notif("Teleported behind a dimension!", 3)
+                    else:
+                        notification.new_notif("There are no dimensions behind!", 3)
                 common.active_map = common.maps[common.active_map_id][0]
 
             if common.alpha == 255:

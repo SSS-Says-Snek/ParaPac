@@ -1,6 +1,5 @@
 import os
 import time
-import copy
 
 from src import common, interrupt, utils, powerup
 from src.tiles import Tile
@@ -47,6 +46,7 @@ class Player(Entity):
 
         self.moved_after_shop_exit = None
         self.moved_after_shop_exit_timer = 0
+        self.had_encountered_end = False
 
         self.debug_tile = Tile.WALL
 
@@ -110,6 +110,20 @@ class Player(Entity):
                 self.x, self.y = int(self.x), int(self.y)
                 powerup.pause()
                 common.game_loop.state.change_state(ShopState)
+            elif tile == Tile.END and not self.had_encountered_end:
+                self.had_encountered_end = True
+                coins_left = False
+                for dimension, _bg, _file, _unlocked in common.maps:
+                    if dimension.has_coins():
+                        coins_left = True
+                        break
+
+                if coins_left:
+                    notification.new_notif("All coins haven't been collected!", 3)
+                else:
+                    raise interrupt.GameFinish
+            else:
+                self.had_encountered_end = False
 
     def debug(self, world):
         mx, my = pygame.mouse.get_pos()

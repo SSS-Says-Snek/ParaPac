@@ -21,6 +21,7 @@ class Tile:
     ORANGE_GHOST = 8
 
     SHOP = 9
+    END = 10
 
 
 TILE_DICT = {
@@ -35,7 +36,8 @@ TILE_DICT = {
     Tile.BLUE_GHOST: "blue ghost",
     Tile.ORANGE_GHOST: "orange ghost",
 
-    Tile.SHOP: "shop"
+    Tile.SHOP: "shop",
+    Tile.END: "end"
 }
 
 
@@ -51,6 +53,7 @@ PASSABLE_TILES = {
     Tile.ORANGE_GHOST,
 
     Tile.SHOP,
+    Tile.END
 }
 
 SOLID_TILES = {
