@@ -55,9 +55,9 @@ class MainGameState(BaseState):
         if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
             world.set_alpha(common.alpha)
             if common.transitioning_mode == common.Transition.FADING:
-                common.alpha -= 15
+                common.alpha -= 10
             elif common.transitioning_mode == common.Transition.REAPPEARING:
-                common.alpha += 15
+                common.alpha += 10
 
             if common.alpha < 0:
                 common.transitioning_mode = common.Transition.REAPPEARING
@@ -67,6 +67,10 @@ class MainGameState(BaseState):
                 elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
                     if common.active_map_id - 1 >= 0:
                         common.active_map_id = (common.active_map_id - 1)
+                common.active_map = common.maps[common.active_map_id][0]
+
+            if common.alpha == 255:
+                common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
                 if common.maps[common.active_map_id][0].get_at(int(common.player.x), int(common.player.y)) in tiles.ANTI_PLAYER_TILES.union(tiles.SOLID_TILES):
                     common.player.health -= 1
@@ -78,11 +82,7 @@ class MainGameState(BaseState):
                         common.active_map_id = (common.active_map_id - 1) % len(common.maps)
                     elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
                         common.active_map_id = (common.active_map_id + 1) % len(common.maps)
-                else:
                     common.active_map = common.maps[common.active_map_id][0]
-
-            if common.alpha == 255:
-                common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
         if not common.DEBUG:
             dashboard = common.dashboard.render(world.get_width())

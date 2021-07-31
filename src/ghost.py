@@ -198,9 +198,12 @@ class Ghost(Entity):
 
             if self.path is None:
                 # Staks should turn to wander_to_movable_tile, but that's broken rn
-                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
                 while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
-                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                    random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+                random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
+                random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
     def scatter(self, world):
@@ -278,9 +281,12 @@ class PinkyGhost(Ghost):
 
             if self.path is None:
                 # Staks should turn to wander_to_movable_tile, but that's broken rn
-                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
                 while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
-                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                    random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+                random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
+                random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
 
@@ -328,9 +334,12 @@ class InkyGhost(Ghost):
 
             if self.path is None:
                 # Staks should turn to wander_to_movable_tile, but that's broken rn
-                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
                 while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
-                    random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                    random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+                random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
+                random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
 
@@ -354,7 +363,10 @@ class ClydeGhost(Ghost):
 
         if self.path is None:
             # Staks should turn to wander_to_movable_tile, but that's broken rn
-            random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+            random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
             while world.get_at(random_pos[0], random_pos[1]) in tiles.SOLID_TILES:
-                random_pos = [random.randint(0, len(world.tile_map)), random.randint(0, len(world.tile_map[0]))]
+                random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+            random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
+            random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
             self.path = world.path_find(self.x, self.y, *random_pos)
