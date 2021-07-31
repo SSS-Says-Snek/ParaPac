@@ -110,6 +110,7 @@ class MainGameState(BaseState):
 
             common.window.blit(common.font.render(
                 f"FPS: {int(common.fps)}; "
+                f"Map: {common.maps[common.active_map_id][2]}; "
                 f"X: {int(x)}; Y: {int(y)}; "
                 f"Block: {tiles.TILE_DICT[common.player.debug_tile]}",
                 False, (255, 255, 255), (0, 0, 0)
