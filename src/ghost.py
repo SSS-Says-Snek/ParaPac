@@ -206,6 +206,8 @@ class Ghost(Entity):
 
                 if random_pos[1] >= len(world.tile_map[0]):
                     random_pos[1] = len(world.tile_map[0]) - 1
+                if random_pos[0] >= len(world.tile_map):
+                    random_pos[0] = len(world.tile_map) - 1
 
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
@@ -292,6 +294,8 @@ class PinkyGhost(Ghost):
 
                 if random_pos[1] >= len(world.tile_map[0]):
                     random_pos[1] = len(world.tile_map[0]) - 1
+                if random_pos[0] >= len(world.tile_map):
+                    random_pos[0] = len(world.tile_map) - 1
 
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
@@ -348,6 +352,8 @@ class InkyGhost(Ghost):
 
                 if random_pos[1] >= len(world.tile_map[0]):
                     random_pos[1] = len(world.tile_map[0]) - 1
+                if random_pos[0] >= len(world.tile_map):
+                    random_pos[0] = len(world.tile_map) - 1
 
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
@@ -380,5 +386,7 @@ class ClydeGhost(Ghost):
 
             if random_pos[1] >= len(world.tile_map[0]):
                 random_pos[1] = len(world.tile_map[0]) - 1
+            if random_pos[0] >= len(world.tile_map):
+                random_pos[0] = len(world.tile_map) - 1
 
             self.path = world.path_find(self.x, self.y, *random_pos)
