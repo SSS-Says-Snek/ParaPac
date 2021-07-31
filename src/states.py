@@ -50,15 +50,6 @@ class MainGameState(BaseState):
         common.active_map.update()
         game_surf = world = common.active_map.render()
 
-        if not common.DEBUG:
-            dashboard = common.dashboard.render(world.get_width())
-            game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
-            game_surf.fill(common.maps[common.active_map_id][1])
-            game_surf.blit(dashboard, (0, 0))
-            game_surf.blit(world, (0, dashboard.get_height()))
-
-        common.window.fill(common.maps[common.active_map_id][1])
-
         if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
             world.set_alpha(common.alpha)
             if common.transitioning_mode == common.Transition.FADING:
@@ -73,6 +64,15 @@ class MainGameState(BaseState):
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
+
+        if not common.DEBUG:
+            dashboard = common.dashboard.render(world.get_width())
+            game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
+            game_surf.fill(common.maps[common.active_map_id][1])
+            game_surf.blit(dashboard, (0, 0))
+            game_surf.blit(world, (0, dashboard.get_height()))
+
+        common.window.fill(common.maps[common.active_map_id][1])
 
         game_surf, chords = utils.fit_to_screen(game_surf)
         common.map_area_x, common.map_area_y = chords
