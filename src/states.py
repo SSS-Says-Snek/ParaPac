@@ -26,7 +26,8 @@ class MainGameState(BaseState):
             # Toggles debug mode
             if event.key == pygame.K_F1:
                 common.DEBUG = not common.DEBUG
-                common.active_map.render_world()
+                for dimension, _bg, _file, _unlocked in common.maps:
+                    dimension.render_world()
             # Changes the map dimension
             elif event.key == pygame.K_p:
                 common.transitioning_mode = common.Transition.FADING
@@ -72,8 +73,8 @@ class MainGameState(BaseState):
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
-                if common.maps[common.active_map_id][0].get_at(int(common.player.x), int(common.player.y)) in tiles.ANTI_PLAYER_TILES.union(tiles.SOLID_TILES):
-                    common.player.health -= 1
+                if not common.player.nudge(common.active_map, 0, 0):
+                    common.player.task = common.player.die
                     common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
                     notification.new_notif("Can't teleport to that spot!", 3)
