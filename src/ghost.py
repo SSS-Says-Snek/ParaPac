@@ -204,6 +204,9 @@ class Ghost(Entity):
                 random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
                 random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
 
+                if random_pos[1] >= len(world.tile_map[0]):
+                    random_pos[1] = len(world.tile_map[0]) - 1
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
     def scatter(self, world):
@@ -287,6 +290,9 @@ class PinkyGhost(Ghost):
                 random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
                 random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
 
+                if random_pos[1] >= len(world.tile_map[0]):
+                    random_pos[1] = len(world.tile_map[0]) - 1
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
 
@@ -340,6 +346,9 @@ class InkyGhost(Ghost):
                 random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
                 random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
 
+                if random_pos[1] >= len(world.tile_map[0]):
+                    random_pos[1] = len(world.tile_map[0]) - 1
+
                 self.path = world.path_find(self.x, self.y, *random_pos)
 
 
@@ -368,5 +377,8 @@ class ClydeGhost(Ghost):
                 random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
             random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
             random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
+            if random_pos[1] >= len(world.tile_map[0]):
+                random_pos[1] = len(world.tile_map[0]) - 1
 
             self.path = world.path_find(self.x, self.y, *random_pos)
