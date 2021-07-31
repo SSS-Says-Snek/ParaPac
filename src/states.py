@@ -2,7 +2,6 @@ import pygame
 import copy
 
 from src import common, tiles, utils, powerup, notification, items, entity
-from src.interrupt import *
 from src.tiles import Tile
 
 
