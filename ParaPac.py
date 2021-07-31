@@ -43,7 +43,8 @@ class GameLoop:
             [World(os.path.join("maps", "map_a.txt")), (8, 8, 32), "map_a.txt", True],
             [World(os.path.join("maps", "map_b.txt")), (64, 0, 32), "map_b.txt", False],
             [World(os.path.join("maps", "map_c.txt")), (0, 64, 32), "map_c.txt", False],
-            [World(os.path.join("maps", "map_d.txt")), (64, 32, 0), "map_d.txt", False]
+            [World(os.path.join("maps", "map_d.txt")), (64, 32, 0), "map_d.txt", False],
+            [World(os.path.join("maps", "map_e.txt")), (216, 216, 216), "map_e.txt", False]
         ]
 
         common.player = Player(19, 30)
