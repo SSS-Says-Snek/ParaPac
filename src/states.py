@@ -4,6 +4,7 @@ import pygame
 import copy
 
 from src import common, tiles, utils, powerup, notification, items, entity
+from src.ghost import Ghost
 from src.interrupt import GameExit
 from src.tiles import Tile
 
@@ -465,9 +466,113 @@ class GameOverState(BaseState):
             if event.key == pygame.K_ESCAPE:
                 self.change_state(MenuState)
 
+                common.player.health = 3
+                common.score = 0
+                common.coins = 0
+                common.player.x, common.player.y = 19, 30
+                common.active_map_id = 0
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.retry_button.handle_event(event)
+            self.exit_button.handle_event(event)
+
     def run(self):
-        common.clock.tick(60)
+        w, h = common.window.get_size()
+        self.retry_button = utils.Button(
+            common.window, (w/2, h/2 - 150/620*h, 300/620*w, 100/620*h),
+            self.retry, (128, 128, 128), "Retry", (0, 0, 0), 40,
+            border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
+        )
+        self.exit_button = utils.Button(
+            common.window, (w / 2, h / 2 + 150/620*h, 300 / 620 * w, 100 / 620 * h),
+            self.exit_to_menu, (128, 128, 128), "Exit to Menu", (0, 0, 0), 40,
+            border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
+        )
+        self.retry_button.draw()
+        self.exit_button.draw()
+
         pygame.display.update()
+
+    def retry(self):
+        self.change_state(MainGameState)
+
+        common.player.health = 3
+        common.score = 0
+        common.coins = 0
+        common.player.x, common.player.y = 19, 30
+        common.active_map_id = 0
+
+    def exit_to_menu(self):
+        self.change_state(MenuState)
+
+        common.player.health = 3
+        common.score = 0
+        common.coins = 0
+        common.player.x, common.player.y = 19, 30
+        common.active_map_id = 0
+
+
+class GameFinishedState(BaseState):
+    def __init__(self):
+        super().__init__()
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+                                          flags=pygame.SRCALPHA)
+        pause_background.fill((0, 0, 0))
+        pause_background.set_alpha(200)
+        common.window.blit(pause_background, (0, 0))
+        pygame.display.update()
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.change_state(MenuState)
+
+                common.player.health = 3
+                common.score = 0
+                common.coins = 0
+                common.player.x, common.player.y = 19, 30
+                common.active_map_id = 0
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.retry_button.handle_event(event)
+            self.exit_button.handle_event(event)
+
+    def run(self):
+        w, h = common.window.get_size()
+        self.retry_button = utils.Button(
+            common.window, (w/2, h/2 - 120/620*h, 300/620*w, 100/620*h),
+            self.retry, (128, 128, 128), "Retry", (0, 0, 0), 40,
+            border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
+        )
+        self.exit_button = utils.Button(
+            common.window, (w / 2, h / 2 + 150/620*h, 300 / 620 * w, 100 / 620 * h),
+            self.exit_to_menu, (128, 128, 128), "Exit to Menu", (0, 0, 0), 40,
+            border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
+        )
+        self.retry_button.draw()
+        self.exit_button.draw()
+
+        common.window.blit(common.font64.render("You won!", False, (255, 255, 255)), (0, 0))
+        common.window.blit(common.font64.render(f"Score: {common.score}", False, (255, 255, 255)),
+                           (0, 64 / 620 * common.window.get_width()))
+
+        pygame.display.update()
+
+    def retry(self):
+        self.change_state(MainGameState)
+
+        common.player.health = 3
+        common.score = 0
+        common.coins = 0
+        common.player.x, common.player.y = 19, 30
+        common.active_map_id = 0
+
+    def exit_to_menu(self):
+        self.change_state(MenuState)
+
+        common.player.health = 3
+        common.score = 0
+        common.coins = 0
+        common.player.x, common.player.y = 19, 30
+        common.active_map_id = 0
 
 
 class HelpState(BaseState):

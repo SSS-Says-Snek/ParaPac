@@ -53,7 +53,7 @@ store_items = [
                        "away, as the ghosts will start blinking once the powerup is ending, and will return to their original "
                        "state afterwards.",
         "price": 80,
-        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "image": pygame.image.load(common.PATH / "assets/items/ghost_b_gone.png"),
         "on_purchase": set_ghost_eatable
     }, {
         "name": "Wall Hax",
