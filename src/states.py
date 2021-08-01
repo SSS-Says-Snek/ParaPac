@@ -25,9 +25,10 @@ class MainGameState(BaseState):
     def __init__(self):
         super().__init__()
 
-        powerup.add_powerup(powerup.PowerUp.IMMUNITY, 8)
+        powerup.add_powerup(powerup.PowerUp.IMMUNITY, 12)
         common.player.immune = True
         common.player.immunity_duration = powerup.powerups[powerup.PowerUp.IMMUNITY][1]
+        common.player.immunity_timer = time.perf_counter()
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEWHEEL and common.DEBUG:

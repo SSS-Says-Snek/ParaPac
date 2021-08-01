@@ -42,7 +42,7 @@ class Player(Entity):
         self.base_speed = 0.125
         self.speed = 0.125
 
-        self.immunity_duration = 4
+        self.immunity_duration = 7
         self.immune = False
         self.immunity_timer = time.perf_counter()
 
@@ -190,8 +190,8 @@ class Player(Entity):
 
         if self.immune and time.perf_counter() - self.immunity_timer > self.immunity_duration:
             self.immune = False
-            if self.immunity_duration != 4:
-                self.immunity_duration = 4
+            if self.immunity_duration != 7:
+                self.immunity_duration = 7
 
         if powerup.powerups[powerup.PowerUp.EXTRA_SPEED][1] != 0:
             self.speed = BASE_SPEED * 2
@@ -224,7 +224,7 @@ class Player(Entity):
                 self.immune = True
                 self.immunity_timer = time.perf_counter()
 
-                powerup.add_powerup(powerup.PowerUp.IMMUNITY, 4)
+                powerup.add_powerup(powerup.PowerUp.IMMUNITY, 7)
 
                 for entity in common.active_map.entities:
                     if issubclass(entity.__class__, Ghost):
