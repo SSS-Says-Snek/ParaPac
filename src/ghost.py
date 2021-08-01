@@ -205,7 +205,13 @@ class Ghost(Entity):
         if self.path:
             self.propagate_path(world)
         elif self.x != int(common.player.x) or self.y != int(common.player.y):
-            self.path = world.path_find(self.x, self.y, int(common.player.x), int(common.player.y))
+            adjusted_x = int(common.player.x)
+            adjusted_y = int(common.player.y)
+            if int(common.player.x) > len(world.tile_map):
+                adjusted_x = len(world.tile_map) - 1
+            elif int(common.player.y) > len(world.tile_map[0]):
+                adjusted_y = len(world.tile_map[0]) - 1
+            self.path = world.path_find(self.x, self.y, adjusted_x, adjusted_y)
 
             if self.path is None:
                 # Staks should turn to wander_to_movable_tile, but that's broken rn
