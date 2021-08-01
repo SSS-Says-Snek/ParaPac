@@ -35,7 +35,7 @@ store_items = [
         "description": "This item gives you an extra life. There is no limit for how many lives you have. Lives can be very useful as "
                        "a backup for if you get eaten by a ghost.",
         "price": 90,
-        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "image": pygame.image.load(common.PATH / "assets/items/extra_life.png"),
         "on_purchase": add_health
     }, {
         "name": "Speed Potion",
@@ -44,7 +44,7 @@ store_items = [
                        "careful when using it, as you might run into ghosts quicker, and movement may be a bit harder "
                        "when fast.",
         "price": 50,
-        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "image": pygame.image.load(common.PATH / "assets/items/speed_potion.png"),
         "on_purchase": set_speed
     }, {
         "name": "Ghost-B-Gone",
@@ -61,7 +61,7 @@ store_items = [
         "description": "Wall Hax allows you to move anywhere, regardless of walls! This comes in handy when avoiding ghosts, or "
                        "just trying to securely teleport to another spot.",
         "price": 70,
-        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "image": pygame.image.load(common.PATH / "assets/items/wall_hax.png"),
         "on_purchase": lambda: powerup.add_powerup(powerup.PowerUp.WALL_HAX, 15)
     }
 ]
