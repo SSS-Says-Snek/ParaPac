@@ -361,6 +361,9 @@ class PauseState(BaseState):
             if event.key == pygame.K_ESCAPE:
                 powerup.unpause()
                 self.change_state(MainGameState)
+        elif event.type == pygame.VIDEORESIZE:
+            common.window.fill((0, 0, 0))
+            common.window.blit(common.font64.render("Paused", False, (255, 255, 255)), (0, 0))
 
     def run(self):
         pygame.display.update()
