@@ -27,9 +27,11 @@ class GameLoop:
             except GameExit:
                 sys.exit(0)
             except GameOver:
+                self.setup()
                 self.state = GameOverState()
                 self.state.next_state = GameOverState
             except GameFinish:
+                self.setup()
                 self.state = GameFinishedState()
                 self.state.next_state = GameFinishedState
 
