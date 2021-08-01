@@ -68,13 +68,13 @@ class MainGameState(BaseState):
                 common.alpha += 10
 
             if common.alpha < 0:
-                common.transitioning_mode = common.Transition.REAPPEARING
-                common.transition_timer = time.perf_counter()
-
                 if common.player.direction in [entity.Direction.UP, entity.Direction.RIGHT]:
                     if common.active_map_id + 1 > len(common.maps):
                         notification.new_notif("There are no dimensions ahead!", 3)
                     else:
+                        common.transitioning_mode = common.Transition.REAPPEARING
+                        common.transition_timer = time.perf_counter()
+
                         common.active_map_id = (common.active_map_id + 1) % len(common.maps)
                         if common.active_map_id != len(common.maps) - 1:
                             notification.new_notif("Teleported ahead a dimension!", 3, (0, 255, 0))
@@ -82,6 +82,9 @@ class MainGameState(BaseState):
                             notification.new_notif("Teleported to boss dimension!", 3, (252, 157, 3))
                 elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
                     if common.active_map_id - 1 >= 0:
+                        common.transitioning_mode = common.Transition.REAPPEARING
+                        common.transition_timer = time.perf_counter()
+
                         common.active_map_id -= 1
                         notification.new_notif("Teleported behind a dimension!", 3, (0, 255, 0))
                     else:
@@ -91,7 +94,7 @@ class MainGameState(BaseState):
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
-                if not common.player.nudge(common.active_map, 0, 0):
+                if not common.player.nudge(common.active_map, 0, 0) and not powerup.is_powerup_on(powerup.PowerUp.WALL_HAX):
                     common.player.task = common.player.die
                     common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 

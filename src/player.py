@@ -196,7 +196,7 @@ class Player(Entity):
         else:
             self.speed = BASE_SPEED
 
-        if not wall_hax and world.get_at(int(self.x), int(self.y)) in tiles.SOLID_TILES.union(tiles.ANTI_PLAYER_TILES) and \
+        if not wall_hax and not common.player.nudge(common.active_map, 0, 0) and not common.DEBUG and \
                 common.transitioning_mode == common.Transition.NOT_TRANSITIONING:
             self.health -= 1
             self.task = self.die
