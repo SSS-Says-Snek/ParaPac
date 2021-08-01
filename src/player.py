@@ -190,6 +190,8 @@ class Player(Entity):
 
         if self.immune and time.perf_counter() - self.immunity_timer > self.immunity_duration:
             self.immune = False
+            if self.immunity_duration != 4:
+                self.immunity_duration = 4
 
         if powerup.powerups[powerup.PowerUp.EXTRA_SPEED][1] != 0:
             self.speed = BASE_SPEED * 2
