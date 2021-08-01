@@ -471,6 +471,7 @@ class GameOverState(BaseState):
                 common.coins = 0
                 common.player.x, common.player.y = 19, 30
                 common.active_map_id = 0
+                common.active_map = common.maps[common.active_map_id][0]
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.retry_button.handle_event(event)
             self.exit_button.handle_event(event)
@@ -500,6 +501,7 @@ class GameOverState(BaseState):
         common.coins = 0
         common.player.x, common.player.y = 19, 30
         common.active_map_id = 0
+        common.active_map = common.maps[common.active_map_id][0]
 
     def exit_to_menu(self):
         self.change_state(MenuState)
@@ -509,6 +511,7 @@ class GameOverState(BaseState):
         common.coins = 0
         common.player.x, common.player.y = 19, 30
         common.active_map_id = 0
+        common.active_map = common.maps[common.active_map_id][0]
 
 
 class GameFinishedState(BaseState):
@@ -531,6 +534,7 @@ class GameFinishedState(BaseState):
                 common.coins = 0
                 common.player.x, common.player.y = 19, 30
                 common.active_map_id = 0
+                common.active_map = common.maps[common.active_map_id][0]
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.retry_button.handle_event(event)
             self.exit_button.handle_event(event)
@@ -564,6 +568,7 @@ class GameFinishedState(BaseState):
         common.coins = 0
         common.player.x, common.player.y = 19, 30
         common.active_map_id = 0
+        common.active_map = common.maps[common.active_map_id][0]
 
     def exit_to_menu(self):
         self.change_state(MenuState)
@@ -573,6 +578,7 @@ class GameFinishedState(BaseState):
         common.coins = 0
         common.player.x, common.player.y = 19, 30
         common.active_map_id = 0
+        common.active_map = common.maps[common.active_map_id][0]
 
 
 class HelpState(BaseState):
