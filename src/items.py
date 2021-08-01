@@ -33,7 +33,7 @@ store_items = [
         "summary": "Heal player by 1 HP",
         "description": "This item gives you an extra life. There is no limit for how many lives you have. Lives can be very useful as "
                        "a backup for if you get eaten by a ghost.",
-        "price": 25,
+        "price": 90,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": add_health
     }, {
@@ -42,7 +42,7 @@ store_items = [
         "description": "The speed potion doubles your speed for FIFTEEN seconds. That is very fast! However, be "
                        "careful when using it, as you might run into ghosts quicker, and movement may be a bit harder "
                        "when fast.",
-        "price": 20,
+        "price": 50,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": set_speed
     }, {
@@ -51,7 +51,7 @@ store_items = [
         "description": "This power up allows you to eat ghosts for 15 seconds, kind of like the pellet. However, don't get too carried "
                        "away, as the ghosts will start blinking once the powerup is ending, and will return to their original "
                        "state afterwards.",
-        "price": 30,
+        "price": 80,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": set_ghost_eatable
     }

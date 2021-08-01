@@ -36,7 +36,7 @@ class MainGameState(BaseState):
                     dimension.render_world()
             # Changes the map dimension
             elif event.key == pygame.K_p:
-                if time.perf_counter() - common.transition_timer > 25:
+                if common.DEBUG or time.perf_counter() - common.transition_timer > 25:
                     common.transitioning_mode = common.Transition.FADING
                     common.alpha = 255
                 else:
@@ -60,7 +60,7 @@ class MainGameState(BaseState):
         common.active_map.update()
         game_surf = world = common.active_map.render()
 
-        if common.transitioning_mode != common.Transition.NOT_TRANSITIONING and time.perf_counter() - common.transition_timer > 25:
+        if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
             world.set_alpha(common.alpha)
             if common.transitioning_mode == common.Transition.FADING:
                 common.alpha -= 10
@@ -69,6 +69,7 @@ class MainGameState(BaseState):
 
             if common.alpha < 0:
                 common.transitioning_mode = common.Transition.REAPPEARING
+                common.transition_timer = time.perf_counter()
 
                 if common.player.direction in [entity.Direction.UP, entity.Direction.RIGHT]:
                     if common.active_map_id + 1 >= len(common.maps):
@@ -89,7 +90,6 @@ class MainGameState(BaseState):
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
-                common.transition_timer = time.perf_counter()
 
                 if not common.player.nudge(common.active_map, 0, 0):
                     common.player.task = common.player.die
@@ -383,20 +383,21 @@ class MenuState(BaseState):
             self.title_thing %= len(self.title_name)
 
     def run(self):
-        title_font = utils.load_font(int(80/620*common.window.get_height()))
+        title_font = utils.load_font(int(80 / 620 * common.window.get_height()))
         w, h = common.window.get_size()
         self.buttons = {
-            utils.Button(common.window, (w/2, 150/620*h, 300/620*w, 80/620*h),
+            utils.Button(common.window, (w / 2, 150 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          lambda: self.change_state(MainGameState), (128, 128, 128), "Start", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
-            utils.Button(common.window, (w/2, 260/620*h, 300/620*w, 80/620*h), None, (128, 128, 128), "Settings", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
-            utils.Button(common.window, (w/2, 370/620*h, 300/620*w, 80/620*h),
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w / 2, 260 / 620 * h, 300 / 620 * w, 80 / 620 * h), None, (128, 128, 128), "Settings", (0, 0, 0),
+                         40,
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w / 2, 370 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          lambda: self.change_state(HelpState), (128, 128, 128), "Help", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
-            utils.Button(common.window, (w/2, 480/620*h, 300/620*w, 80/620*h),
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w / 2, 480 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          self.exit_game, (128, 128, 128), "Exit", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True)
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True)
         }
         common.window.fill((12, 25, 145))
 
@@ -407,7 +408,7 @@ class MenuState(BaseState):
                 self.title_name[self.title_thing]: (229, 235, 52),
                 self.title_name[self.title_thing + 1:]: (166, 151, 22),
             },
-            (215/620*w, 0)
+            (215 / 620 * w, 0)
         )
 
         for button in self.buttons:
@@ -441,9 +442,10 @@ class HelpState(BaseState):
             "1. After travelling to a parallel universe, you gained the ability to travel through dimensions."
             "Press P to activate this power.\n"
             "2. There are shops that allow you to buy numerous items, like powerups and extra lives. Each dimension has at least one "
-            "shop. You use the coins you get from the yellow balls to buy items."
+            "shop. You use the coins you get from the yellow balls to buy items.\n\n"
+            "To win, collect all the coins in the boss level, and get to the green square."
         )
-        
+
         self.dimension_help_txt = (
             "DIMENSIONS\n\nLast page, we talked about dimensions. In simple terms, dimensions are kind of like a level, except that "
             "you can go between dimensions without needing to complete the previous one. Each dimension are different from each other: "
@@ -454,10 +456,18 @@ class HelpState(BaseState):
             "NOTE: There is a cooldown for dimension travelling (25 seconds), so be careful when to use it!"
         )
 
+        self.shop_help_txt = (
+            "SHOPS\n\nIn the overview page, we talked briefly about shops. Unlike Pac-Man, ParaPac has a shop that allows you to buy "
+            "items in exchange for coins. You get coins by collecting the yellow score dots.\n"
+            "To enter the shop, you collide with the shop tiles. Every dimension has at least one, and some might have 2 or more!\n\n"
+            "Exit the shop by either pressing F9, or pressing the \"Exit Shop\" button at the bottom right."
+        )
+
         self.pages = [
             [30, self.story_txt],
             [25, self.overview_txt],
-            [25, self.dimension_help_txt]
+            [25, self.dimension_help_txt],
+            [25, self.shop_help_txt]
         ]
         self.page_idx = 0
 
@@ -467,38 +477,51 @@ class HelpState(BaseState):
                 self.page_idx = (self.page_idx + 1) % len(self.pages)
             if event.key in [pygame.K_LEFT, pygame.K_a]:
                 self.page_idx = (self.page_idx - 1) % len(self.pages)
+            if event.key == pygame.K_ESCAPE:
+                self.change_state(MenuState)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.exit_button.handle_event(event)
 
     def run(self):
         w, h = common.window.get_size()
 
         common.window.fill((12, 25, 145))
 
-        title_font = utils.load_font(int(22/620*h))
+        self.exit_button = utils.Button(
+            common.window, (20 / 620 * w, 550 / 620 * h, 150 / 620 * w, 50 / 620 * h),
+            lambda: self.change_state(MenuState),
+            (128, 128, 128), "Exit Help", (0, 0, 0), 35,
+            border_color=(100, 100, 100), border_width=int(3 / 620 * w), hover_color=(150, 150, 150)
+        )
+
+        self.exit_button.draw()
+
+        title_font = utils.load_font(int(22 / 620 * h))
         title_font.italic = True
         title_surf = title_font.render(self.title_txt, True, (255, 255, 255))
-        title_surf_pos = title_surf.get_rect(center=(w/2, 10/620*h))
+        title_surf_pos = title_surf.get_rect(center=(w / 2, 10 / 620 * h))
 
-        help_font = utils.load_font(int(self.pages[self.page_idx][0]/620*h))
-        formatted_help_txt = utils.TextMessage.wrap_text(self.pages[self.page_idx][1], w - 20/620*h, help_font)
+        help_font = utils.load_font(int(self.pages[self.page_idx][0] / 620 * h))
+        formatted_help_txt = utils.TextMessage.wrap_text(self.pages[self.page_idx][1], w - 20 / 620 * h, help_font)
 
         for i, split_help_line in enumerate(formatted_help_txt):
             split_story_line_surf = help_font.render(split_help_line, True, (220, 220, 220))
-            common.window.blit(split_story_line_surf, (10/620*w, 60/620*h + i*help_font.get_height()))
+            common.window.blit(split_story_line_surf, (10 / 620 * w, 60 / 620 * h + i * help_font.get_height()))
 
         common.window.blit(title_surf, title_surf_pos)
 
-        pages_font = utils.load_font(int(30/620*h))
+        pages_font = utils.load_font(int(30 / 620 * h))
         pages = pages_font.render(
             f"Page {self.page_idx + 1} of {len(self.pages)}", True, (255, 255, 255)
         )
-        pages_pos = pages.get_rect(bottomright=(w - 10/620*w, h - 25/620*h))
+        pages_pos = pages.get_rect(bottomright=(w - 10 / 620 * w, h - 25 / 620 * h))
         common.window.blit(pages, pages_pos)
 
-        footer_font = utils.load_font(int(15/620*h))
+        footer_font = utils.load_font(int(15 / 620 * h))
         footer = footer_font.render(
             "Flip through the manual by pressing the arrow keys", True, (255, 255, 255)
         )
-        footer_pos = footer.get_rect(bottomright=(w - 10/620*w, h - 5/620*h))
+        footer_pos = footer.get_rect(bottomright=(w - 10 / 620 * w, h - 5 / 620 * h))
         common.window.blit(footer, footer_pos)
 
         pygame.display.flip()

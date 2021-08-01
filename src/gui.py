@@ -14,23 +14,30 @@ class Dashboard:
     def render(self, width):
         dashboard = pygame.Surface((width, 100))
         self.current_color = common.maps[common.active_map_id][1]
+
+        transition_timer_left = 25 - (time.perf_counter() - common.transition_timer)
         # First Column
         score_txt = common.font.render(
             f"Score: {str(common.score).zfill(6)}",
             False, (255, 255, 255)
         )
         health_txt = common.font.render(
-            f"Lives: {str(common.player.health)}",
+            f"Lives: {common.player.health}",
             False, (255, 255, 255)
         )
         coin_txt = common.font.render(
             f"Coins: {str(common.coins).zfill(6)}",
             False, (255, 255, 255)
         )
+        travel_timer_txt = common.font.render(
+            f"Travel {f'ready in: {round(transition_timer_left)} sec' if 0 < transition_timer_left <= 25 else 'ready!'}",
+            False, (255, 255, 255)
+        )
         dashboard.fill((self.current_color[0] * 0.75, self.current_color[1] * 0.75, self.current_color[2] * 0.75))
         dashboard.blit(score_txt, (10, 5))
         dashboard.blit(health_txt, (10, 30))
         dashboard.blit(coin_txt, (10, 55))
+        dashboard.blit(travel_timer_txt, (10, 80))
 
         # Second Column
 
