@@ -193,7 +193,8 @@ class World:
                 elif tile == Tile.PELLET:
                     pygame.draw.circle(self.surface, (255, 255, 0), (xx + 7, yy + 7), 7)
                 elif tile == Tile.SHOP:
-                    pygame.draw.rect(self.surface, (255, 255, 0), (xx, yy, tiles.TILE_SIZE, tiles.TILE_SIZE))
+                    # pygame.draw.rect(self.surface, (255, 255, 0), (xx, yy, tiles.TILE_SIZE, tiles.TILE_SIZE))
+                    self.surface.blit(tiles.SHOP, (xx, yy))
                 elif tile == Tile.END:
                     pygame.draw.rect(self.surface, (0, 255, 0), (xx, yy, tiles.TILE_SIZE, tiles.TILE_SIZE))
                 elif common.DEBUG:

@@ -1,4 +1,5 @@
 import os
+import random
 import time
 
 from src import common, interrupt, utils, powerup
@@ -20,6 +21,7 @@ PACMAN_DIE = [[pygame.transform.rotate(frame, rotation) for frame in _PACMAN_DIE
 
 PACMAN_EAT_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_eat.wav")
 PACMAN_PELLET_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_pellet.wav")
+PACMAN_DIE_SFX = pygame.mixer.Sound(common.PATH / "assets/pacman_die.wav")
 
 
 class Player(Entity):
@@ -149,17 +151,18 @@ class Player(Entity):
 
     def forward(self, world):
         moved = False
+        wall_hax = powerup.is_powerup_on(powerup.PowerUp.WALL_HAX)
 
         if self.direction == Direction.RIGHT:
-            moved = moved or self.nudge(world, self.speed, 0)
+            moved = moved or self.nudge(world, self.speed, 0, wall_hax)
         elif self.direction == Direction.LEFT:
-            moved = moved or self.nudge(world, -self.speed, 0)
+            moved = moved or self.nudge(world, -self.speed, 0, wall_hax)
         elif self.direction == Direction.UP:
-            moved = moved or self.nudge(world, 0, -self.speed)
+            moved = moved or self.nudge(world, 0, -self.speed, wall_hax)
         elif self.direction == Direction.DOWN:
-            moved = moved or self.nudge(world, 0, self.speed)
+            moved = moved or self.nudge(world, 0, self.speed, wall_hax)
 
-        if self.next_direction != self.direction:
+        if not wall_hax and self.next_direction != self.direction:
             if self.next_direction == Direction.RIGHT:
                 if not world.collide(self.x + self.speed, self.y, 1, 1, True):
                     self.direction = self.next_direction
@@ -172,6 +175,8 @@ class Player(Entity):
             elif self.next_direction == Direction.DOWN:
                 if not world.collide(self.x, self.y + self.speed, 1, 1, True):
                     self.direction = self.next_direction
+        elif wall_hax:
+            self.direction = self.next_direction
 
         if moved:
             self.frame = PACMAN_EAT[self.direction][int(time.perf_counter() *
@@ -191,6 +196,25 @@ class Player(Entity):
         else:
             self.speed = BASE_SPEED
 
+        if not wall_hax and world.get_at(int(self.x), int(self.y)) in tiles.SOLID_TILES.union(tiles.ANTI_PLAYER_TILES) and \
+                common.transitioning_mode == common.Transition.NOT_TRANSITIONING:
+            self.health -= 1
+            self.task = self.die
+            PACMAN_DIE_SFX.play()
+
+            random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+            while world.get_at(int(random_pos[0]), int(random_pos[1])) in tiles.SOLID_TILES.union(tiles.ANTI_PLAYER_TILES):
+                random_pos = [random.randint(0, len(world.tile_map) - 1), random.randint(0, len(world.tile_map[0] - 1))]
+            random_pos[0] = min(random_pos[0], len(world.tile_map) - 1)
+            random_pos[1] = min(random_pos[1], len(world.tile_map[0]) - 1)
+
+            if random_pos[1] >= len(world.tile_map[0]):
+                random_pos[1] = len(world.tile_map[0]) - 1
+            if random_pos[0] >= len(world.tile_map):
+                random_pos[0] = len(world.tile_map) - 1
+
+            self.x, self.y = random_pos
+
     def die(self, world):
         if self.dead < 0:
             if self.health > 0:
@@ -203,7 +227,7 @@ class Player(Entity):
                 for entity in common.active_map.entities:
                     if issubclass(entity.__class__, Ghost):
                         entity.task = entity.scatter
-                        entity.scatter_timer = time.perf_counter()
+                        entity.ghoststate_timer = time.perf_counter()
                         entity.scatter_length = 4
                         entity.path = world.path_find(entity.x, entity.y, *entity.scatter_tile)
                 print(self.health)

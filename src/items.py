@@ -15,7 +15,7 @@ def set_speed():
 
 def set_ghost_eatable():
     for dimension, _bg, _file, _unlocked in common.maps:
-        for entity in dimension:
+        for entity in dimension.entities:
             if issubclass(entity.__class__, Ghost):
                 if entity.state == GhostState.DEAD:
                     continue
@@ -55,5 +55,13 @@ store_items = [
         "price": 80,
         "image": pygame.image.load(common.PATH / "assets/ghost.png"),
         "on_purchase": set_ghost_eatable
+    }, {
+        "name": "Wall Hax",
+        "summary": "Allows player to ignore walls for 15 sec",
+        "description": "Wall Hax allows you to move anywhere, regardless of walls! This comes in handy when avoiding ghosts, or "
+                       "just trying to securely teleport to another spot.",
+        "price": 70,
+        "image": pygame.image.load(common.PATH / "assets/ghost.png"),
+        "on_purchase": lambda: powerup.add_powerup(powerup.PowerUp.WALL_HAX, 15)
     }
 ]

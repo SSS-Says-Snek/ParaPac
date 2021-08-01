@@ -1,3 +1,4 @@
+import pygame
 from pygame.transform import rotate
 
 from src import common, utils
@@ -72,12 +73,6 @@ WALL_I, WALL_H, WALL_L, WALL_U, WALL_O, WALL_C = utils.load_sprite_sheet(
     common.PATH / "assets/wall.png", 3, 2
 )
 
-# WALL_I = load(join("assets", "wall_0.png")).convert_alpha()  # Faces right
-# WALL_H = load(join("assets", "wall_1.png")).convert_alpha()  # Straight up
-# WALL_L = load(join("assets", "wall_2.png")).convert_alpha()  # Edge points up-right
-# WALL_U = load(join("assets", "wall_3.png")).convert_alpha()  # Just like U
-# WALL_O = load(join("assets", "wall_4.png")).convert_alpha()  # Literally all sides
-
 # C corner piece
 WALL_C_UR = WALL_C
 WALL_C_RD = rotate(WALL_C, -90)
@@ -112,3 +107,5 @@ WALLS = {
     (True, True, True, False): rotate(WALL_U, 180),
     (True, False, True, True): rotate(WALL_U, 90)
 }
+
+SHOP = pygame.image.load(common.PATH / "assets/shop_tile.png").convert_alpha()

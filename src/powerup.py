@@ -9,6 +9,7 @@ class PowerUp:
     SEE_STUFF = 2
     IMMUNITY = 3,
     EAT_GHOST = 4
+    WALL_HAX = 5
 
 
 # Power : [start_time, duration, image, font_surface]
@@ -18,7 +19,8 @@ powerups = {
     PowerUp.PASS_THROUGH_WALLS: [0, 0, "", common.font.render("Wall Hax", False, (255, 255, 255))],
     PowerUp.SEE_STUFF: [0, 0, "", common.font.render("See Stuff", False, (255, 255, 255))],
     PowerUp.IMMUNITY: [0, 0, "", common.font.render("Immunity", False, (255, 255, 255))],
-    PowerUp.EAT_GHOST: [0, 0, "", common.font.render("Ghost-B-Gone", False, (255, 255, 255))]
+    PowerUp.EAT_GHOST: [0, 0, "", common.font.render("Ghost-B-Gone", False, (255, 255, 255))],
+    PowerUp.WALL_HAX: [0, 0, "", common.font.render("Wall Hax", False, (255, 255, 255))]
 }
 
 

@@ -337,7 +337,6 @@ class ShopState(BaseState):
 
     def buy_item(self, item):
         if common.coins - item['price'] >= 0:
-            print('e')
             common.coins -= item['price']
             item['on_purchase']()
             self.remove_buy_popup()
@@ -453,7 +452,8 @@ class HelpState(BaseState):
             "Dimensions are arranged into a linear style, where you teleport to a new dimension based on the direction you were moving. "
             "If you were moving up or right, you will go to the next dimension, "
             "while moving down or left moves you to the previous one.\n\n"
-            "NOTE: There is a cooldown for dimension travelling (25 seconds), so be careful when to use it!"
+            "NOTE: There is a cooldown for dimension travelling (25 seconds), so be careful when to use it!\n"
+            "SECOND NOTE: You will lose a life if you teleport to a non-player entry block (E.g walls)"
         )
 
         self.shop_help_txt = (
