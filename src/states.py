@@ -353,6 +353,7 @@ class PauseState(BaseState):
         pause_background.fill((0, 0, 0))
         pause_background.set_alpha(200)
         common.window.blit(pause_background, (0, 0))
+        common.window.blit(common.font64.render("Paused", False, (255, 255, 255)), (0, 0))
         pygame.display.update()
 
     def handle_event(self, event):

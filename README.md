@@ -4,8 +4,8 @@
 ## Game Concept
  The [Pygame Community Summer Team Jam](https://itch.io/jam/pygame-community-summer-team-jam) has its theme as **"Remake an  old game with a twist"** 
  which in this case we picked Pacman to be _twisted_. 
- The twist here is that there are enemy pacs and turret pacs, but the real game changer here is the ability to shift your dimension to a secondary map which you can switch from one to the other and retain changes in position.
- You can use that mechanic to avoid or fight enemies, and to find a way out.
+ The twist here is the ability to shift your dimension to an alternate map which you can switch from one to the other and retain changes in position.
+ You can use that mechanic to run from enemies or get into places you couldn't go from your position in that dimension alone.
 
 ## Team Members
 - [AvaxarXapaxa](https://github.com/AvaxarXapaxa): Artist, Developer
