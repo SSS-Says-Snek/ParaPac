@@ -95,7 +95,7 @@ class Ghost(Entity):
                 if common.player.task != common.player.die and self.task != self.go_home:
                     GHOST_EATEN_SFX.play()
 
-            if powerup.powerups[powerup.PowerUp.EAT_GHOST][1] != 0 and self.state != GhostState.DEAD:
+            if powerup.is_powerup_on(powerup.PowerUp.EAT_GHOST) and self.state != GhostState.DEAD:
                 self.state = GhostState.VULNERABLE
             else:
                 if self.state == GhostState.VULNERABLE:
