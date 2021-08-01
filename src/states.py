@@ -108,6 +108,7 @@ class MainGameState(BaseState):
                         common.active_map_id -= 1
                         notification.new_notif("Teleported behind a dimension!", 3, (0, 255, 0))
                     else:
+                        common.transitioning_mode = common.Transition.REAPPEARING
                         notification.new_notif("There are no dimensions behind!", 3)
                 common.active_map = common.maps[common.active_map_id][0]
 
