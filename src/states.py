@@ -47,26 +47,28 @@ class MainGameState(BaseState):
                 powerup.pause()
                 self.change_state(PauseState)
 
-            elif common.DEBUG:
-                # Saves the map
-                if event.key == pygame.K_F2:
+            # Saves the map
+            if event.key == pygame.K_F2:
+                if common.DEBUG:
                     with open(common.PATH / "maps" / common.maps[common.active_map_id][2], "w") as f:
                         f.write(common.active_map.save())
                     notification.new_notif(f"Saved {common.maps[common.active_map_id][2]}", 3, (255, 255, 0))
-                # Toggles freezing the world
-                elif event.key == pygame.K_F3:
-                    common.DEBUG_FREEZE = not common.DEBUG_FREEZE
-                    notification.new_notif(f"{'Froze' if common.DEBUG_FREEZE else 'Unfrozen'} the game", 3, (255, 255, 0))
-                # Teleports behind a dimension
-                elif event.key == pygame.K_F4:
-                    common.active_map_id = (common.active_map_id - 1) % len(common.maps)
-                    common.active_map = common.maps[common.active_map_id][0]
-                    notification.new_notif(f"Teleported to {common.maps[common.active_map_id][2]}", 3, (255, 255, 0))
-                # Teleports ahead a dimension
-                elif event.key == pygame.K_F5:
-                    common.active_map_id = (common.active_map_id + 1) % len(common.maps)
-                    common.active_map = common.maps[common.active_map_id][0]
-                    notification.new_notif(f"Teleported to {common.maps[common.active_map_id][2]}", 3, (255, 255, 0))
+                else:
+                    notification.new_notif("You must be on debug mode to save the map!", 3)
+            # Toggles freezing the world
+            elif event.key == pygame.K_F3:
+                common.DEBUG_FREEZE = not common.DEBUG_FREEZE
+                notification.new_notif(f"{'Froze' if common.DEBUG_FREEZE else 'Unfrozen'} the game", 3, (255, 255, 0))
+            # Teleports behind a dimension
+            elif event.key == pygame.K_F4:
+                common.active_map_id = (common.active_map_id - 1) % len(common.maps)
+                common.active_map = common.maps[common.active_map_id][0]
+                notification.new_notif(f"Teleported to {common.maps[common.active_map_id][2]}", 3, (255, 255, 0))
+            # Teleports ahead a dimension
+            elif event.key == pygame.K_F5:
+                common.active_map_id = (common.active_map_id + 1) % len(common.maps)
+                common.active_map = common.maps[common.active_map_id][0]
+                notification.new_notif(f"Teleported to {common.maps[common.active_map_id][2]}", 3, (255, 255, 0))
 
     @staticmethod
     def gameplay_map():
