@@ -118,7 +118,7 @@ class Player(Entity):
 
                 self.had_encountered_end = True
                 coins_left = False
-                for dimension, _bg, _file, _unlocked in common.maps:
+                for dimension, _bg, _file in common.maps:
                     if dimension.has_coins():
                         coins_left = True
                         break

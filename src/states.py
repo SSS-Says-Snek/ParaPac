@@ -32,7 +32,7 @@ class MainGameState(BaseState):
             # Toggles debug mode
             if event.key == pygame.K_F1:
                 common.DEBUG = not common.DEBUG
-                for dimension, _bg, _file, _unlocked in common.maps:
+                for dimension, _bg, _file in common.maps:
                     dimension.render_world()
             # Changes the map dimension
             elif event.key == pygame.K_p:

@@ -41,21 +41,22 @@ class GameLoop:
     @staticmethod
     def setup():
         pygame.display.set_caption("ParaPac - Pygame Community Summer Team Jam")
+        pygame.display.set_icon(pygame.image.load(common.PATH / "assets/logo.png"))
 
         common.maps = [
-            [World(os.path.join("maps", "map_a.txt")), (8, 8, 32), "map_a.txt", True],
-            [World(os.path.join("maps", "map_b.txt")), (64, 0, 32), "map_b.txt", False],
-            [World(os.path.join("maps", "map_c.txt")), (0, 64, 32), "map_c.txt", False],
-            [World(os.path.join("maps", "map_d.txt")), (64, 32, 0), "map_d.txt", False],
-            [World(os.path.join("maps", "map_e.txt")), (16, 128, 16), "map_e.txt", False],
-            [World(os.path.join("maps", "map_f.txt")), (216, 216, 216), "map_f.txt", False]
+            [World(os.path.join("maps", "map_a.txt")), (8, 8, 32), "map_a.txt"],
+            [World(os.path.join("maps", "map_b.txt")), (64, 0, 32), "map_b.txt"],
+            [World(os.path.join("maps", "map_c.txt")), (0, 64, 32), "map_c.txt"],
+            [World(os.path.join("maps", "map_d.txt")), (64, 32, 0), "map_d.txt"],
+            [World(os.path.join("maps", "map_e.txt")), (16, 128, 16), "map_e.txt"],
+            [World(os.path.join("maps", "map_f.txt")), (216, 216, 216), "map_f.txt"]
         ]
 
         common.player = Player(19, 30)
         common.active_map_id = 0
         common.active_map = common.maps[common.active_map_id][0]
         common.dashboard = Dashboard()
-        for dimension, _bg, _file, _unlocked in common.maps:
+        for dimension, _bg, _file in common.maps:
             dimension.entities.append(common.player)
 
 

@@ -14,7 +14,7 @@ def set_speed():
 
 
 def set_ghost_eatable():
-    for dimension, _bg, _file, _unlocked in common.maps:
+    for dimension, _bg, _file in common.maps:
         for entity in dimension.entities:
             if issubclass(entity.__class__, Ghost):
                 if entity.state == GhostState.DEAD:
