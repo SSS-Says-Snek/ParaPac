@@ -14,15 +14,16 @@ def set_speed():
 
 
 def set_ghost_eatable():
-    for entity in common.active_map.entities:
-        if issubclass(entity.__class__, Ghost):
-            if entity.state == GhostState.DEAD:
-                continue
+    for dimension, _bg, _file, _unlocked in common.maps:
+        for entity in dimension:
+            if issubclass(entity.__class__, Ghost):
+                if entity.state == GhostState.DEAD:
+                    continue
 
-            entity.load_random_path = True
-            entity.state = GhostState.VULNERABLE
-            entity.timer = time.perf_counter()
-            entity.speed = entity.default_speed / 2
+                entity.load_random_path = True
+                entity.state = GhostState.VULNERABLE
+                entity.timer = time.perf_counter()
+                entity.speed = entity.default_speed / 2
 
     powerup.add_powerup(powerup.PowerUp.EAT_GHOST, 10)
 

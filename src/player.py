@@ -110,7 +110,10 @@ class Player(Entity):
                 self.x, self.y = int(self.x), int(self.y)
                 powerup.pause()
                 common.game_loop.state.change_state(ShopState)
-            elif tile == Tile.END and not self.had_encountered_end:
+            elif tile == Tile.END:
+                if self.had_encountered_end:
+                    return
+
                 self.had_encountered_end = True
                 coins_left = False
                 for dimension, _bg, _file, _unlocked in common.maps:
