@@ -286,7 +286,8 @@ class ShopState(BaseState):
 
         if self.show_buy_screen:
             buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))
-            buy_screen_pos = buy_screen_surf.get_rect(center=(common.window.get_width() // 2, common.window.get_height() // 2))
+            buy_screen_pos = buy_screen_surf.get_rect(
+                center=(common.window.get_width() // 2, common.window.get_height() // 2))
             self.buy_screen_rect = buy_screen_pos
 
             buy_screen_surf.fill((128, 128, 128))
@@ -408,16 +409,21 @@ class MenuState(BaseState):
         self.buttons = {
             utils.Button(common.window, (w / 2, 150 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          lambda: self.change_state(MainGameState), (128, 128, 128), "Start", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
-            utils.Button(common.window, (w / 2, 260 / 620 * h, 300 / 620 * w, 80 / 620 * h), None, (128, 128, 128), "Settings", (0, 0, 0),
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150),
+                         center=True),
+            utils.Button(common.window, (w / 2, 260 / 620 * h, 300 / 620 * w, 80 / 620 * h), None, (128, 128, 128),
+                         "Settings", (0, 0, 0),
                          40,
-                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150),
+                         center=True),
             utils.Button(common.window, (w / 2, 370 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          lambda: self.change_state(HelpState), (128, 128, 128), "Help", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True),
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150),
+                         center=True),
             utils.Button(common.window, (w / 2, 480 / 620 * h, 300 / 620 * w, 80 / 620 * h),
                          self.exit_game, (128, 128, 128), "Exit", (0, 0, 0), 40,
-                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150), center=True)
+                         border_color=(100, 100, 100), border_width=int(5 / 620 * w), hover_color=(150, 150, 150),
+                         center=True)
         }
         common.window.fill((12, 25, 145))
 
@@ -439,6 +445,27 @@ class MenuState(BaseState):
     @staticmethod
     def exit_game():
         raise GameExit
+
+
+class GameOverState(BaseState):
+    def __init__(self):
+        super().__init__()
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+                                          flags=pygame.SRCALPHA)
+        pause_background.fill((0, 0, 0))
+        pause_background.set_alpha(200)
+        common.window.blit(pause_background, (0, 0))
+        common.window.blit(common.font64.render("Game Over", False, (255, 255, 255)), (0, 0))
+        pygame.display.update()
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.change_state(MenuState)
+
+    def run(self):
+        common.clock.tick(60)
+        pygame.display.update()
 
 
 class HelpState(BaseState):

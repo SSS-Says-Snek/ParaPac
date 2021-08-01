@@ -7,7 +7,7 @@ from src.world import World
 from src.interrupt import *
 from src.player import Player
 from src.gui import Dashboard
-from src.states import MainGameState, MenuState
+from src.states import MainGameState, MenuState, GameOverState
 
 
 class GameLoop:
@@ -27,11 +27,11 @@ class GameLoop:
             except GameExit:
                 sys.exit(0)
             except GameOver:
-                print("You died")
-                sys.exit(0)
+                self.state = GameOverState()
+                self.state.next_state = GameOverState
             except GameFinish:
-                print("You won")
-                sys.exit(0)
+                self.state = MenuState()
+                self.state.next_state = MenuState
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:

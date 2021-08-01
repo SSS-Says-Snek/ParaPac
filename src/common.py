@@ -15,6 +15,7 @@ window = pygame.display.set_mode((620, 620), pygame.RESIZABLE)
 pygame.display.set_caption("ParaPac - Loading...")
 clock = pygame.time.Clock()
 font = pygame.font.Font(PATH / "assets/VT323.ttf", 24)
+font2 = pygame.font.Font(PATH / "assets/VT323.ttf", 20)
 font64 = pygame.font.Font(PATH / "assets/VT323.ttf", 64)
 fps = 0
 
