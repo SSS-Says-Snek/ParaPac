@@ -466,11 +466,23 @@ class HelpState(BaseState):
             "Exit the shop by either pressing F9, or pressing the \"Exit Shop\" button at the bottom right."
         )
 
+        self.controls_help_txt = (
+            "CONTROLS\n\n"
+            "WASD or arrow keys to move\n"
+            "P to teleport a previous or next dimension (Read DIMENSIONS manual)\n"
+            "ESC to pause and resume the game\n\n\n\n"
+            "DEBUG CONTROLS\n\n"
+            "F1 to toggle debug mode\n"
+            "F2 to save the modified map\n"
+            "F3 to toggle freezing the game"
+        )
+
         self.pages = [
             [30, self.story_txt],
             [25, self.overview_txt],
             [25, self.dimension_help_txt],
-            [25, self.shop_help_txt]
+            [25, self.shop_help_txt],
+            [30, self.controls_help_txt]
         ]
         self.page_idx = 0
 
