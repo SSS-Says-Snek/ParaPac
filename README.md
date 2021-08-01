@@ -8,8 +8,9 @@
  You can use that mechanic to avoid or fight enemies, and to find a way out.
 
 ## Team Members
-- [AvaxarXapaxa](https://github.com/AvaxarXapaxa): Developer
+- [AvaxarXapaxa](https://github.com/AvaxarXapaxa): Artist, Developer
 - [coolstuff123](https://github.com/coolstuff123): Developer
 - [Potat](https://www.youtube.com/watch?v=dQw4w9WgXcQ): Artist
 - [SSS_Says_Snek](https://github.com/SSS-Says-Snek): Developer
-- [zerzym](https://github.com/zerzym) (forfeited game jam)
+- ~~lucysir / kadir014~~: Traitor
+- ~~zerzym~~: Unable to contribute

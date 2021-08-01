@@ -31,7 +31,7 @@ active_map_id: int = 0
 alpha: int = 255
 
 score: int = 0
-coins: int = 1000
+coins: int = 0
 
 
 class Transition:
