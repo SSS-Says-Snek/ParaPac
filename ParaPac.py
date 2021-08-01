@@ -7,12 +7,12 @@ from src.world import World
 from src.interrupt import *
 from src.player import Player
 from src.gui import Dashboard
-from src.states import MainGameState
+from src.states import MainGameState, MenuState
 
 
 class GameLoop:
     def __init__(self):
-        self.state = MainGameState()
+        self.state = MenuState()
 
     def run(self):
         self.setup()

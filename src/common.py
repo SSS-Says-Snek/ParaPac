@@ -42,3 +42,4 @@ class Transition:
 
 
 transitioning_mode = Transition.NOT_TRANSITIONING
+transition_timer = -25

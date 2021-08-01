@@ -1,7 +1,10 @@
+import time
+
 import pygame
 import copy
 
 from src import common, tiles, utils, powerup, notification, items, entity
+from src.interrupt import GameExit
 from src.tiles import Tile
 
 
@@ -9,7 +12,11 @@ class BaseState:
     def __init__(self):
         self.next_state = self.__class__
 
+        self.enter_state = time.perf_counter()
+
     def change_state(self, other_state):
+        if other_state == MainGameState:
+            common.transition_timer = time.perf_counter() - self.enter_state + common.transition_timer
         self.next_state = other_state
 
 
@@ -29,8 +36,11 @@ class MainGameState(BaseState):
                     dimension.render_world()
             # Changes the map dimension
             elif event.key == pygame.K_p:
-                common.transitioning_mode = common.Transition.FADING
-                common.alpha = 255
+                if time.perf_counter() - common.transition_timer > 25:
+                    common.transitioning_mode = common.Transition.FADING
+                    common.alpha = 255
+                else:
+                    notification.new_notif("Dimension travelling not ready!", 3)
             # Pause Game
             elif event.key == pygame.K_ESCAPE:
                 powerup.pause()
@@ -44,15 +54,13 @@ class MainGameState(BaseState):
                 # Toggles freezing the world
                 elif event.key == pygame.K_F3:
                     common.DEBUG_FREEZE = not common.DEBUG_FREEZE
-                elif event.key == pygame.K_F9:
-                    self.change_state(TestState)
 
     @staticmethod
     def gameplay_map():
         common.active_map.update()
         game_surf = world = common.active_map.render()
 
-        if common.transitioning_mode != common.Transition.NOT_TRANSITIONING:
+        if common.transitioning_mode != common.Transition.NOT_TRANSITIONING and time.perf_counter() - common.transition_timer > 25:
             world.set_alpha(common.alpha)
             if common.transitioning_mode == common.Transition.FADING:
                 common.alpha -= 10
@@ -67,17 +75,21 @@ class MainGameState(BaseState):
                         notification.new_notif("There are no dimensions ahead!", 3)
                     else:
                         common.active_map_id = (common.active_map_id + 1) % len(common.maps)
-                        notification.new_notif("Teleported ahead a dimension!", 3)
+                        if common.active_map_id != len(common.maps) - 1:
+                            notification.new_notif("Teleported ahead a dimension!", 3, (0, 255, 0))
+                        else:
+                            notification.new_notif("Teleported to boss dimension!", 3, (252, 157, 3))
                 elif common.player.direction in [entity.Direction.DOWN, entity.Direction.LEFT]:
                     if common.active_map_id - 1 >= 0:
                         common.active_map_id = (common.active_map_id - 1)
-                        notification.new_notif("Teleported behind a dimension!", 3)
+                        notification.new_notif("Teleported behind a dimension!", 3, (0, 255, 0))
                     else:
                         notification.new_notif("There are no dimensions behind!", 3)
                 common.active_map = common.maps[common.active_map_id][0]
 
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
+                common.transition_timer = time.perf_counter()
 
                 if not common.player.nudge(common.active_map, 0, 0):
                     common.player.task = common.player.die
@@ -348,19 +360,145 @@ class PauseState(BaseState):
                 self.change_state(MainGameState)
 
     def run(self):
-
         pygame.display.update()
 
 
-class TestState(BaseState):
+class MenuState(BaseState):
+    def __init__(self):
+        super().__init__()
+        self.title_name = "ParaPac"
+        self.title_idx = 0
+        self.title_thing = 0
+
+        self.TITLEUPDATE = pygame.USEREVENT + 1
+
+        pygame.time.set_timer(self.TITLEUPDATE, 70)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for button in self.buttons:
+                button.handle_event(event)
+        if event.type == self.TITLEUPDATE:
+            self.title_thing += 1
+            self.title_thing %= len(self.title_name)
+
+    def run(self):
+        title_font = utils.load_font(int(80/620*common.window.get_height()))
+        w, h = common.window.get_size()
+        self.buttons = {
+            utils.Button(common.window, (w/2, 150/620*h, 300/620*w, 80/620*h),
+                         lambda: self.change_state(MainGameState), (128, 128, 128), "Start", (0, 0, 0), 40,
+                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w/2, 260/620*h, 300/620*w, 80/620*h), None, (128, 128, 128), "Settings", (0, 0, 0), 40,
+                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w/2, 370/620*h, 300/620*w, 80/620*h),
+                         lambda: self.change_state(HelpState), (128, 128, 128), "Help", (0, 0, 0), 40,
+                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True),
+            utils.Button(common.window, (w/2, 480/620*h, 300/620*w, 80/620*h),
+                         self.exit_game, (128, 128, 128), "Exit", (0, 0, 0), 40,
+                         border_color=(100, 100, 100), border_width=int(5/620*w), hover_color=(150, 150, 150), center=True)
+        }
+        common.window.fill((12, 25, 145))
+
+        utils.blit_multicolor_text(
+            title_font,
+            {
+                self.title_name[:self.title_thing]: (166, 151, 22),
+                self.title_name[self.title_thing]: (229, 235, 52),
+                self.title_name[self.title_thing + 1:]: (166, 151, 22),
+            },
+            (215/620*w, 0)
+        )
+
+        for button in self.buttons:
+            button.draw()
+
+        pygame.display.flip()
+
+    @staticmethod
+    def exit_game():
+        raise GameExit
+
+
+class HelpState(BaseState):
     def __init__(self):
         super().__init__()
 
+        self.title_txt = """ParaPac - A multidimensional pac-man, with a few twists"""
+
+        self.story_txt = (
+            "The year is 1980. You have time-travelled over 4 decades back, into the era of arcade games. "
+            "You visit your favorite arcade games, like Pong and Space Invaders, but when you play Pac-Man... well, it is a tiny bit "
+            "different. Turns out, the arcade machine that contains this version of Pac-Man (dubbed \"ParaPac\") is a failed time machine, "
+            "made by the government. A few years later, the goverment covered up project ParaPac, and replaced it with the Pac-Man we "
+            "know today.  However, you think that if you finish the boss level, the arcade machine will time travel you back. "
+            "It will be very difficult though, as NO ONE has finished a game of ParaPac. However, you are filled with determination, "
+            "wanting to go back to your era."
+        )
+
+        self.overview_txt = (
+            "OVERVIEW\n\nPacaPac is like Pac-Man, except that there are a few \"small\" twists\n"
+            "1. After travelling to a parallel universe, you gained the ability to travel through dimensions."
+            "Press P to activate this power.\n"
+            "2. There are shops that allow you to buy numerous items, like powerups and extra lives. Each dimension has at least one "
+            "shop. You use the coins you get from the yellow balls to buy items."
+        )
+        
+        self.dimension_help_txt = (
+            "DIMENSIONS\n\nLast page, we talked about dimensions. In simple terms, dimensions are kind of like a level, except that "
+            "you can go between dimensions without needing to complete the previous one. Each dimension are different from each other: "
+            "There are different maps, different enemies, etc.\n"
+            "Dimensions are arranged into a linear style, where you teleport to a new dimension based on the direction you were moving. "
+            "If you were moving up or right, you will go to the next dimension, "
+            "while moving down or left moves you to the previous one.\n\n"
+            "NOTE: There is a cooldown for dimension travelling (25 seconds), so be careful when to use it!"
+        )
+
+        self.pages = [
+            [30, self.story_txt],
+            [25, self.overview_txt],
+            [25, self.dimension_help_txt]
+        ]
+        self.page_idx = 0
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_F9:
-                self.change_state(MainGameState)
+            if event.key in [pygame.K_RIGHT, pygame.K_d]:
+                self.page_idx = (self.page_idx + 1) % len(self.pages)
+            if event.key in [pygame.K_LEFT, pygame.K_a]:
+                self.page_idx = (self.page_idx - 1) % len(self.pages)
 
     def run(self):
-        common.window.fill((0, 0, 0))
-        pygame.display.update()
+        w, h = common.window.get_size()
+
+        common.window.fill((12, 25, 145))
+
+        title_font = utils.load_font(int(22/620*h))
+        title_font.italic = True
+        title_surf = title_font.render(self.title_txt, True, (255, 255, 255))
+        title_surf_pos = title_surf.get_rect(center=(w/2, 10/620*h))
+
+        help_font = utils.load_font(int(self.pages[self.page_idx][0]/620*h))
+        formatted_help_txt = utils.TextMessage.wrap_text(self.pages[self.page_idx][1], w - 20/620*h, help_font)
+
+        for i, split_help_line in enumerate(formatted_help_txt):
+            split_story_line_surf = help_font.render(split_help_line, True, (220, 220, 220))
+            common.window.blit(split_story_line_surf, (10/620*w, 60/620*h + i*help_font.get_height()))
+
+        common.window.blit(title_surf, title_surf_pos)
+
+        pages_font = utils.load_font(int(30/620*h))
+        pages = pages_font.render(
+            f"Page {self.page_idx + 1} of {len(self.pages)}", True, (255, 255, 255)
+        )
+        pages_pos = pages.get_rect(bottomright=(w - 10/620*w, h - 25/620*h))
+        common.window.blit(pages, pages_pos)
+
+        footer_font = utils.load_font(int(15/620*h))
+        footer = footer_font.render(
+            "Flip through the manual by pressing the arrow keys", True, (255, 255, 255)
+        )
+        footer_pos = footer.get_rect(bottomright=(w - 10/620*w, h - 5/620*h))
+        common.window.blit(footer, footer_pos)
+
+        pygame.display.flip()

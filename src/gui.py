@@ -76,16 +76,14 @@ class Dashboard:
         y = 2
         for notif in notification.notifications[:3]:
             widget = pygame.Surface((250, 30))
-            widget.fill((255,0,0))
-            widget.blit(notif[0], (3,2))
-            opac = int(255*(((notif[1]+notif[2])-time.perf_counter())/(notif[1])))
+            widget.fill(notif[3])
+            widget.blit(notif[0], (3, 2))
+            opac = int(255 * (((notif[1] + notif[2]) - time.perf_counter()) / (notif[1])))
             if opac <= 0:
                 notification.notifications.remove(notif)
                 break
             widget.set_alpha(opac)
             dashboard.blit(widget, (375, y))
             y += 32
-
-
 
         return dashboard

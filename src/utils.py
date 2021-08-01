@@ -251,7 +251,8 @@ class Button:
             rounded=False,
             border_color=None,
             border_width=None,
-            hover_color=None
+            hover_color=None,
+            center=False
     ):
         self.screen = surface
         self.coords = coordinates
@@ -264,8 +265,11 @@ class Button:
         self.border_color = border_color
         self.border_width = border_width
         self.hover_color = hover_color
+        self.center = center
 
         self.rect = pygame.Rect(self.coords)
+        if self.center:
+            self.rect.center = (self.coords[0], self.coords[1])
 
     def draw(self, mouse_pos=None):
         """Draws the button onto previously inputted screen"""
@@ -309,3 +313,24 @@ class Button:
 def load_font(size, text_font="VT323"):
     """Loads a font with a given size and an optional parameter for the font name"""
     return pygame.font.Font(common.PATH / f"assets/{text_font}.ttf", size)
+
+
+def blit_multicolor_text(
+    text_font, text_list: dict, coord_to_blit, screen=common.window, center=False
+):
+    """
+    Function used to render multicolored text. Used as:
+    >>> from src import utils
+    >>> blit_multicolor_text(utils.load_font(20), {"Text lol": (128, 128, 128), "More Text": (128, 0, 0)})
+    <blits font rendering with "Text lol" colored gray, and "More Text" colored red>
+    """
+    actual_coord_to_blit = coord_to_blit
+    for key, value in text_list.items():
+        text_font_part = text_font.render(key, True, value)
+        if center:
+            actual_coord_to_blit = text_font_part.get_rect(center=actual_coord_to_blit)
+        screen.blit(text_font_part, actual_coord_to_blit)
+        actual_coord_to_blit = (
+            actual_coord_to_blit[0] + text_font.size(key)[0],
+            actual_coord_to_blit[1],
+        )
