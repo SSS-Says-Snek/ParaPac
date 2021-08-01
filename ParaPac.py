@@ -27,11 +27,9 @@ class GameLoop:
             except GameExit:
                 sys.exit(0)
             except GameOver:
-                print("You died")
-                sys.exit(0)
+                self.state.change_state(MenuState)
             except GameFinish:
-                print("You won")
-                sys.exit(0)
+                self.state.change_state(MenuState)
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:
