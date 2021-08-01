@@ -94,7 +94,8 @@ class MainGameState(BaseState):
             if common.alpha == 255:
                 common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
-                if not common.player.nudge(common.active_map, 0, 0) and not powerup.is_powerup_on(powerup.PowerUp.WALL_HAX):
+                if not common.player.nudge(common.active_map, 0, 0) and \
+                        not powerup.is_powerup_on(powerup.PowerUp.WALL_HAX) and not common.DEBUG:
                     common.player.task = common.player.die
                     common.transitioning_mode = common.Transition.NOT_TRANSITIONING
 
