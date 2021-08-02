@@ -93,6 +93,8 @@ class Ghost(Entity):
                 self.state = GhostState.DEAD
 
                 if common.player.task != common.player.die and self.task != self.go_home:
+                    common.score += 50
+                    common.coins += 5
                     GHOST_EATEN_SFX.play()
 
             if powerup.is_powerup_on(powerup.PowerUp.EAT_GHOST) and self.state != GhostState.DEAD:

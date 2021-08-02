@@ -464,8 +464,19 @@ class GameOverState(BaseState):
         pause_background.fill((0, 0, 0))
         pause_background.set_alpha(200)
         common.window.blit(pause_background, (0, 0))
-        common.window.blit(common.font64.render("Game Over", False, (255, 255, 255)), (0, 0))
         pygame.display.update()
+
+        try:
+            with open(common.PATH / 'highscores.txt') as read_file:
+                self.high_score = int(read_file.read().strip())
+        except FileNotFoundError:
+            self.high_score = common.score
+
+        if common.score > self.high_score:
+            self.high_score = common.score
+
+        with open(common.PATH / "highscores.txt", 'w') as write_file:
+            write_file.write(str(self.high_score))
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -494,6 +505,11 @@ class GameOverState(BaseState):
             self.exit_to_menu, (128, 128, 128), "Exit to Menu", (0, 0, 0), 40,
             border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
         )
+        common.window.blit(common.font64.render("Game Over", False, (255, 255, 255)), (0, 0))
+        common.window.blit(common.font.render(f"Score: {self.high_score}", False, (255, 255, 255)),
+                           (0, 550 / 620 * common.window.get_width()))
+        common.window.blit(common.font.render(f"High Score: {self.high_score}", False, (255, 255, 255)),
+                           (0, 570 / 620 * common.window.get_width()))
         self.retry_button.draw()
         self.exit_button.draw()
 
@@ -530,6 +546,18 @@ class GameFinishedState(BaseState):
         common.window.blit(pause_background, (0, 0))
         pygame.display.update()
 
+        try:
+            with open(common.PATH / 'highscores.txt') as read_file:
+                self.high_score = int(read_file.read().strip())
+        except FileNotFoundError:
+            self.high_score = common.score
+
+        if common.score > self.high_score:
+            self.high_score = common.score
+
+        with open(common.PATH / "highscores.txt", 'w') as write_file:
+            write_file.write(str(self.high_score))
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -563,6 +591,8 @@ class GameFinishedState(BaseState):
         common.window.blit(common.font64.render("You won!", False, (255, 255, 255)), (0, 0))
         common.window.blit(common.font64.render(f"Score: {common.score}", False, (255, 255, 255)),
                            (0, 64 / 620 * common.window.get_width()))
+        common.window.blit(common.font64.render(f"High Score: {self.high_score}", False, (255, 255, 255)),
+                           (0, 500 / 620 * common.window.get_width()))
 
         pygame.display.update()
 
