@@ -465,7 +465,6 @@ class GameOverState(BaseState):
         pause_background.set_alpha(200)
         common.window.blit(pause_background, (0, 0))
         pygame.display.update()
-
         try:
             with open(common.PATH / 'highscores.txt') as read_file:
                 self.high_score = int(read_file.read().strip())
@@ -506,7 +505,7 @@ class GameOverState(BaseState):
             border_color=(100, 100, 100), border_width=5, hover_color=(150, 150, 150), center=True
         )
         common.window.blit(common.font64.render("Game Over", False, (255, 255, 255)), (0, 0))
-        common.window.blit(common.font.render(f"Score: {self.high_score}", False, (255, 255, 255)),
+        common.window.blit(common.font.render(f"Score: {common.score}", False, (255, 255, 255)),
                            (0, 550 / 620 * common.window.get_width()))
         common.window.blit(common.font.render(f"High Score: {self.high_score}", False, (255, 255, 255)),
                            (0, 570 / 620 * common.window.get_width()))
