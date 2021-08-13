@@ -89,6 +89,13 @@ class Ghost(Entity):
                 if not common.DEBUG:
                     GHOST_PLAYER_EATEN_SFX.play()
                     common.player.task = common.player.die
+            elif common.player.immune and self.state == GhostState.VULNERABLE:
+                self.state = GhostState.DEAD
+
+                if common.player.task != common.player.die and self.task != self.go_home:
+                    common.score += 50
+                    common.coins += 5
+                    GHOST_EATEN_SFX.play()
             elif not common.player.immune:
                 self.state = GhostState.DEAD
 
