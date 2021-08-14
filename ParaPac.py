@@ -1,8 +1,10 @@
+import time
+
 import pygame
 import os
 import sys
 
-from src import common
+from src import common, powerup
 from src.world import World
 from src.interrupt import *
 from src.player import Player
@@ -23,6 +25,12 @@ class GameLoop:
                     self.handle_event(event)
 
                 if self.state.__class__ != self.state.next_state:
+                    if self.state.__class__ == MenuState and self.state.next_state == MainGameState:
+                        powerup.add_powerup(powerup.PowerUp.IMMUNITY, 12)
+                        common.player.immune = True
+                        common.player.immunity_duration = powerup.powerups[powerup.PowerUp.IMMUNITY][1]
+                        common.player.immunity_timer = time.perf_counter()
+
                     self.state = self.state.next_state()
             except GameExit:
                 sys.exit(0)
