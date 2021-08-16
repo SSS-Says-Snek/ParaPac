@@ -34,7 +34,7 @@ class World:
             if not row:
                 rows.remove(row)
 
-        self.surface = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,
+        self.surface = pygame.Surface((len(rows[0]) * tiles.TILE_SIZE,  # lgtm [py/call/wrong-named-argument]
                                        len(rows) * tiles.TILE_SIZE), pygame.SRCALPHA)
         self.overlay = self.surface.copy()
         self.tile_map = numpy.zeros((len(rows[0]), len(rows)), dtype=numpy.uint8)
