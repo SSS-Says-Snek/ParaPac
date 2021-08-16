@@ -12,7 +12,7 @@ class Dashboard:
         self.current_color = None
 
     def render(self, width):
-        dashboard = pygame.Surface((width, 100))
+        dashboard = pygame.Surface((width, 100))  # lgtm [py/call/wrong-named-argument]
         self.current_color = common.maps[common.active_map_id][1]
 
         transition_timer_left = 25 - (time.perf_counter() - common.transition_timer)
@@ -59,10 +59,10 @@ class Dashboard:
                 powerup.powerups[power][0] = 0
                 powerup.powerups[power][1] = 0
                 break
-            widget = pygame.Surface((150, 30))
+            widget = pygame.Surface((150, 30))  # lgtm [py/call/wrong-named-argument]
             widget.fill((self.current_color[0] * 0.5, self.current_color[1] * 0.5, self.current_color[2] * 0.5))
             # Current placeholder for image:
-            image = pygame.Surface((25, 25))
+            image = pygame.Surface((25, 25))  # lgtm [py/call/wrong-named-argument]
             image.fill((200, 0, 0))
             widget.blit(image, (5, 2))
             # Uncomment this code when loading real image:
@@ -82,7 +82,7 @@ class Dashboard:
         # Third Column
         y = 2
         for notif in notification.notifications[:3]:
-            widget = pygame.Surface((250, 30))
+            widget = pygame.Surface((250, 30))  # lgtm [py/call/wrong-named-argument]
             widget.fill(notif[3])
             widget.blit(notif[0], (3, 2))
             opac = int(255 * (((notif[1] + notif[2]) - time.perf_counter()) / (notif[1])))

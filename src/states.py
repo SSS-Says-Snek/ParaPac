@@ -1,12 +1,9 @@
 import time
 
 import pygame
-import copy
 
 from src import common, tiles, utils, powerup, notification, items, entity
-from src.ghost import Ghost
 from src.interrupt import GameExit
-from src.tiles import Tile
 
 
 class BaseState:
@@ -199,7 +196,7 @@ class ShopState(BaseState):
             self.exit_shop_button.handle_event(event, mouse_pos=mouse_pos)
 
     def run(self):
-        surf_to_blit = pygame.Surface(common.window.get_size())
+        surf_to_blit = pygame.Surface(common.window.get_size())  # lgtm [py/call/wrong-named-argument]
         common.window.fill((12, 25, 145))
         surf_to_blit.fill((12, 25, 145))
         mouse_pos = list(pygame.mouse.get_pos())
@@ -284,12 +281,12 @@ class ShopState(BaseState):
         pos_to_blit.topleft = ((common.window.get_width() - 620) // 2, 0)
         common.window.blit(surf_to_blit, pos_to_blit)
 
-        darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()
+        darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()  # lgtm [py/call/wrong-named-argument]
         darken_surf.fill((0, 0, 0, self.normal_shop_alpha))
         common.window.blit(darken_surf, (0, 0))
 
         if self.show_buy_screen:
-            buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))
+            buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))  # lgtm [py/call/wrong-named-argument]
             buy_screen_pos = buy_screen_surf.get_rect(
                 center=(common.window.get_width() // 2, common.window.get_height() // 2))
             self.buy_screen_rect = buy_screen_pos
@@ -367,7 +364,7 @@ class ShopState(BaseState):
 class PauseState(BaseState):
     def __init__(self):
         super().__init__()
-        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),  # lgtm [py/call/wrong-named-argument]
                                           flags=pygame.SRCALPHA)
         pause_background.fill((0, 0, 0))
         pause_background.set_alpha(200)
@@ -454,7 +451,7 @@ class MenuState(BaseState):
 class GameOverState(BaseState):
     def __init__(self):
         super().__init__()
-        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),  # lgtm [py/call/wrong-named-argument]
                                           flags=pygame.SRCALPHA)
         pause_background.fill((0, 0, 0))
         pause_background.set_alpha(200)
@@ -533,7 +530,7 @@ class GameOverState(BaseState):
 class GameFinishedState(BaseState):
     def __init__(self):
         super().__init__()
-        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),
+        pause_background = pygame.Surface((common.window.get_width(), common.window.get_height()),  # lgtm [py/call/wrong-named-argument]
                                           flags=pygame.SRCALPHA)
         pause_background.fill((0, 0, 0))
         pause_background.set_alpha(200)
