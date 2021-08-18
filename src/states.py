@@ -123,7 +123,7 @@ class MainGameState(BaseState):
 
         if not common.DEBUG:
             dashboard = common.dashboard.render(world.get_width())
-            game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))
+            game_surf = pygame.Surface((world.get_width(), world.get_height() + dashboard.get_height()))  # lgtm [py/call/wrong-arguments]
             game_surf.fill(common.maps[common.active_map_id][1])
             game_surf.blit(dashboard, (0, 0))
             game_surf.blit(world, (0, dashboard.get_height()))
@@ -196,7 +196,7 @@ class ShopState(BaseState):
             self.exit_shop_button.handle_event(event, mouse_pos=mouse_pos)
 
     def run(self):
-        surf_to_blit = pygame.Surface(common.window.get_size())  # lgtm [py/call/wrong-named-argument]
+        surf_to_blit = pygame.Surface(common.window.get_size())  # lgtm [py/call/wrong-arguments]
         common.window.fill((12, 25, 145))
         surf_to_blit.fill((12, 25, 145))
         mouse_pos = list(pygame.mouse.get_pos())
@@ -281,12 +281,12 @@ class ShopState(BaseState):
         pos_to_blit.topleft = ((common.window.get_width() - 620) // 2, 0)
         common.window.blit(surf_to_blit, pos_to_blit)
 
-        darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()  # lgtm [py/call/wrong-named-argument]
+        darken_surf = pygame.Surface(common.window.get_size()).convert_alpha()  # lgtm [py/call/wrong-arguments]
         darken_surf.fill((0, 0, 0, self.normal_shop_alpha))
         common.window.blit(darken_surf, (0, 0))
 
         if self.show_buy_screen:
-            buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))  # lgtm [py/call/wrong-named-argument]
+            buy_screen_surf = pygame.Surface((450 / 620 * w, 450 / 620 * h))  # lgtm [py/call/wrong-arguments]
             buy_screen_pos = buy_screen_surf.get_rect(
                 center=(common.window.get_width() // 2, common.window.get_height() // 2))
             self.buy_screen_rect = buy_screen_pos

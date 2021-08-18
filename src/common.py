@@ -1,5 +1,3 @@
-import os
-
 import pygame
 import sys
 from pathlib import Path

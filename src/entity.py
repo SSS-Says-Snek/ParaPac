@@ -16,7 +16,7 @@ class Entity:
     ParaPac Entity class which abstracts a character/enemy in the game world.
     """
     COLLIDE_PRECISION = 100
-    PLACEHOLDER_SURFACE = pygame.Surface((16, 16))
+    PLACEHOLDER_SURFACE = pygame.Surface((16, 16))  # lgtm [py/call/wrong-arguments]
     PLACEHOLDER_SURFACE.fill((255, 0, 0))
 
     def __init__(self, x: int = 0, y: int = 0, z: int = 0):

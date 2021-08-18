@@ -150,7 +150,6 @@ def algorithm(array: numpy.array, start: Tuple[int, int], end: Tuple[int, int],
 if __name__ == "__main__":
     # Test stuff for snek (maybe someone else can help me with the recursive func?)
     from src import common, utils
-    import types
     import sys
 
     sys.setrecursionlimit(4000)
