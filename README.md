@@ -8,7 +8,7 @@
  You can use that mechanic to run from enemies or get into places you couldn't go from your position in that dimension alone.
 
 ## Team Members
-- [AvaxarXapaxa](https://github.com/AvaxarXapaxa): Artist, Developer
+- [Avaxar](https://github.com/avaxar): Artist, Developer
 - [coolstuff123](https://github.com/coolstuff123): Developer
 - [Potat](https://www.youtube.com/watch?v=dQw4w9WgXcQ): Artist
 - [SSS_Says_Snek](https://github.com/SSS-Says-Snek): Developer
